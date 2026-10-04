@@ -4,7 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>anjasportfolio</title>
+    <title>Anja van Staden</title>
+    <script>
+      // Apply the saved (or system) colour theme before the page paints.
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      } catch {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
+    <meta name="description" content="Portfolio of Anja van Staden, UI/UX designer and software engineer studying Computer Science and Operations Research at Stellenbosch University." />
   </head>
   <body>
     <div id="root"></div>

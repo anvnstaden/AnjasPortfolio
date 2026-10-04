@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="Anja van Staden, UI/UX designer and software engineer">
+  <style>
+    .title { font: 900 86px 'Arial Black', 'Helvetica Neue', Arial, sans-serif; letter-spacing: -4px; }
+    .sub { font: 600 26px 'Helvetica Neue', Arial, sans-serif; fill: #2d1e38; }
+    .pen { font: 34px 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive; fill: #e4553a; }
+    .spark { transform-box: fill-box; transform-origin: center; animation: twinkle 2.4s ease-in-out infinite; }
+    .s2 { animation-delay: .8s; }
+    .s3 { animation-delay: 1.6s; }
+    .blob { transform-box: fill-box; transform-origin: center; animation: breathe 6s ease-in-out infinite; }
+    .dot { animation: drift 7s ease-in-out infinite; }
+    @keyframes twinkle { 50% { transform: scale(.55) rotate(45deg); } }
+    @keyframes breathe { 50% { transform: scale(1.05) rotate(6deg); } }
+    @keyframes drift { 50% { transform: translate(14px, -18px); } }
+  </style>
+
+  <rect x="4" y="4" width="1192" height="352" rx="40" fill="#f1e7d3" stroke="#2d1e38" stroke-width="4" />
+
+  <!-- photo-style circle stack on the right -->
+  <path class="blob" d="M960 50c90-10 170 50 172 140 2 92-70 150-160 150-88 0-160-58-158-148 2-80 62-134 146-142Z" fill="#f39bc0" />
+  <circle cx="955" cy="180" r="118" fill="#b9a7f2" stroke="#2d1e38" stroke-width="4" />
+  <text x="955" y="205" text-anchor="middle" class="title" style="font-size: 72px; letter-spacing: -3px" fill="#2d1e38">AvS</text>
+  <circle class="dot" cx="852" cy="268" r="30" fill="#4fb286" stroke="#2d1e38" stroke-width="4" />
+
+  <!-- sparkles -->
+  <path class="spark" d="M1110 40c2 10 8 16 18 18-10 2-16 8-18 18-2-10-8-16-18-18 10-2 16-8 18-18Z" fill="#f0c65a" stroke="#2d1e38" stroke-width="2.5" />
+  <path class="spark s2" d="M800 70c1.5 8 6 12.5 14 14-8 1.5-12.5 6-14 14-1.5-8-6-12.5-14-14 8-1.5 12.5-6 14-14Z" fill="#4fb286" stroke="#2d1e38" stroke-width="2.5" />
+  <path class="spark s3" d="M1140 270c1.5 8 6 12.5 14 14-8 1.5-12.5 6-14 14-1.5-8-6-12.5-14-14 8-1.5 12.5-6 14-14Z" fill="#f39bc0" stroke="#2d1e38" stroke-width="2.5" />
+
+  <!-- text -->
+  <text x="70" y="78" class="sub" style="font-size: 18px; letter-spacing: 4px; font-weight: 800">HALLO! · PORTFOLIO</text>
+  <text x="66" y="160" class="title" fill="#2d1e38">Anja</text>
+  <text x="66" y="245" class="title" fill="#4fb286">van Staden</text>
+  <text x="70" y="290" class="sub">UI/UX designer <tspan class="pen" style="font-size: 30px">&amp;</tspan> software engineer</text>
+  <text x="72" y="330" class="pen" style="font-size: 26px; fill: #4b3a5a">designer at heart, software engineer by degree</text>
+  <path d="M70 338c180-8 400 6 580-4" fill="none" stroke="#4fb286" stroke-width="3" stroke-linecap="round" />
+</svg>

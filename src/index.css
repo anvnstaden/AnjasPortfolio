@@ -1,111 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Familjen+Grotesk:wght@400;500;700&family=Nanum+Pen+Script&display=swap');
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --cream: #f1e7d3;
+  --cream-deep: #e6d6b8;
+  --plum: #2d1e38;
+  --plum-soft: #4b3a5a;
+  --tomato: #e4553a;
+  --lilac: #b9a7f2;
+  --butter: #f0c65a;
+  --moss: #9aab66;
+  --pink: #f39bc0;
+  --green: #4fb286;
+  --ink: #2d1e38;
+  --paper: #f1e7d3;
+  --marker: #f7bcd5;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --display: 'Unbounded', 'Arial Black', sans-serif;
+  --body: 'Familjen Grotesk', 'Helvetica Neue', sans-serif;
+  --pen: 'Nanum Pen Script', 'Comic Sans MS', cursive;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  font: 18px/1.55 var(--body);
+  color: var(--plum);
+  background: var(--cream);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+
+/* Dark mode swaps the light and dark base colours; the bright accents stay the same. */
+:root[data-theme='dark'] {
+  --cream: #1c1422;
+  --cream-deep: #2b2034;
+  --plum: #f1e7d3;
+  --plum-soft: #c4b8d0;
+  --marker: rgb(243 155 192 / 0.45);
+  color-scheme: dark;
+}
+
+/* Custom cursor: a pink dot, turning into a green sparkle over anything clickable */
+html {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='7' fill='%23f39bc0' stroke='%232d1e38' stroke-width='2.5'/%3E%3C/svg%3E") 12 12, auto;
+}
+
+a,
+button,
+summary,
+label {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 40 40'%3E%3Cpath d='M20 2c2 10 8 16 18 18-10 2-16 8-18 18-2-10-8-16-18-18C12 18 18 12 20 2Z' fill='%234fb286' stroke='%232d1e38' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 17 17, pointer;
+}
+
+/* Scrollbar in the site colours: a pink pill on the page background, turning green on hover */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pink);
+  border: 3px solid var(--cream-deep);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green);
+}
+
+/* Browsers without the pseudo-elements above (e.g. Firefox) */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-color: var(--pink) var(--cream-deep);
   }
 }
 
 body {
   margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  transition: background-color 0.4s, color 0.4s;
+  background: var(--cream);
+  overflow-x: hidden;
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+h2,
+h3 {
+  font-family: var(--display);
   margin: 0;
+  line-height: 1;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+a {
+  color: inherit;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--tomato);
+  outline-offset: 4px;
+}
+
+::selection {
+  background: var(--tomato);
+  color: var(--cream);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
