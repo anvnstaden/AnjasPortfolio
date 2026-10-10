@@ -1,19 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Split from '../components/Split.jsx'
 import Title from '../components/Title.jsx'
 import ProjectThumb from '../components/ProjectThumb.jsx'
 import { FlagDE, FlagNL, FlagZA } from '../components/Flags.jsx'
-import { Circle, Sparkle, Underline } from '../components/Doodles.jsx'
-import { contact, projects, skills } from '../data/content.js'
+import { Circle, PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
+import { contact, funFacts, projects, skills } from '../data/content.js'
 
 // Look and feel of each card in the "What I bring" grid, in the same order as `skills`.
 const skillCards = [
-  { color: 'lilac', glyph: 'Aa', size: 'wide', note: 'my favourite!' },
+  { color: 'blue', glyph: 'Aa', size: 'wide', note: 'my favourite!' },
   { color: 'butter', glyph: '</>' },
   { color: 'plum', glyph: '{ }' },
-  { color: 'green', glyph: 'f(x)' },
-  { color: 'pink', glyph: 'git' },
+  { color: 'pink', glyph: 'f(x)' },
+  { color: 'blue', glyph: 'git' },
 ]
 
 const facts = [
@@ -23,9 +23,149 @@ const facts = [
   { label: 'Languages', value: 'English, Afrikaans, Deutsch (learning), Dutch (understands)' },
 ]
 
-function Hero() {
-  const [photoMissing, setPhotoMissing] = useState(false)
+// How far (px) you scroll before the badge rips off the navbar.
+const RIP_AT = 60
 
+// Keeps the badge hanging from the navbar: measures how long its strap must be to reach up under
+// the navbar, holds it in place as the page starts scrolling, and rips it (strap and all) off past RIP_AT.
+// It hangs back up when you return to the top.
+function useRipOffNavbar(badge) {
+  const [state, setState] = useState('hanging') // 'hanging' | 'ripped' | 'rehung'
+
+  useEffect(() => {
+    const visual = badge.current.parentElement
+    const nav = document.querySelector('.nav')
+    if (!nav) return
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches
+    let ripped = false
+    let frame = 0
+
+    // Offsets ignore transforms, so this works while the hero is still popping in.
+    const measure = () => {
+      let top = badge.current.offsetTop
+      for (let el = visual; el; el = el.offsetParent) top += el.offsetTop
+      const navBottom = parseFloat(getComputedStyle(nav).top) + nav.offsetHeight
+      visual.style.setProperty('--reach', `${Math.max(0, top - navBottom + 16)}px`)
+    }
+
+    const update = () => {
+      frame = 0
+      const y = window.scrollY
+      if (!ripped && y >= RIP_AT && !still) {
+        ripped = true
+        visual.style.setProperty('--pull', `${RIP_AT}px`)
+        visual.style.setProperty('--tension', 1)
+        setState('ripped')
+      } else if (ripped && y < 10) {
+        ripped = false
+        setState('rehung')
+      }
+      if (!ripped && !still) {
+        visual.style.setProperty('--pull', `${y}px`)
+        visual.style.setProperty('--tension', (y / RIP_AT) ** 2)
+      }
+    }
+    const onScroll = () => {
+      frame ||= requestAnimationFrame(update)
+    }
+
+    // Re-measure whenever the hero's layout shifts (resizing, web fonts loading in).
+    const hero = visual.parentElement
+    const resized = new ResizeObserver(measure)
+    for (const el of [hero, ...hero.children, nav]) resized.observe(el)
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      cancelAnimationFrame(frame)
+      resized.disconnect()
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [badge])
+
+  return state === 'hanging' ? '' : ` ${state}`
+}
+
+// A small spinning globe: a strip of landmasses (two copies of the same map) slides sideways behind a round window.
+function Globe() {
+  const land = [
+    'M18 22 34 14 52 16 62 24 56 34 48 44 40 46 34 36 22 32Z',
+    'M46 52 58 52 66 62 60 78 52 88 48 72Z',
+    'M92 22 104 14 116 18 112 28 100 32 92 30Z',
+    'M96 36 112 34 124 44 118 62 108 72 100 58 94 46Z',
+    'M118 18 140 10 170 14 178 28 166 40 150 46 136 38 124 30Z',
+    'M162 62 178 60 184 72 170 80 160 72Z',
+  ]
+  return (
+    <span className="globe" aria-hidden="true">
+      <svg className="globe-map" viewBox="0 0 400 100">
+        {[0, 200].map((x) => (
+          <g key={x} transform={`translate(${x} 0)`}>
+            {land.map((d) => <path key={d} d={d} />)}
+          </g>
+        ))}
+      </svg>
+    </span>
+  )
+}
+
+// Hanging ID badge with the profile photo. It flips over on hover (or tap / Enter) to show fun facts.
+function IdBadge() {
+  const [photoMissing, setPhotoMissing] = useState(false)
+  const [flipped, setFlipped] = useState(false)
+  const flip = () => setFlipped((f) => !f)
+  const badge = useRef(null)
+  const rip = useRipOffNavbar(badge)
+
+  return (
+    <div
+      ref={badge}
+      className={`badge${flipped ? ' flipped' : ''}${rip}`}
+      role="button"
+      tabIndex={0}
+      aria-pressed={flipped}
+      aria-label="ID badge for Anja van Staden. Flip it over for some fun facts."
+      onClick={() => !window.matchMedia('(hover: hover)').matches && flip()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          flip()
+        }
+      }}
+    >
+      <span className="badge-strap" aria-hidden="true" />
+      <span className="badge-clip" aria-hidden="true" />
+      <div className="badge-card">
+        <div className="badge-face badge-front">
+          <span className="badge-slot" aria-hidden="true" />
+          <p className="badge-head">
+              <Globe /> open to work from 2027
+            </p>
+          <div className="badge-photo">
+            {photoMissing ? (
+              <span className="monogram">AvS</span>
+            ) : (
+              <img src="/profile.jpeg" alt="Anja van Staden" onError={() => setPhotoMissing(true)} />
+            )}
+          </div>
+          <p className="badge-name">Anja<br />van Staden</p>
+          <p className="badge-role">UI/UX designer &amp; software engineer</p>
+          <span className="badge-barcode" aria-hidden="true" />
+        </div>
+        <div className="badge-face badge-back">
+          <span className="badge-slot" aria-hidden="true" />
+          <p className="pen badge-back-title">fun facts!</p>
+          <ul>
+            {funFacts.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Hero() {
   return (
     <section className="hero">
       <div className="hero-text">
@@ -54,17 +194,8 @@ function Hero() {
 
       <div className="hero-visual">
         <div className="photo-blob" aria-hidden="true" />
-        <div className="photo-dot" aria-hidden="true" />
-        <div className="photo">
-          {photoMissing ? (
-            <span className="monogram">AvS</span>
-          ) : (
-            <img src="/profile.jpeg" alt="Anja van Staden" onError={() => setPhotoMissing(true)} />
-          )}
-        </div>
-        <span className="photo-status">
-          <i aria-hidden="true" /> open to work from 2027
-        </span>
+        <IdBadge />
+        <span className="pen badge-hint" aria-hidden="true">psst… flip me!</span>
         <Sparkle className="s1" />
         <Sparkle className="s2" />
         <Sparkle className="s3" />
@@ -103,6 +234,7 @@ export default function Home() {
               <li>finishing up my BSc Computer Science degree</li>
               <li>practising my German Vokabeln</li>
             </ul>
+            <PointingHand className="note-hand" />
           </aside>
         </div>
         <dl className="facts">

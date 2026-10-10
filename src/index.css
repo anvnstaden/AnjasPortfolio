@@ -1,19 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Familjen+Grotesk:wght@400;500;700&family=Nanum+Pen+Script&display=swap');
 
 :root {
-  --cream: #f1e7d3;
-  --cream-deep: #e6d6b8;
-  --plum: #2d1e38;
-  --plum-soft: #4b3a5a;
-  --tomato: #e4553a;
-  --lilac: #b9a7f2;
-  --butter: #f0c65a;
-  --moss: #9aab66;
-  --pink: #f39bc0;
-  --green: #4fb286;
-  --ink: #2d1e38;
-  --paper: #f1e7d3;
-  --marker: #f7bcd5;
+  /* Palette: ivory paper, navy ink, and three accents (blue, pink, butter). */
+  --ivory: #fbf8f1;
+  --ink: #000a1a;
+  --blue: #0e4798;
+  --pink: #dfa4b8;
+  --butter: #f7de93;
+
+  /* Theme roles built from the palette (swapped in dark mode) */
+  --cream: var(--ivory);
+  --cream-deep: #f2ede2;
+  --paper: var(--ivory);
+  --plum: var(--ink);
+  --plum-soft: #464f5f;
+  --accent: var(--blue);
+  --marker: rgb(223 164 184 / 0.55);
 
   --display: 'Unbounded', 'Arial Black', sans-serif;
   --body: 'Familjen Grotesk', 'Helvetica Neue', sans-serif;
@@ -36,29 +38,30 @@ html {
   scroll-padding-top: 72px;
 }
 
-/* Dark mode swaps the light and dark base colours; the bright accents stay the same. */
+/* Dark mode swaps the light and dark base colours; accent text gets a lighter tint of the blue. */
 :root[data-theme='dark'] {
-  --cream: #1c1422;
-  --cream-deep: #2b2034;
-  --plum: #f1e7d3;
-  --plum-soft: #c4b8d0;
-  --marker: rgb(243 155 192 / 0.45);
+  --cream: #0b1629;
+  --cream-deep: #16233a;
+  --plum: var(--ivory);
+  --plum-soft: #b8c0cd;
+  --accent: #8fb0e6;
+  --marker: rgb(223 164 184 / 0.4);
   color-scheme: dark;
 }
 
-/* Custom cursor: a pink dot, turning into a green sparkle over anything clickable */
+/* Custom cursor: a pink dot, turning into a blue sparkle over anything clickable */
 html {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='7' fill='%23f39bc0' stroke='%232d1e38' stroke-width='2.5'/%3E%3C/svg%3E") 12 12, auto;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='7' fill='%23dfa4b8' stroke='%23000a1a' stroke-width='2.5'/%3E%3C/svg%3E") 12 12, auto;
 }
 
 a,
 button,
 summary,
 label {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 40 40'%3E%3Cpath d='M20 2c2 10 8 16 18 18-10 2-16 8-18 18-2-10-8-16-18-18C12 18 18 12 20 2Z' fill='%234fb286' stroke='%232d1e38' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 17 17, pointer;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 40 40'%3E%3Cpath d='M20 2c2 10 8 16 18 18-10 2-16 8-18 18-2-10-8-16-18-18C12 18 18 12 20 2Z' fill='%230e4798' stroke='%23000a1a' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 17 17, pointer;
 }
 
-/* Scrollbar in the site colours: a pink pill on the page background, turning green on hover */
+/* Scrollbar in the site colours: a pink pill on the page background, turning blue on hover */
 ::-webkit-scrollbar {
   width: 14px;
   height: 14px;
@@ -75,7 +78,7 @@ label {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--green);
+  background: var(--blue);
 }
 
 /* Browsers without the pseudo-elements above (e.g. Firefox) */
@@ -106,13 +109,13 @@ a {
 
 a:focus-visible,
 button:focus-visible {
-  outline: 3px solid var(--tomato);
+  outline: 3px solid var(--blue);
   outline-offset: 4px;
 }
 
 ::selection {
-  background: var(--tomato);
-  color: var(--cream);
+  background: var(--blue);
+  color: var(--paper);
 }
 
 @media (prefers-reduced-motion: reduce) {

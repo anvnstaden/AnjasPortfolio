@@ -31,3 +31,9 @@ export function Sparkle({ className = '' }) {
     </svg>
   )
 }
+
+// A pointing hand (public/hand.svg; it points up and to the left, CSS rotates it). It taps the
+// "Get in touch" button and presses the sticky note on.
+export function PointingHand({ className }) {
+  return <img className={className} src="/hand.svg" alt="" aria-hidden="true" />
+}

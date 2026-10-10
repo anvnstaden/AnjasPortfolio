@@ -1,4 +1,4 @@
-const colors = ['pink', 'green', 'lilac', 'butter', 'tomato']
+const colors = ['pink', 'blue', 'butter', 'plum']
 
 // Shows the project's first screenshot, or a coloured placeholder until one is added.
 export default function ProjectThumb({ project, index }) {

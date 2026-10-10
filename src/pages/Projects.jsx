@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Split from '../components/Split.jsx'
-import { Sparkle, Underline } from '../components/Doodles.jsx'
+import { PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
 import { projects } from '../data/content.js'
 
 // Number of placeholder slots shown until a project has screenshots.
@@ -9,53 +9,90 @@ const PLACEHOLDER_SLOTS = 3
 
 const pad = (n) => String(n).padStart(2, '0')
 
-function Gallery({ project, onOpen }) {
+// Horizontal carousel of screenshots. Every slide keeps its screenshot's own proportions (nothing is
+// cropped), the active one sits in the middle and its neighbours fade out towards the page background.
+function Carousel({ project, onOpen }) {
   const [active, setActive] = useState(0)
+  const swipe = useRef({ x: null, moved: false })
   const images = project.images
   const slots = images.length ? images : Array(PLACEHOLDER_SLOTS).fill(null)
+  const go = (i) => setActive(Math.min(slots.length - 1, Math.max(0, i)))
   const current = slots[active]
-  const step = (d) => setActive((a) => (a + d + slots.length) % slots.length)
+
+  const onPointerDown = (e) => {
+    swipe.current = { x: e.clientX, moved: false }
+  }
+  const onPointerUp = (e) => {
+    const { x } = swipe.current
+    if (x !== null && Math.abs(e.clientX - x) > 50) {
+      swipe.current.moved = true
+      go(active + (e.clientX < x ? 1 : -1))
+    }
+  }
+  const onSlide = (img, i) => {
+    if (swipe.current.moved) return
+    if (i !== active) go(i)
+    else if (img) onOpen(images, i)
+  }
 
   return (
-    <div className="visual gallery">
-      <figure className="frame">
-        <div className="frame-bar">
-          <span className="dots" aria-hidden="true"><i /><i /><i /></span>
-          <span className="frame-count">{active + 1} / {slots.length}</span>
+    <div
+      className="visual carousel"
+      role="group"
+      aria-roledescription="carousel"
+      aria-label={`${project.title} screenshots`}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowRight') go(active + 1)
+        if (e.key === 'ArrowLeft') go(active - 1)
+      }}
+    >
+      <div className="carousel-stage">
+        <div className="carousel-view" onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+          <ul className="carousel-track" style={{ '--i': active }}>
+            {slots.map((img, i) => (
+              <li key={img?.src ?? i} className={i === active ? 'slide active' : 'slide'}>
+                <button
+                  type="button"
+                  className="slide-btn"
+                  tabIndex={i === active ? 0 : -1}
+                  aria-label={i === active ? (img ? 'Open this screenshot full size' : `Screenshot ${i + 1}`) : `Show screenshot ${i + 1}`}
+                  onClick={() => onSlide(img, i)}
+                >
+                  {img ? (
+                    <img src={img.src} alt={img.caption || `${project.title} screenshot ${i + 1}`} loading="lazy" draggable="false" />
+                  ) : (
+                    <span className="slide-empty">
+                      <span>Screenshot {i + 1}</span>
+                      <span className="pen">coming soon!</span>
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="frame-view">
-          {current ? (
-            <button type="button" className="frame-image" onClick={() => onOpen(images, active)}>
-              <img src={current.src} alt={current.caption || `${project.title} screenshot ${active + 1}`} loading="lazy" />
-            </button>
-          ) : (
-            <div className="frame-empty">
-              <span>Screenshot {active + 1}</span>
-              <span className="pen">coming soon!</span>
-            </div>
-          )}
-          {slots.length > 1 && (
-            <>
-              <button type="button" className="frame-nav prev" onClick={() => step(-1)} aria-label="Previous screenshot">←</button>
-              <button type="button" className="frame-nav next" onClick={() => step(1)} aria-label="Next screenshot">→</button>
-            </>
-          )}
-        </div>
-        {current?.caption && <figcaption>{current.caption}</figcaption>}
-      </figure>
-      <div className="thumbs">
-        {slots.map((img, i) => (
-          <button
-            type="button"
-            key={img?.src ?? i}
-            className={i === active ? 'active' : ''}
-            onClick={() => setActive(i)}
-            aria-label={`Show screenshot ${i + 1}`}
-          >
-            {img ? <img src={img.src} alt="" loading="lazy" /> : <span>{i + 1}</span>}
-          </button>
-        ))}
+        {slots.length > 1 && (
+          <>
+            <button type="button" className="carousel-nav prev" onClick={() => go(active - 1)} disabled={active === 0} aria-label="Previous screenshot">←</button>
+            <button type="button" className="carousel-nav next" onClick={() => go(active + 1)} disabled={active === slots.length - 1} aria-label="Next screenshot">→</button>
+          </>
+        )}
       </div>
+      <p className="carousel-caption" aria-live="polite">{current?.caption}</p>
+      {slots.length > 1 && (
+        <div className="carousel-dots">
+          <span className="carousel-count">{active + 1} / {slots.length}</span>
+          {slots.map((img, i) => (
+            <button
+              type="button"
+              key={img?.src ?? i}
+              className={i === active ? 'active' : ''}
+              onClick={() => go(i)}
+              aria-label={`Show screenshot ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -149,24 +186,6 @@ function PeekingEyes() {
   )
 }
 
-// A cartoon hand pointing left, used to tap the "Get in touch" button.
-function PointingHand({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 124 72" aria-hidden="true">
-      <path d="M88 10h28a4 4 0 0 1 4 4v42a4 4 0 0 1-4 4H88Z" fill="var(--pink)" stroke="var(--ink)" strokeWidth="3" strokeLinejoin="round" />
-      <path
-        d="M90 14H60c-8 0-14 5-16 12H14a9 9 0 0 0 0 18h30c2 8 8 14 17 14h29Z"
-        fill="#f6c9a8"
-        stroke="var(--ink)"
-        strokeWidth="3"
-        strokeLinejoin="round"
-      />
-      <path d="M58 44h22M58 51h20M60 26c6-6 16-6 22-2" fill="none" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M10 30c4 0 6 2 6 5" fill="none" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 // Toggles .shown on each project as it enters and leaves the viewport, so it animates both ways.
 function useInOutView(selector) {
   useEffect(() => {
@@ -221,31 +240,47 @@ export default function Projects() {
       </header>
 
       {projects.map((p, i) => (
-        <article id={p.slug} key={p.slug} className={`project-entry${i % 2 ? ' flip' : ''}`}>
+        <article
+          id={p.slug}
+          key={p.slug}
+          className={`project-entry${p.gui === false ? (i % 2 ? ' flip' : '') : ' wide'}`}
+        >
           <span className="entry-bignum" aria-hidden="true">{pad(i + 1)}</span>
           <div className="project-info">
-            <div className="project-top">
-              <p className="card-kind">{p.kind}</p>
-              {p.meta && <span className="project-meta">{p.meta}</span>}
+            <div className="project-head">
+              <div className="project-top">
+                <p className="card-kind">{p.kind}</p>
+                <div className="project-badges">
+                  {p.mark && (
+                    <span className={`project-mark${p.mark === 'TBA' ? ' pending' : ''}`}>
+                      {p.mark === 'TBA' ? 'Mark: TBA · in progress' : <>Mark <strong>{p.mark}</strong></>}
+                    </span>
+                  )}
+                  {p.meta && <span className="project-meta">{p.meta}</span>}
+                </div>
+              </div>
+              <h2 className="entry-title">
+                <Split text={p.title} />
+                {p.note && <span className="pen entry-note">{p.note}</span>}
+              </h2>
             </div>
-            <h2 className="entry-title">
-              <Split text={p.title} />
-              {p.note && <span className="pen entry-note">{p.note}</span>}
-            </h2>
-            <p>{p.description}</p>
-            <ul className="tags">
-              {p.tags.map((t, j) => (
-                <li key={t} style={{ '--t': j }}>{t}</li>
-              ))}
-            </ul>
-            {p.link && (
-              <a href={p.link} className="text-link" target="_blank" rel="noreferrer">View project ↗</a>
-            )}
+            <div className="project-body">
+              <p>{p.description}</p>
+              {p.theme && <p className="project-theme">{p.theme}</p>}
+              <ul className="tags">
+                {p.tags.map((t, j) => (
+                  <li key={t} style={{ '--t': j }}>{t}</li>
+                ))}
+              </ul>
+              {p.link && (
+                <a href={p.link} className="text-link" target="_blank" rel="noreferrer">View project ↗</a>
+              )}
+            </div>
           </div>
           {p.gui === false ? (
             <Highlights project={p} />
           ) : (
-            <Gallery project={p} onOpen={(images, index) => setZoomed({ images, index })} />
+            <Carousel project={p} onOpen={(images, index) => setZoomed({ images, index })} />
           )}
         </article>
       ))}
