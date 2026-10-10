@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import Split from '../components/Split.jsx'
-import { PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
-import { projects } from '../data/content.js'
+import Media from '../components/Media.jsx'
+import { NavArrow, PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
+import { projects, skillProjects } from '../data/content.js'
 
 // Number of placeholder slots shown until a project has screenshots.
 const PLACEHOLDER_SLOTS = 3
@@ -37,7 +38,8 @@ function Carousel({ project, onOpen }) {
 
   return (
     <div
-      className="visual carousel"
+      className={`visual carousel${project.portrait ? ' portrait' : ''}`}
+      style={project.ratio && { '--ratio': project.ratio }}
       role="group"
       aria-roledescription="carousel"
       aria-label={`${project.title} screenshots`}
@@ -59,7 +61,7 @@ function Carousel({ project, onOpen }) {
                   onClick={() => onSlide(img, i)}
                 >
                   {img ? (
-                    <img src={img.src} alt={img.caption || `${project.title} screenshot ${i + 1}`} loading="lazy" draggable="false" />
+                    <Media src={img.src} alt={img.caption || `${project.title} screenshot ${i + 1}`} loading="lazy" draggable="false" />
                   ) : (
                     <span className="slide-empty">
                       <span>Screenshot {i + 1}</span>
@@ -73,8 +75,8 @@ function Carousel({ project, onOpen }) {
         </div>
         {slots.length > 1 && (
           <>
-            <button type="button" className="carousel-nav prev" onClick={() => go(active - 1)} disabled={active === 0} aria-label="Previous screenshot">←</button>
-            <button type="button" className="carousel-nav next" onClick={() => go(active + 1)} disabled={active === slots.length - 1} aria-label="Next screenshot">→</button>
+            <button type="button" className="carousel-nav prev" onClick={() => go(active - 1)} disabled={active === 0} aria-label="Previous screenshot"><NavArrow left /></button>
+            <button type="button" className="carousel-nav next" onClick={() => go(active + 1)} disabled={active === slots.length - 1} aria-label="Next screenshot"><NavArrow /></button>
           </>
         )}
       </div>
@@ -145,11 +147,11 @@ function Lightbox({ open, onClose }) {
     >
       {image && (
         <>
-          <img src={image.src} alt={image.caption || ''} />
+          <Media src={image.src} alt={image.caption || ''} />
           <div className="lightbox-bar">
-            <button type="button" onClick={() => step(-1)} aria-label="Previous screenshot">←</button>
+            <button type="button" onClick={() => step(-1)} aria-label="Previous screenshot"><NavArrow left /></button>
             <span>{image.caption || `${index + 1} / ${images.length}`}</span>
-            <button type="button" onClick={() => step(1)} aria-label="Next screenshot">→</button>
+            <button type="button" onClick={() => step(1)} aria-label="Next screenshot"><NavArrow /></button>
           </div>
           <button type="button" className="lightbox-close" onClick={() => dialog.current.close()} aria-label="Close">×</button>
         </>
@@ -187,7 +189,7 @@ function PeekingEyes() {
 }
 
 // Toggles .shown on each project as it enters and leaves the viewport, so it animates both ways.
-function useInOutView(selector) {
+function useInOutView(selector, key) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.target.classList.toggle('shown', e.isIntersecting)),
@@ -195,24 +197,30 @@ function useInOutView(selector) {
     )
     document.querySelectorAll(selector).forEach((el) => observer.observe(el))
     return () => observer.disconnect()
-  }, [selector])
+  }, [selector, key])
 }
 
 export default function Projects() {
   const [zoomed, setZoomed] = useState(null)
-  useInOutView('.project-entry')
+  // Coming from a skill on the home page (?skill=Java) shows only the projects that use it
+  const [params, setParams] = useSearchParams()
+  const skill = params.get('skill')
+  const only = skill && skillProjects[skill]
+  const shown = only ? projects.filter((p) => only.includes(p.slug)) : projects
+  const num = (p) => pad(projects.indexOf(p) + 1)
+  useInOutView('.project-entry', skill)
 
   return (
     <main className="projects-page">
       <header className="projects-head">
         <h1 className="ph-title title reveal">
-          <Split text="All the cool things I've" className="ph-line" />
           <span className="ph-line">
+            <Split text="My" />
             <span className="ph-box">
-              <Split text="built" offset={10} />
+              <Split text="Projects" offset={2} />
             </span>
             <span className="ph-de pen write" lang="de">
-              was ich gebaut habe
+              meine Projekte
               <Underline className="draw" />
             </span>
           </span>
@@ -227,11 +235,19 @@ export default function Projects() {
           These are all my solo and group projects I have completed during University, spanning UI design, frontend, full-stack, networking and systems,
           newest first.
         </p>
+        {only && (
+          <p className="skill-filter">
+            <span>
+              Showing {shown.length === 1 ? 'the project' : `the ${shown.length} projects`} where I used <strong>{skill}</strong>
+            </span>
+            <button type="button" onClick={() => setParams({})}>show all</button>
+          </p>
+        )}
         <ol className="project-index">
-          {projects.map((p, i) => (
+          {shown.map((p, i) => (
             <li key={p.slug} className="reveal" style={{ '--d': `${i * 40}ms` }}>
               <a href={`#${p.slug}`}>
-                <span>{pad(i + 1)}</span> {p.title}
+                <span>{num(p)}</span> {p.title}
                 {p.gui === false && <em>no GUI</em>}
               </a>
             </li>
@@ -239,21 +255,20 @@ export default function Projects() {
         </ol>
       </header>
 
-      {projects.map((p, i) => (
+      {shown.map((p, i) => (
         <article
           id={p.slug}
           key={p.slug}
           className={`project-entry${p.gui === false ? (i % 2 ? ' flip' : '') : ' wide'}`}
         >
-          <span className="entry-bignum" aria-hidden="true">{pad(i + 1)}</span>
+          <span className="entry-bignum" aria-hidden="true">{num(p)}</span>
           <div className="project-info">
             <div className="project-head">
               <div className="project-top">
-                <p className="card-kind">{p.kind}</p>
                 <div className="project-badges">
                   {p.mark && (
                     <span className={`project-mark${p.mark === 'TBA' ? ' pending' : ''}`}>
-                      {p.mark === 'TBA' ? 'Mark: TBA · in progress' : <>Mark <strong>{p.mark}</strong></>}
+                      Mark <strong>{p.mark}</strong>
                     </span>
                   )}
                   {p.meta && <span className="project-meta">{p.meta}</span>}
@@ -263,17 +278,13 @@ export default function Projects() {
                 <Split text={p.title} />
                 {p.note && <span className="pen entry-note">{p.note}</span>}
               </h2>
+              {p.module && <p className="project-module">Module: <strong>{p.module}</strong></p>}
             </div>
             <div className="project-body">
               <p>{p.description}</p>
               {p.theme && <p className="project-theme">{p.theme}</p>}
-              <ul className="tags">
-                {p.tags.map((t, j) => (
-                  <li key={t} style={{ '--t': j }}>{t}</li>
-                ))}
-              </ul>
               {p.link && (
-                <a href={p.link} className="text-link" target="_blank" rel="noreferrer">View project ↗</a>
+                <a href={p.link} className="text-link" target="_blank" rel="noreferrer">View project <NavArrow inline out /></a>
               )}
             </div>
           </div>

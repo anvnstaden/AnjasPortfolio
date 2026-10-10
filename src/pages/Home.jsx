@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom'
 import Split from '../components/Split.jsx'
 import Title from '../components/Title.jsx'
 import ProjectThumb from '../components/ProjectThumb.jsx'
+import Journey from '../components/Journey.jsx'
 import { FlagDE, FlagNL, FlagZA } from '../components/Flags.jsx'
-import { Circle, PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
-import { contact, funFacts, projects, skills } from '../data/content.js'
+import { Circle, NavArrow, PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
+import { contact, funFacts, projects, skillProjects, skills } from '../data/content.js'
 
-// Look and feel of each card in the "What I bring" grid, in the same order as `skills`.
+// Look and feel of each card in the "My Skills" grid, in the same order as `skills`.
 const skillCards = [
   { color: 'blue', glyph: 'Aa', size: 'wide', note: 'my favourite!' },
   { color: 'butter', glyph: '</>' },
@@ -16,18 +17,125 @@ const skillCards = [
   { color: 'blue', glyph: 'git' },
 ]
 
-const facts = [
-  { label: 'Citizenship', value: 'South African & Dutch', flags: [FlagZA, FlagNL] },
-  { label: 'Work rights', value: 'EU authorisation, no visa or sponsorship needed' },
-  { label: 'Looking for', value: 'Roles anywhere in Germany from 2027', flags: [FlagDE] },
-  { label: 'Languages', value: 'English, Afrikaans, Deutsch (learning), Dutch (understands)' },
+// The big symbol in the corner of each skill card, each with its own little animation on hover:
+// "Aa" flicks through fonts, "</>" types itself out, "{ }" opens and closes, "f(x)" draws its graph and
+// "git" draws a branch that merges back in.
+function SkillGlyph({ kind }) {
+  if (kind === 'Aa') {
+    return (
+      <span className="bento-glyph glyph-fonts" aria-hidden="true">
+        <span>Aa</span><span>Aa</span><span>Aa</span><span>Aa</span>
+      </span>
+    )
+  }
+  if (kind === '</>') {
+    return (
+      <span className="bento-glyph glyph-type" aria-hidden="true">
+        {[...'</>'].map((ch, k) => <span key={k} style={{ '--k': k }}>{ch}</span>)}
+        <i className="caret" />
+      </span>
+    )
+  }
+  if (kind === '{ }') {
+    return (
+      <span className="bento-glyph glyph-braces" aria-hidden="true">
+        <span>{'{'}</span><span className="dots">···</span><span>{'}'}</span>
+      </span>
+    )
+  }
+  if (kind === 'f(x)') {
+    return (
+      <span className="bento-glyph glyph-graph" aria-hidden="true">
+        f(x)
+        <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+          <path pathLength="1" d="M0 46C18 46 22 10 42 10S66 50 86 50 110 6 130 6 156 40 176 30 196 14 200 12" />
+        </svg>
+      </span>
+    )
+  }
+  return (
+    <span className="bento-glyph glyph-git" aria-hidden="true">
+      git
+      <svg viewBox="0 0 200 70">
+        <path className="trunk" pathLength="1" d="M8 52H192" />
+        <path className="branch" pathLength="1" d="M48 52C68 52 68 16 92 16H120C144 16 144 52 164 52" />
+        <circle cx="8" cy="52" r="7" />
+        <circle cx="48" cy="52" r="7" />
+        <circle className="late" cx="106" cy="16" r="7" />
+        <circle className="late" cx="164" cy="52" r="7" />
+        <circle cx="192" cy="52" r="7" />
+      </svg>
+    </span>
+  )
+}
+
+const projectTitle = Object.fromEntries(projects.map((p) => [p.slug, p.title]))
+const listOf = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0])
+
+// One skill card. Skills used in my projects are links: hovering (or tabbing to) one shows which projects
+// at the bottom of the card, and clicking it opens the projects page showing just those.
+function SkillCard({ group, items, look, i }) {
+  const [active, setActive] = useState(null)
+  const linked = items.some((s) => skillProjects[s])
+  const used = active && skillProjects[active]
+  return (
+    <article
+      className={`bento-card tilt reveal pop ${look.color} ${look.size || ''}`}
+      style={{ '--d': `${i * 90}ms`, '--r': `${i % 2 ? 3 : -3}deg` }}
+    >
+      <SkillGlyph kind={look.glyph} />
+      <h3>
+        {group}
+        {look.note && <span className="pen bento-note write">{look.note}</span>}
+      </h3>
+      <ul>
+        {items.map((s) => (
+          <li key={s} className={skillProjects[s] ? 'linked' : undefined}>
+            {skillProjects[s] ? (
+              <Link
+                to={`/projects?skill=${encodeURIComponent(s)}`}
+                onMouseEnter={() => setActive(s)}
+                onMouseLeave={() => setActive(null)}
+                onFocus={() => setActive(s)}
+                onBlur={() => setActive(null)}
+              >
+                {s}
+              </Link>
+            ) : (
+              s
+            )}
+          </li>
+        ))}
+      </ul>
+      {linked && (
+        <p className={`bento-used${used ? ' on' : ''}`} aria-live="polite">
+          {used ? (
+            <>
+              <strong>{active}</strong> in {listOf(used.map((slug) => projectTitle[slug]))}
+            </>
+          ) : (
+            <span className="pen">hover a skill to see where I used it</span>
+          )}
+        </p>
+      )}
+    </article>
+  )
+}
+
+// Languages for the chat-bubble card: how each one says hello, and how well I speak it.
+const languages = [
+  { name: 'English', hello: 'Hello!', level: 'fluent' },
+  { name: 'Afrikaans', hello: 'Hallo!', level: 'fluent' },
+  { name: 'Deutsch', hello: 'Guten Tag!', level: 'learning', typing: true },
+  { name: 'Nederlands', hello: 'Hoi!', level: 'understand' },
 ]
 
 // How far (px) you scroll before the badge rips off the navbar.
 const RIP_AT = 60
 
-// Keeps the badge hanging from the navbar: measures how long its strap must be to reach up under
-// the navbar, holds it in place as the page starts scrolling, and rips it (strap and all) off past RIP_AT.
+// Keeps the badge hanging from the top of the browser: measures how long its strap must be to reach
+// all the way up (behind the navbar), holds it in place as the page starts scrolling, and rips it
+// (strap and all) off past RIP_AT.
 // It hangs back up when you return to the top.
 function useRipOffNavbar(badge) {
   const [state, setState] = useState('hanging') // 'hanging' | 'ripped' | 'rehung'
@@ -44,8 +152,7 @@ function useRipOffNavbar(badge) {
     const measure = () => {
       let top = badge.current.offsetTop
       for (let el = visual; el; el = el.offsetParent) top += el.offsetTop
-      const navBottom = parseFloat(getComputedStyle(nav).top) + nav.offsetHeight
-      visual.style.setProperty('--reach', `${Math.max(0, top - navBottom + 16)}px`)
+      visual.style.setProperty('--reach', `${Math.max(0, top + 4)}px`)
     }
 
     const update = () => {
@@ -195,7 +302,7 @@ function Hero() {
       <div className="hero-visual">
         <div className="photo-blob" aria-hidden="true" />
         <IdBadge />
-        <span className="pen badge-hint" aria-hidden="true">psst… flip me!</span>
+        <span className="pen badge-hint" aria-hidden="true">psst... flip me!</span>
         <Sparkle className="s1" />
         <Sparkle className="s2" />
         <Sparkle className="s3" />
@@ -204,14 +311,49 @@ function Hero() {
   )
 }
 
+// Opens the contact envelope every time most of it scrolls into view: the flap folds open, the letter
+// slides up, and the links pop out (all timed in CSS off the .open class). Once it has gone completely
+// off screen it closes again, ready to open the next time you come back.
+function useEnvelope(envelope) {
+  useEffect(() => {
+    const el = envelope.current
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio >= 0.6) {
+          el.classList.add('open')
+          el.classList.remove('shut')
+        } else if (!entry.isIntersecting) el.classList.remove('open', 'shut')
+      },
+      { threshold: [0, 0.6] },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [envelope])
+
+  // Clicking the envelope (anywhere but the email link) closes the letter back up, or opens it again.
+  // Closing it this way (.shut) shows a little "click me!" prompt until it's opened again.
+  const toggle = (e) => {
+    if (e.target.closest('a')) return
+    if (e.type === 'keydown') {
+      if (e.key !== 'Enter' && e.key !== ' ') return
+      e.preventDefault()
+    }
+    const open = envelope.current.classList.toggle('open')
+    envelope.current.classList.toggle('shut', !open)
+  }
+  return toggle
+}
+
 export default function Home() {
   const featured = projects.filter((p) => p.featured)
+  const envelope = useRef(null)
+  const toggleEnvelope = useEnvelope(envelope)
 
   return (
     <main>
       <Hero />
 
-      <section id="about" className="section">
+      <section id="about" className="section slide-section from-left">
         <Title en="About Me" de="Über mich" />
         <div className="about-grid">
           <div className="statements">
@@ -229,37 +371,117 @@ export default function Home() {
             </p>
           </div>
           <aside className="sticky-note reveal pop" style={{ '--d': '200ms' }}>
-            <p>Currently…</p>
+            <p>Currently...</p>
             <ul>
-              <li>finishing up my BSc Computer Science degree</li>
-              <li>practising my German Vokabeln</li>
+              <li><NavArrow inline pen />finishing up my BSc Computer Science degree</li>
+              <li><NavArrow inline pen />practising my German Vokabeln</li>
             </ul>
             <PointingHand className="note-hand" />
           </aside>
         </div>
+        {/* Quick facts as little travel documents: passports, a visa stamp, a boarding pass and chat bubbles */}
         <dl className="facts">
-          {facts.map((f, i) => (
-            <div key={f.label} className="fact tilt reveal" style={{ '--d': `${i * 90}ms` }}>
-              <dt>{f.label}</dt>
-              <dd>
-                {f.value}
-                {f.flags && (
-                  <span className="fact-flags">
-                    {f.flags.map((Flag, j) => <Flag key={j} />)}
-                  </span>
-                )}
-              </dd>
-            </div>
-          ))}
+          <div className="fact passport tilt reveal" style={{ '--d': '0ms' }}>
+            <dt>Citizenship</dt>
+            <dd>
+              <span className="passports" aria-hidden="true">
+                <span className="pp za">
+                  <span className="pp-title">Suid-Afrika</span>
+                  <span className="pp-crest" />
+                  <span className="pp-word">Passport</span>
+                  <FlagZA />
+                </span>
+                <span className="pp nl">
+                  <span className="pp-title">Nederland</span>
+                  <span className="pp-crest" />
+                  <span className="pp-word">Paspoort</span>
+                  <FlagNL />
+                </span>
+              </span>
+              South African &amp; Dutch
+            </dd>
+          </div>
+
+          <div className="fact visa tilt reveal" style={{ '--d': '90ms' }}>
+            <dt>Work rights</dt>
+            <dd>
+              <span className="visa-stamp" aria-hidden="true">
+                <span>EU work permit</span>
+                <strong>✓ No visa</strong>
+                <span>needed</span>
+              </span>
+              EU authorisation, no visa or sponsorship needed
+            </dd>
+          </div>
+
+          <div className="fact ticket tilt reveal" style={{ '--d': '180ms' }}>
+            <dt>Looking for</dt>
+            <dd>
+              <span className="ticket-route" aria-hidden="true">
+                <span className="ticket-stop">
+                  <strong>ZA</strong>
+                  <small>Stellenbosch</small>
+                </span>
+                <svg className="ticket-plane" viewBox="0 0 40 30">
+                  <path d="M2 15 38 2 26 28 18 18Z" />
+                  <path d="M38 2 18 18 16 27 22 21" />
+                </svg>
+                <span className="ticket-stop">
+                  <strong>DE</strong>
+                  <small>Germany</small>
+                </span>
+              </span>
+              Roles anywhere in Germany from 2027
+              <span className="ticket-stub" aria-hidden="true">
+                <span className="ticket-notch-shadow" />
+                <span>Departs 2027</span>
+                <span className="ticket-barcode" />
+              </span>
+            </dd>
+          </div>
+
+          <div className="fact chat tilt reveal" style={{ '--d': '270ms' }}>
+            <dt>Languages</dt>
+            <dd>
+              <ul className="bubbles">
+                {languages.map((l, i) => (
+                  <li key={l.name} className={`bubble${i % 2 ? ' them' : ''}`} style={{ '--b': i }}>
+                    <span className="bubble-hello" aria-hidden="true">
+                      {l.hello}
+                      {l.typing && <span className="typing"><i /><i /><i /></span>}
+                    </span>
+                    <span className="bubble-lang">{l.name} · {l.level}</span>
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
         </dl>
       </section>
 
-      <section id="work" className="section">
+      <Journey />
+
+      <section id="work" className="section slide-section from-left">
         <div className="section-head">
           <Title en="My Projects" de="Ausgewählte Projekte" />
-          <Link to="/projects" className="more-link reveal">
-            <span className="pen write">psst… there&apos;s more!</span>
-            All {projects.length} projects →
+          <Link to="/projects" className="more-link reveal" aria-label={`See all ${projects.length} projects`}>
+            <span className="pen write" aria-hidden="true">psst... there&apos;s more!</span>
+            {/* A round sticker: the text spins around the rim, the count and an arrow sit in the middle */}
+            <span className="more-stamp" aria-hidden="true">
+              <svg className="more-ring" viewBox="0 0 120 120">
+                <path id="more-ring-path" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none" />
+                <text>
+                  <textPath href="#more-ring-path" textLength="282" lengthAdjust="spacing">
+                    ALL PROJECTS • ALLE PROJEKTE •
+                  </textPath>
+                </text>
+              </svg>
+              <span className="more-core">
+                <strong>{projects.length}</strong>
+                <small>projects</small>
+                <NavArrow inline />
+              </span>
+            </span>
           </Link>
         </div>
         <div className="featured">
@@ -272,45 +494,31 @@ export default function Home() {
             >
               <ProjectThumb project={p} index={projects.indexOf(p)} />
               <div className="card-body">
-                <p className="card-kind">{p.kind}</p>
                 <h3>{p.title}</h3>
                 <p className="card-desc">{p.description}</p>
-                <span className="card-more">Read more →</span>
+                <span className="card-more">
+                  <span className="card-more-text">
+                    <span>Read more</span>
+                    <span className="pen" lang="de" aria-hidden="true">mehr lesen!</span>
+                  </span>
+                  <span className="card-more-arrow"><NavArrow inline /></span>
+                </span>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      <section id="skills" className="section">
-        <Title en="What I Bring" de="Was ich mitbringe" />
+      <section id="skills" className="section slide-section from-right">
+        <Title en="My Skills" de="Meine Fähigkeiten" />
         <div className="bento">
-          {Object.entries(skills).map(([group, items], i) => {
-            const look = skillCards[i % skillCards.length]
-            return (
-              <article
-                key={group}
-                className={`bento-card tilt reveal pop ${look.color} ${look.size || ''}`}
-                style={{ '--d': `${i * 90}ms`, '--r': `${i % 2 ? 3 : -3}deg` }}
-              >
-                <span className="bento-glyph" aria-hidden="true">{look.glyph}</span>
-                <p className="bento-count">
-                  {String(items.length).padStart(2, '0')} skills
-                  {look.note && <span className="pen bento-note write">{look.note}</span>}
-                </p>
-                <h3>{group}</h3>
-                <ul>
-                  {items.map((s) => (
-                    <li key={s}>{s}</li>
-                  ))}
-                </ul>
-              </article>
-            )
-          })}
+          {Object.entries(skills).map(([group, items], i) => (
+            <SkillCard key={group} group={group} items={items} look={skillCards[i % skillCards.length]} i={i} />
+          ))}
         </div>
       </section>
 
-      <section id="contact" className="contact">
+      <section id="contact" className="contact slide-section from-left">
         <h2 className="contact-big zoom reveal">
           <Split text="Let's Talk" className="wobble" />
         </h2>
@@ -319,20 +527,61 @@ export default function Home() {
           <Underline className="draw" />
         </p>
         <p className="contact-translations reveal">Kom ons gesels · Laten we praten</p>
-        <a href={`mailto:${contact.email}`} className="button primary big reveal pop">{contact.email}</a>
-        <div className="socials reveal">
-          <a href={contact.github} target="_blank" rel="noreferrer" className="social github">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" />
+
+        {/* An envelope that opens as it scrolls into view: the flap folds back, the letter with my email
+            slides up out of it, and the links pop out and plop down below (see .envelope in App.css) */}
+        <div className="envelope" ref={envelope}>
+          <div
+            className="env-body"
+            role="button"
+            tabIndex={0}
+            aria-label="Open or close the envelope"
+            onClick={toggleEnvelope}
+            onKeyDown={toggleEnvelope}
+          >
+            <svg className="env-back" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true">
+              <rect x="1.5" y="1.5" width="597" height="377" rx="14" />
             </svg>
-            GitHub <span aria-hidden="true">↗</span>
-          </a>
-          <a href={contact.linkedin} target="_blank" rel="noreferrer" className="social linkedin">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2ZM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Zm1.8 13.1H3.6V9h3.5v11.5ZM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0Z" />
+            <div className="env-letter">
+              <p className="pen env-hi">Write to me at</p>
+              <a href={`mailto:${contact.email}`} className="pen env-email">{contact.email}</a>
+              <p className="pen env-sign">bis bald, Anja x</p>
+            </div>
+            <svg className="env-front" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true">
+              <path className="env-side" d="M2 4 300 214 2 376Z" />
+              <path className="env-side" d="M598 4 300 214 598 376Z" />
+              <path className="env-bottom" d="M2 378 300 196 598 378Z" />
             </svg>
-            LinkedIn <span aria-hidden="true">↗</span>
-          </a>
+            <div className="env-flap" aria-hidden="true">
+              <svg className="flap-out" viewBox="0 0 600 230" preserveAspectRatio="none">
+                <path d="M2 2H598L312 222Q300 230 288 222Z" />
+              </svg>
+              <svg className="flap-in" viewBox="0 0 600 230" preserveAspectRatio="none">
+                <path d="M2 2H598L312 222Q300 230 288 222Z" />
+              </svg>
+              <span className="env-seal"><img src="/favicon.svg" alt="" /></span>
+            </div>
+            <span className="pen env-hint" aria-hidden="true">click me!</span>
+          </div>
+
+          <div className="env-links">
+            <span className="pop" style={{ '--d': '0ms', '--from': '70px' }}>
+              <a href={contact.github} target="_blank" rel="noreferrer" className="social github">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" />
+                </svg>
+                GitHub <NavArrow inline out />
+              </a>
+            </span>
+            <span className="pop" style={{ '--d': '220ms', '--from': '-70px' }}>
+              <a href={contact.linkedin} target="_blank" rel="noreferrer" className="social linkedin">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2ZM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Zm1.8 13.1H3.6V9h3.5v11.5ZM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0Z" />
+                </svg>
+                LinkedIn <NavArrow inline out />
+              </a>
+            </span>
+          </div>
         </div>
       </section>
     </main>

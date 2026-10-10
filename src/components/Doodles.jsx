@@ -24,6 +24,22 @@ export function Arrow({ className = '' }) {
   )
 }
 
+// Chunky, slightly wobbly block arrow used for every arrow on the site. Points right; `left` flips it and
+// `out` tilts it up-right for external links. `inline` sizes it to sit in a line of text, and `pen`
+// draws it as a quick handwritten stroke instead, to match the pen font.
+export function NavArrow({ left = false, out = false, inline = false, pen = false }) {
+  const cls = ['nav-arrow', left && 'left', out && 'out', inline && 'inline', pen && 'pen-arrow'].filter(Boolean).join(' ')
+  return (
+    <svg className={cls} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d={pen
+          ? 'M2.5 13c4.5-.9 10.5-.6 17.5-1.3M14.6 6.8c2 1.9 3.9 3.4 5.6 4.9-1.9 1.6-3.6 3.4-5.2 5.4'
+          : 'M3 9.2C6.5 9.8 9 9.1 12 9.6V4.4L21.2 12 12 19.6v-5.2c-3 .5-5.5-.3-9 .4Z'}
+      />
+    </svg>
+  )
+}
+
 export function Sparkle({ className = '' }) {
   return (
     <svg className={`sparkle ${className}`} viewBox="0 0 40 40" aria-hidden="true">

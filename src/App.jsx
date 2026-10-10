@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Projects from './pages/Projects.jsx'
 import './App.css'
@@ -15,7 +15,12 @@ function useScrollOnNavigate(location) {
   }, [location.pathname, location.hash])
 }
 
-// Adds .in to animated elements (.reveal, pen .write text and .draw strokes) as they scroll into view.
+// Adds .in to animated elements (.reveal, pen .write text, .draw strokes and sliding sections) as they
+// scroll into view. Elements added later (e.g. after a layout switch or
+// a hot reload) are picked up too, so nothing gets stuck hidden. The watched area reaches a full screen
+// width past each side, so sections that start off to the side still count as scrolled into view.
+const ANIMATED = '.reveal:not(.in), .write:not(.in), .draw:not(.in), .slide-section:not(.in)'
+
 function useReveal(pathname) {
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -27,10 +32,21 @@ function useReveal(pathname) {
           }
         }
       },
-      { rootMargin: '0px 0px -10% 0px' },
+      { rootMargin: '0px 100% -10% 100%' },
     )
-    document.querySelectorAll('.reveal:not(.in), .write:not(.in), .draw:not(.in)').forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
+    const watch = (root) => {
+      if (root.matches?.(ANIMATED)) observer.observe(root)
+      root.querySelectorAll?.(ANIMATED).forEach((el) => observer.observe(el))
+    }
+    watch(document)
+    const added = new MutationObserver((records) => {
+      for (const r of records) r.addedNodes.forEach(watch)
+    })
+    added.observe(document.body, { childList: true, subtree: true })
+    return () => {
+      observer.disconnect()
+      added.disconnect()
+    }
   }, [pathname])
 }
 
@@ -104,12 +120,60 @@ function useScrolled(offset = 40) {
   return scrolled
 }
 
+// Which nav link the visitor is "at": on the home page it follows the section in the middle of the
+// screen as you scroll (the journey counts as About); on the projects page it's always Projects.
+const SECTION_LINKS = [
+  ['about', 'about'],
+  ['journey', 'about'],
+  ['work', 'projects'],
+  ['skills', 'skills'],
+  ['contact', 'contact'],
+]
+
+function useCurrentSection(pathname) {
+  const [current, setCurrent] = useState('')
+  useEffect(() => {
+    if (pathname.startsWith('/projects')) {
+      setCurrent('projects')
+      return
+    }
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const mid = window.innerHeight * 0.45
+      let found = ''
+      for (const [id, link] of SECTION_LINKS) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= mid) found = link
+      }
+      // At the very bottom the contact section may never reach the middle, so count it as reached
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) found = 'contact'
+      setCurrent(found)
+    }
+    const onScroll = () => {
+      frame ||= requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [pathname])
+  return current
+}
+
 function App() {
   const location = useLocation()
   useScrollOnNavigate(location)
   useReveal(location.pathname)
   useTilt()
   const scrolled = useScrolled()
+  const current = useCurrentSection(location.pathname)
+  // Each link gets a little handwritten German note that writes itself in on hover
+  const link = (id) => `nav-link link-${id}${current === id ? ' current' : ''}`
 
   return (
     <>
@@ -119,10 +183,18 @@ function App() {
           <img src="/favicon.svg" alt="" />
         </Link>
         <nav>
-          <Link to="/#about" className="nav-link">About</Link>
-          <NavLink to="/projects" className="nav-link">Projects</NavLink>
-          <Link to="/#skills" className="nav-link">Skills</Link>
-          <Link to="/#contact" className="nav-cta">Contact</Link>
+          <Link to="/#about" className={link('about')}>
+            About Me<span className="nav-de pen" lang="de" aria-hidden="true">über mich</span>
+          </Link>
+          <Link to="/projects" className={link('projects')}>
+            My Projects<span className="nav-de pen" lang="de" aria-hidden="true">meine Projekte</span>
+          </Link>
+          <Link to="/#skills" className={link('skills')}>
+            My Skills<span className="nav-de pen" lang="de" aria-hidden="true">Fähigkeiten</span>
+          </Link>
+          <Link to="/#contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}>
+            Contact Me<span className="nav-de pen" lang="de" aria-hidden="true">Kontaktieren Sie mich</span>
+          </Link>
           <ThemeToggle />
         </nav>
       </header>

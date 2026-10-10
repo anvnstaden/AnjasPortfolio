@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Full-size originals of screen recordings (the site uses smaller copies in public/)
+media-originals/

@@ -1,4 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Familjen+Grotesk:wght@400;500;700&family=Nanum+Pen+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Familjen+Grotesk:wght@400;500;700&display=swap');
+
+/* Handwritten font, served from public/fonts. size-adjust tunes its size to fit the sizes the
+   handwritten bits are set at. */
+@font-face {
+  font-family: 'Discipline Notes';
+  src: url('/fonts/discipline_notes/Discipline%20Notes.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 90%;
+}
 
 :root {
   /* Palette: ivory paper, navy ink, and three accents (blue, pink, butter). */
@@ -16,10 +27,11 @@
   --plum-soft: #464f5f;
   --accent: var(--blue);
   --marker: rgb(223 164 184 / 0.55);
+  --charcoal: #36393d;
 
   --display: 'Unbounded', 'Arial Black', sans-serif;
   --body: 'Familjen Grotesk', 'Helvetica Neue', sans-serif;
-  --pen: 'Nanum Pen Script', 'Comic Sans MS', cursive;
+  --pen: 'Discipline Notes', cursive;
 
   font: 18px/1.55 var(--body);
   color: var(--plum);
@@ -46,6 +58,7 @@ html {
   --plum-soft: #b8c0cd;
   --accent: #8fb0e6;
   --marker: rgb(223 164 184 / 0.4);
+  --charcoal: #c4c7cc;
   color-scheme: dark;
 }
 
@@ -57,7 +70,8 @@ html {
 a,
 button,
 summary,
-label {
+label,
+[role='button'] {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 40 40'%3E%3Cpath d='M20 2c2 10 8 16 18 18-10 2-16 8-18 18-2-10-8-16-18-18C12 18 18 12 20 2Z' fill='%230e4798' stroke='%23000a1a' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 17 17, pointer;
 }
 
@@ -92,7 +106,8 @@ body {
   margin: 0;
   transition: background-color 0.4s, color 0.4s;
   background: var(--cream);
-  overflow-x: hidden;
+  /* clip (not hidden) so sections sliding in from the side can't make the page pan sideways */
+  overflow-x: clip;
 }
 
 h1,

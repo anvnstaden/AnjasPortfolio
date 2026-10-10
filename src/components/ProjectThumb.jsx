@@ -1,8 +1,9 @@
 const colors = ['pink', 'blue', 'butter', 'plum']
 
-// Shows the project's first screenshot, or a coloured placeholder until one is added.
+// Shows the project's first still screenshot (recordings only play on the projects page, to keep the home
+// page light), or a coloured placeholder until one is added.
 export default function ProjectThumb({ project, index }) {
-  const image = project.images?.[0]
+  const image = project.images?.find((img) => !/\.(webm|mp4)$/i.test(img.src))
   if (image) {
     return (
       <div className="thumb">
