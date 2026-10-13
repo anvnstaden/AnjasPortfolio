@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Projects from './pages/Projects.jsx'
@@ -165,6 +165,24 @@ function useCurrentSection(pathname) {
   return current
 }
 
+// Open/closed state for the phone menu. It closes on Escape and on a tap outside the nav (links close it
+// themselves, see the nav's onClick).
+function useMenu(header) {
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    const onTap = (e) => header.current?.contains(e.target) || setOpen(false)
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onTap)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onTap)
+    }
+  }, [open, header])
+  return [open, setOpen]
+}
+
 function App() {
   const location = useLocation()
   useScrollOnNavigate(location)
@@ -172,17 +190,19 @@ function App() {
   useTilt()
   const scrolled = useScrolled()
   const current = useCurrentSection(location.pathname)
+  const header = useRef(null)
+  const [menuOpen, setMenuOpen] = useMenu(header)
   // Each link gets a little handwritten German note that writes itself in on hover
   const link = (id) => `nav-link link-${id}${current === id ? ' current' : ''}`
 
   return (
     <>
       <div className="progress" aria-hidden="true" />
-      <header className={`nav${scrolled ? ' scrolled' : ''}`}>
+      <header ref={header} className={`nav${scrolled ? ' scrolled' : ''}${menuOpen ? ' open' : ''}`}>
         <Link to="/" className="nav-logo" aria-label="Anja van Staden, home">
           <img src="/favicon.svg" alt="" />
         </Link>
-        <nav>
+        <nav id="site-menu" onClick={(e) => e.target.closest('a') && setMenuOpen(false)}>
           <Link to="/#about" className={link('about')}>
             About Me<span className="nav-de pen" lang="de" aria-hidden="true">über mich</span>
           </Link>
@@ -195,8 +215,18 @@ function App() {
           <Link to="/#contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}>
             Contact Me<span className="nav-de pen" lang="de" aria-hidden="true">Kontaktieren Sie mich</span>
           </Link>
-          <ThemeToggle />
         </nav>
+        <ThemeToggle />
+        <button
+          type="button"
+          className="menu-toggle"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-expanded={menuOpen}
+          aria-controls="site-menu"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+        >
+          <span aria-hidden="true" />
+        </button>
       </header>
 
       <Routes>

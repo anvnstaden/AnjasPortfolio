@@ -264,10 +264,15 @@ export const skills = {
 
 // Which projects (by slug) use each skill. Hovering a skill on the home page shows these, and clicking it
 // opens the projects page showing only them. Skills that aren't listed just aren't linked to a project.
+const everyProject = projects.map((p) => p.slug)
+const projectsWithGui = projects.filter((p) => p.gui !== false).map((p) => p.slug)
+
 export const skillProjects = {
   'UI/UX design': ['hackathon-hosting-platform', 'community-event-volunteer-platform', 'honours-lab-management-app', 'peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer'],
-  'Product design': ['community-event-volunteer-platform', 'hackathon-hosting-platform'],
+  'Product design': ['community-event-volunteer-platform'],
   'User-centred design': ['community-event-volunteer-platform', 'honours-lab-management-app'],
+  Figma: ['community-event-volunteer-platform'],
+  Canva: projectsWithGui,
   JavaScript: ['hackathon-hosting-platform', 'honours-lab-management-app'],
   HTML: ['hackathon-hosting-platform', 'honours-lab-management-app'],
   CSS: ['hackathon-hosting-platform', 'honours-lab-management-app'],
@@ -276,6 +281,14 @@ export const skillProjects = {
   Java: ['peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer', 'quasi-palindromes-in-dna'],
   JavaFX: ['peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer'],
   C: ['parallel-othello-ai', 'multicore-process-scheduler', 'wistl-compiler'],
+  Git: everyProject,
+  GitHub: everyProject,
+  GitLab: everyProject,
+  Docker: ['parallel-othello-ai'],
+  'CI/CD': ['community-event-volunteer-platform'],
+  Scrum: ['community-event-volunteer-platform'],
+  Jira: ['community-event-volunteer-platform'],
+  Confluence: ['community-event-volunteer-platform'],
 }
 
 export const contact = {

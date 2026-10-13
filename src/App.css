@@ -522,6 +522,132 @@ main,
   }
 }
 
+/* Hamburger for phones: three bars that fold into a cross while the menu is open */
+.menu-toggle {
+  display: none;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--plum);
+  color: var(--cream);
+}
+
+.menu-toggle span,
+.menu-toggle span::before,
+.menu-toggle span::after {
+  display: block;
+  width: 18px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: translate 0.25s, rotate 0.25s, opacity 0.2s;
+}
+
+.menu-toggle span {
+  position: relative;
+}
+
+.menu-toggle span::before,
+.menu-toggle span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.menu-toggle span::before {
+  translate: 0 -6px;
+}
+
+.menu-toggle span::after {
+  translate: 0 6px;
+}
+
+.nav.open .menu-toggle span {
+  background: transparent;
+}
+
+.nav.open .menu-toggle span::before {
+  translate: 0;
+  rotate: 45deg;
+}
+
+.nav.open .menu-toggle span::after {
+  translate: 0;
+  rotate: -45deg;
+}
+
+/* On phones the links fold away into a card that drops down under the pill */
+@media (max-width: 760px) {
+  .menu-toggle {
+    display: grid;
+  }
+
+  .theme-toggle {
+    margin-left: auto;
+  }
+
+  .nav nav {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    margin: 0;
+    padding: 12px;
+    background: var(--cream);
+    border: 2px solid var(--plum);
+    border-radius: 24px;
+    box-shadow: 5px 5px 0 var(--pink);
+    visibility: hidden;
+    opacity: 0;
+    translate: 0 -8px;
+    transition: opacity 0.2s, translate 0.2s, visibility 0s 0.2s;
+  }
+
+  .nav.open nav {
+    visibility: visible;
+    opacity: 1;
+    translate: 0;
+    transition: opacity 0.2s, translate 0.2s;
+  }
+
+  .nav-link,
+  .nav nav a.nav-cta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 12px 18px;
+    font-size: 1.1rem;
+  }
+
+  .nav-link:hover,
+  .nav nav a.nav-cta:hover {
+    rotate: none;
+  }
+
+  /* No hover on phones, so the German notes just sit beside each link */
+  .nav-de {
+    position: static;
+    translate: none;
+    padding: 0;
+    font-size: 1.15rem;
+    color: inherit;
+    opacity: 0.75;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    clip-path: none;
+  }
+}
+
 /* ---------- Hero ---------- */
 .hero {
   min-height: calc(100svh - 72px);
@@ -4639,6 +4765,21 @@ a:hover .nav-arrow.inline.out {
   right: 10px;
 }
 
+/* Hints that read differently with a mouse and on a touch screen */
+.touch-only {
+  display: none;
+}
+
+@media (hover: none) {
+  .hover-only {
+    display: none;
+  }
+
+  .touch-only {
+    display: inline;
+  }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 899px) {
   .hero {
@@ -4687,8 +4828,45 @@ a:hover .nav-arrow.inline.out {
 }
 
 @media (max-width: 560px) {
-  .nav nav a:not(.nav-cta):not([href='/projects']) {
+  /* A smaller badge so the name shows up sooner */
+  .hero-visual {
+    width: min(100%, 300px);
+  }
+
+  .section {
+    padding-block: 64px;
+  }
+
+  /* Too many dots to tap on a phone: the count and swipes/arrows do the job */
+  .carousel {
+    --s: 74cqw;
+  }
+
+  .carousel-dots button {
     display: none;
+  }
+
+  .carousel-count {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .carousel-nav {
+    width: 38px;
+    height: 38px;
+  }
+
+  .carousel-nav .nav-arrow {
+    width: 24px;
+    height: 24px;
+  }
+
+  .carousel-nav.prev {
+    left: 0;
+  }
+
+  .carousel-nav.next {
+    right: 0;
   }
 
   .hero-name {

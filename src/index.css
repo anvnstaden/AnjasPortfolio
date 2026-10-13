@@ -48,6 +48,9 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 72px;
+  /* Phones size the page to its widest content, even when body clips it, so clip here too or the page
+     loads zoomed out and pans sideways */
+  overflow-x: clip;
 }
 
 /* Dark mode swaps the light and dark base colours; accent text gets a lighter tint of the blue. */

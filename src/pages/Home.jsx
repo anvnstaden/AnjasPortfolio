@@ -111,10 +111,14 @@ function SkillCard({ group, items, look, i }) {
         <p className={`bento-used${used ? ' on' : ''}`} aria-live="polite">
           {used ? (
             <>
-              <strong>{active}</strong> in {listOf(used.map((slug) => projectTitle[slug]))}
+              <strong>{active}</strong> in{' '}
+              {used.length === projects.length ? 'all my projects' : listOf(used.map((slug) => projectTitle[slug]))}
             </>
           ) : (
-            <span className="pen">hover a skill to see where I used it</span>
+            <>
+              <span className="pen hover-only">hover a skill to see where I used it</span>
+              <span className="pen touch-only">tap a skill to see where I used it</span>
+            </>
           )}
         </p>
       )}
