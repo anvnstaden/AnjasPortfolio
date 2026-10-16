@@ -26,6 +26,7 @@ function useWide() {
 const clamp01 = (n) => Math.min(1, Math.max(0, n))
 const lerp = (a, b, t) => a + (b - a) * t
 const easeOut = (t) => 1 - (1 - t) ** 3
+const easeIn = (t) => t * t * t
 const easeOutBounce = (t) => {
   const n = 7.5625
   const d = 2.75
@@ -48,15 +49,15 @@ const THROWN = [
   { x: 650, y: 612, r: -8 },
   { x: 742, y: 548, r: 14 },
 ]
-// Where each card ends up, scattered over the screen (centre as a share of the screen's width and height),
+// Where each card ends up, laid out in a row across the screen (centre as a share of the screen's width and height),
 // how far it is turned, and which side of it the pen writes its note on (chosen so that no note or arrow crosses
 // another card)
 const SCATTER = [
-  { x: 0.09, y: 0.72, r: -7, note: 'above' },
-  { x: 0.23, y: 0.72, r: 6, note: 'below' },
-  { x: 0.39, y: 0.58, r: 0, note: 'above' },
-  { x: 0.72, y: 0.316, r: 0, note: 'below' },
-  { x: 0.88, y: 0.79, r: -6, note: 'left' },
+  { x: 0.105, y: 0.62, r: -5, note: 'above' },
+  { x: 0.225, y: 0.62, r: 4, note: 'below' },
+  { x: 0.365, y: 0.62, r: -4, note: 'above' },
+  { x: 0.63, y: 0.62, r: 3, note: 'below' },
+  { x: 0.895, y: 0.62, r: -4, note: 'above' },
 ]
 // Scroll progress (0 → 1) at which each stage of the scene happens
 const WALK_END = 0.36 // the girl walks across the screen, left to right
@@ -76,6 +77,10 @@ const NOTES = [
   "I'm looking for jobs in Germany in 2027",
   '4 languages & counting',
 ]
+// ...and at the very end of the scroll a hand reaches in from the top right corner and, with a flick of the
+// wrist, shoos the cards and notes off to the left. WIPE_SHARE is how much of the whole scroll that takes.
+const WIPE_SHARE = 0.16
+const FLICK_AT = 0.38 // how far through that the wrist flicks
 const WALLET_SCALE = 0.136 // size of the wallet in the world, before the zoom (1 = full size)
 const CARRY_TILT = 0 // degrees the briefcase hangs at in her hand
 const TILT_START = 0.34 // as the camera zooms in, the case tilts to lie flat, seen from above...
@@ -96,6 +101,14 @@ const CLOUDS = [
   { top: 54, left: 20, scale: 0.55, o: 0.85 },
   { top: 58, left: 62, scale: 0.5, o: 0.75 },
 ]
+
+// Stars for the night sky (dark mode): where each hangs (left in vw, top in vh), how big it is, and its twinkle delay
+const STARS = Array.from({ length: 46 }, (_, i) => ({
+  left: (i * 37 + (i % 5) * 11) % 97 + 1,
+  top: 4 + ((i * 53 + (i % 3) * 17) % 47),
+  size: 5 + ((i * 7) % 5) * 2.5,
+  delay: -((i * 0.7) % 4),
+}))
 
 function EuRing() {
   return (
@@ -380,6 +393,7 @@ export default function FactsWallet() {
     const lines = [...view.querySelectorAll('.note-line')]
     const heads = [...view.querySelectorAll('.note-head')]
     const pen = view.querySelector('.note-pen')
+    const hand = view.querySelector('.wipe-hand')
     const girl = view.querySelector('.girl')
     let frame = 0
 
@@ -388,7 +402,9 @@ export default function FactsWallet() {
       const vw = view.clientWidth
       const vh = view.clientHeight
       const range = wrap.offsetHeight - vh
-      const raw = range > 0 ? clamp01(-wrap.getBoundingClientRect().top / range) : 0
+      const all = range > 0 ? clamp01(-wrap.getBoundingClientRect().top / range) : 0
+      const raw = clamp01(all / (1 - WIPE_SHARE)) // everything up to the pen's notes
+      const wipe = clamp01((all - (1 - WIPE_SHARE)) / (WIPE_SHARE * 0.85)) // then the hand
       const p = clamp01(raw / MAIN_END) // the walk, the briefcase and the cards
       const a = clamp01((raw - MAIN_END) / (1 - MAIN_END)) // then the pen writing its notes
       const bw = bag.offsetWidth
@@ -473,11 +489,14 @@ export default function FactsWallet() {
       const rad = (wrot * Math.PI) / 180
 
       const finals = []
+      const flown = [] // how far each card has been flicked to the left
       // In the briefcase each card keeps the same size relative to the case, whatever the screen size
       const peek = (IN_CASE * (bw / 900)) / (sizes[0][0] / 0.84)
       // Scattered over the screen the cards are shrunk a little if need be, so the tallest is under half the screen
       const fin = Math.min(1, (vh * 0.44) / Math.max(...sizes.map(([, h]) => h)))
-      items.forEach((item, i) => {
+      // The flick: the hand reaches in from the top right, winds up, flicks its wrist to the left, and pulls back
+      // out. Each card is sent flying off the left of the screen as the flick reaches it, the right-most first.
+            items.forEach((item, i) => {
         const [w, h] = sizes[i]
         const t = clamp01((p - FIRST_ITEM - i * ITEM_STEP) / ITEM_TIME)
         const u = clamp01(t / 0.38) // 0 → 1 while it is spat out of the wallet and falls
@@ -500,9 +519,16 @@ export default function FactsWallet() {
         const endY = Math.max(84, rest.y * vh - (h * fin) / 2)
         finals[i] = { x: endX, y: endY, w: w * fin, h: h * fin }
         // Spat out: up in an arc first, then down
-        const x = lerp(lerp(x0, fallX, u), endX, v)
-        const y = lerp(y0 + (fallY - y0) * u * u - 420 * u * (1 - u), endY, v)
-        const rot = lerp(TUMBLE[i] * Math.sin(u * Math.PI * 0.5) + (1 - u) * (spot.r + wrot), rest.r, v)
+        let x = lerp(lerp(x0, fallX, u), endX, v)
+        let y = lerp(y0 + (fallY - y0) * u * u - 420 * u * (1 - u), endY, v)
+        let rot = lerp(TUMBLE[i] * Math.sin(u * Math.PI * 0.5) + (1 - u) * (spot.r + wrot), rest.r, v)
+        // Shooed away: flies off to the left in an arc, spinning, once the flick sends it
+        const fly = easeIn(clamp01((wipe - FLICK_AT - (1 - rest.x) * 0.1) / 0.32))
+        const flyX = -fly * (endX + w * fin + 160)
+        x += flyX
+        y += -Math.sin(fly * Math.PI) * 36 + fly * 30
+        rot -= fly * (34 + i * 8)
+        flown[i] = flyX
         const scale = lerp(peek * ws, fin, easeInOut(clamp01(t / 0.7)))
         item.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`
         item.style.rotate = `${rot.toFixed(2)}deg`
@@ -546,6 +572,8 @@ export default function FactsWallet() {
         }
         const ang = Math.atan2(end.y - ctrl.y, end.x - ctrl.x)
         const tip = (d) => `${(end.x - 15 * Math.cos(ang + d)).toFixed(1)} ${(end.y - 15 * Math.sin(ang + d)).toFixed(1)}`
+        left += flown[i] // a note goes with its card when the hand flicks it away, fading as it goes
+        el.style.opacity = (1 - clamp01((wipe - FLICK_AT) / 0.08)).toFixed(2)
         el.style.translate = `${left.toFixed(1)}px ${top.toFixed(1)}px`
         lines[i].setAttribute('d', `M${start.x.toFixed(1)} ${start.y.toFixed(1)}Q${ctrl.x.toFixed(1)} ${ctrl.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)}`)
         heads[i].setAttribute('d', `M${tip(-0.5)}L${end.x.toFixed(1)} ${end.y.toFixed(1)}L${tip(0.5)}`)
@@ -581,7 +609,24 @@ export default function FactsWallet() {
         py = lerp(g.end.y, next.top + next.th * 0.8, k) - Math.sin(k * Math.PI) * 36
       }
       pen.style.translate = `${px.toFixed(1)}px ${py.toFixed(1)}px`
-      pen.style.opacity = a > 0 ? 1 : 0
+      pen.style.opacity = a > 0 && wipe === 0 ? 1 : 0
+      view.querySelector('.notes-svg').style.opacity = (1 - clamp01((wipe - FLICK_AT + 0.04) / 0.06)).toFixed(2)
+
+      // --- the hand (nudge_hand.svg, a 375 x 375 picture: the hand points down and to the left, the cut end of
+      // the forearm is at the top right). It rests in the top right corner with that end off the screen, and turns
+      // about it: a little back to wind up, then a quick flick of the wrist to the left, then it pulls back out ---
+      const W = Math.min(vh * 0.95, vw * 0.6)
+      const inOut = easeOut(clamp01(wipe / 0.22)) * (1 - easeInOut(clamp01((wipe - 0.62) / 0.28)))
+      const windUp = easeInOut(clamp01((wipe - 0.24) / 0.14))
+      const flick = easeOut(clamp01((wipe - FLICK_AT) / 0.12))
+      // wind up: back to the right with the fingers tipped down; flick: sweep left across the cards, the fingers
+      // snapping up as it follows through
+      const x = vw - W * 0.7 + (1 - inOut) * W * 0.55 + windUp * (1 - flick) * W * 0.06 - flick * vw * 0.28
+      const y = -W * 0.17 - (1 - inOut) * W * 0.5 - flick * W * 0.02 // the cut end of the forearm stays above the top edge
+      hand.style.width = `${W.toFixed(1)}px`
+      hand.style.opacity = wipe > 0 && wipe < 1 ? 1 : 0
+      hand.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`
+      hand.style.rotate = `${(-10 * windUp * (1 - flick) + 22 * flick).toFixed(2)}deg`
     }
 
     const onScroll = () => {
@@ -630,6 +675,10 @@ export default function FactsWallet() {
                   <span key={layer} className={`cloud-bank ${layer}`} />
                 ))}
                 <span className="sun" />
+                <span className="moon" />
+                {STARS.map((st, i) => (
+                  <span key={i} className="star" style={{ left: `${st.left}vw`, top: `${st.top}vh`, width: `${st.size}px`, '--delay': `${st.delay}s` }} />
+                ))}
                 {CLOUDS.map((c, i) => (
                   <span key={i} className="cloud" style={{ top: `${c.top}vh`, left: `${c.left}vw`, scale: c.scale, opacity: c.o ?? 1, '--delay': `${-i * 2.3}s` }} />
                 ))}
@@ -801,6 +850,9 @@ export default function FactsWallet() {
               </svg>
             </div>
           )}
+
+          {/* The hand that shoos everything away at the end (nudge_hand.svg), reaching in from the top right */}
+          {wide && <img className="wipe-hand" src="/nudge_hand.svg" alt="" aria-hidden="true" draggable="false" />}
         </div>
       </div>
     </section>

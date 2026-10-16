@@ -5,125 +5,242 @@ import Title from '../components/Title.jsx'
 import ProjectThumb from '../components/ProjectThumb.jsx'
 import Journey from '../components/Journey.jsx'
 import FactsWallet from '../components/FactsWallet.jsx'
-import { FlagDE, FlagNL, FlagZA } from '../components/Flags.jsx'
+import Blueprint from '../components/Blueprint.jsx'
 import { Circle, NavArrow, PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
-import { contact, funFacts, projects, skillProjects, skills } from '../data/content.js'
+import { contact, projects, skillProjects, skills } from '../data/content.js'
 
-// Look and feel of each card in the "My Skills" grid, in the same order as `skills`.
-const skillCards = [
-  { color: 'blue', glyph: 'Aa', size: 'wide', note: 'my favourite!' },
-  { color: 'butter', glyph: '</>' },
-  { color: 'plum', glyph: '{ }' },
-  { color: 'pink', glyph: 'f(x)' },
-  { color: 'blue', glyph: 'git' },
+const projectTitle = Object.fromEntries(projects.map((p) => [p.slug, p.title]))
+const listOf = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0])
+
+// The "My Skills" desk: a big desktop computer whose screen is a little file browser. Each skill group is a
+// folder in the sidebar; its skills are the files. Skills used in my projects are links: hovering (or tabbing
+// to) one shows which projects in the status bar, and clicking it opens the projects page showing just those.
+const skillIcons = ['✎', '</>', '{ }', 'f(x)', '⑂']
+// Each folder has its own colour (and the text colour that reads on it)
+const skillColors = [
+  ['#2f6fd6', '#fff'],
+  ['#f08fb0', '#000a1a'],
+  ['#f7c948', '#000a1a'],
+  ['#4fc08d', '#000a1a'],
+  ['#9a7cf0', '#fff'],
 ]
 
-// The big symbol in the corner of each skill card, each with its own little animation on hover:
-// "Aa" flicks through fonts, "</>" types itself out, "{ }" opens and closes, "f(x)" draws its graph and
-// "git" draws a branch that merges back in.
-function SkillGlyph({ kind }) {
-  if (kind === 'Aa') {
+// Scrolling through the section is a camera move: it starts on the whole desk, pushes in until the
+// monitor fills the screen (and holds there so the skills can be used), then pulls back out again.
+const ZOOM_IN = 0.28
+const ZOOM_OUT = 0.72
+const smooth = (x) => x * x * (3 - 2 * x)
+
+function useDeskZoom() {
+  const pin = useRef(null)
+  const stage = useRef(null)
+  const desk = useRef(null)
+  const monitor = useRef(null)
+  useEffect(() => {
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const area = stage.current
+      const el = desk.current
+      const box = monitor.current
+      const rect = pin.current.getBoundingClientRect()
+      const range = rect.height - area.offsetHeight
+      const t = Math.min(1, Math.max(0, -rect.top / range))
+      const k = still ? 1 : smooth(Math.min(1, t / ZOOM_IN)) * smooth(Math.min(1, (1 - t) / (1 - ZOOM_OUT)))
+      // Scale that shows the whole desk, and the scale that fits the monitor in the view
+      const out = Math.min((area.offsetWidth * 0.94) / el.offsetWidth, (area.offsetHeight * 0.86) / el.offsetHeight)
+      const fit = Math.min((area.offsetWidth * 0.94) / box.offsetWidth, (area.offsetHeight * 0.78) / box.offsetHeight)
+      const scale = out + (fit - out) * k
+      // The point of the desk that sits in the middle of the view: its centre, sliding to the monitor
+      const fx = el.offsetWidth / 2
+      const fy = el.offsetHeight / 2 + (box.offsetTop + box.offsetHeight / 2 - el.offsetHeight / 2) * k
+      const x = area.offsetWidth / 2 - el.offsetLeft - scale * fx
+      const y = area.offsetHeight / 2 + 32 * k - el.offsetTop - scale * fy
+      el.style.transformOrigin = '0 0'
+      el.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
+      area.style.setProperty('--title', String(1 - Math.min(1, k * 2.2)))
+    }
+    const queue = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    if (!still) window.addEventListener('scroll', queue, { passive: true })
+    window.addEventListener('resize', queue)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', queue)
+      window.removeEventListener('resize', queue)
+    }
+  }, [])
+  return { pin, stage, desk, monitor }
+}
+
+// Faint moving doodles behind each folder's skills, in the folder's colour: fonts flicking for design, code
+// typing itself out, braces opening and closing, a graph drawing itself and a git branch merging back in.
+function Backdrop({ kind }) {
+  if (kind === 0) {
     return (
-      <span className="bento-glyph glyph-fonts" aria-hidden="true">
-        <span>Aa</span><span>Aa</span><span>Aa</span><span>Aa</span>
+      <span className="bd bd-fonts" aria-hidden="true">
+        {['Aa', 'Gg', 'Rr'].map((t, n) => (
+          <span key={t} className="bd-stack" style={{ '--n': n }}>
+            <span>{t}</span><span>{t}</span><span>{t}</span><span>{t}</span>
+          </span>
+        ))}
       </span>
     )
   }
-  if (kind === '</>') {
+  if (kind === 1) {
     return (
-      <span className="bento-glyph glyph-type" aria-hidden="true">
+      <span className="bd bd-code" aria-hidden="true">
         {[...'</>'].map((ch, k) => <span key={k} style={{ '--k': k }}>{ch}</span>)}
         <i className="caret" />
       </span>
     )
   }
-  if (kind === '{ }') {
+  if (kind === 2) {
     return (
-      <span className="bento-glyph glyph-braces" aria-hidden="true">
+      <span className="bd bd-braces" aria-hidden="true">
         <span>{'{'}</span><span className="dots">···</span><span>{'}'}</span>
       </span>
     )
   }
-  if (kind === 'f(x)') {
+  if (kind === 3) {
     return (
-      <span className="bento-glyph glyph-graph" aria-hidden="true">
-        f(x)
-        <svg viewBox="0 0 200 60" preserveAspectRatio="none">
-          <path pathLength="1" d="M0 46C18 46 22 10 42 10S66 50 86 50 110 6 130 6 156 40 176 30 196 14 200 12" />
+      <span className="bd bd-graph" aria-hidden="true">
+        <svg viewBox="0 0 400 200">
+          {[40, 100, 160, 220, 280, 340].map((x, n) => (
+            <rect key={x} x={x} y={190 - (n % 3) * 20 - 30} width="28" height={(n % 3) * 20 + 30} rx="6" style={{ '--n': n }} />
+          ))}
+          <path pathLength="1" d="M0 150C40 150 50 70 100 70S160 130 210 110 270 20 320 40 380 80 400 60" />
         </svg>
       </span>
     )
   }
   return (
-    <span className="bento-glyph glyph-git" aria-hidden="true">
-      git
-      <svg viewBox="0 0 200 70">
-        <path className="trunk" pathLength="1" d="M8 52H192" />
-        <path className="branch" pathLength="1" d="M48 52C68 52 68 16 92 16H120C144 16 144 52 164 52" />
-        <circle cx="8" cy="52" r="7" />
-        <circle cx="48" cy="52" r="7" />
-        <circle className="late" cx="106" cy="16" r="7" />
-        <circle className="late" cx="164" cy="52" r="7" />
-        <circle cx="192" cy="52" r="7" />
+    <span className="bd bd-git" aria-hidden="true">
+      <svg viewBox="0 0 400 140">
+        <path className="trunk" pathLength="1" d="M10 100H390" />
+        <path className="branch" pathLength="1" d="M90 100C130 100 130 30 180 30H260C310 30 310 100 350 100" />
+        <circle cx="10" cy="100" r="11" />
+        <circle cx="90" cy="100" r="11" />
+        <circle className="late" cx="220" cy="30" r="11" />
+        <circle className="late" cx="350" cy="100" r="11" />
+        <circle cx="390" cy="100" r="11" />
       </svg>
     </span>
   )
 }
 
-const projectTitle = Object.fromEntries(projects.map((p) => [p.slug, p.title]))
-const listOf = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0])
-
-// One skill card. Skills used in my projects are links: hovering (or tabbing to) one shows which projects
-// at the bottom of the card, and clicking it opens the projects page showing just those.
-function SkillCard({ group, items, look, i }) {
+function SkillsDesk() {
+  const { pin, stage, desk, monitor } = useDeskZoom()
+  const groups = Object.entries(skills)
+  const [open, setOpen] = useState(0)
   const [active, setActive] = useState(null)
-  const linked = items.some((s) => skillProjects[s])
+  const [group, items] = groups[open]
   const used = active && skillProjects[active]
   return (
-    <article
-      className={`bento-card tilt reveal pop ${look.color} ${look.size || ''}`}
-      style={{ '--d': `${i * 90}ms`, '--r': `${i % 2 ? 3 : -3}deg` }}
-    >
-      <SkillGlyph kind={look.glyph} />
-      <h3>
-        {group}
-        {look.note && <span className="pen bento-note write">{look.note}</span>}
-      </h3>
-      <ul>
-        {items.map((s) => (
-          <li key={s} className={skillProjects[s] ? 'linked' : undefined}>
-            {skillProjects[s] ? (
-              <Link
-                to={`/projects?skill=${encodeURIComponent(s)}`}
-                onMouseEnter={() => setActive(s)}
-                onMouseLeave={() => setActive(null)}
-                onFocus={() => setActive(s)}
-                onBlur={() => setActive(null)}
-              >
-                {s}
-              </Link>
-            ) : (
-              s
-            )}
-          </li>
+    <div className="desk-pin" ref={pin}>
+      <div className="desk-stage" ref={stage}>
+        <div className="desk-title">
+          <Title en="My Skills" de="Meine Fähigkeiten" />
+        </div>
+    <div className="desk" ref={desk} translate="no">
+      <div className="desk-wall" aria-hidden="true">
+        {[
+          ['clock', 'wall%20clock'],
+          ['lamp', 'lamp'],
+          ['bottle', 'water'],
+          ['coffee', 'coffee'],
+          ['pens', 'penholder'],
+          ['plant', 'plant'],
+        ].map(([cls, file]) => (
+          <img key={cls} className={`decor decor-${cls}`} src={`/desk_decor/${file}.svg`} alt="" loading="lazy" />
         ))}
-      </ul>
-      {linked && (
-        <p className={`bento-used${used ? ' on' : ''}`} aria-live="polite">
-          {used ? (
-            <>
-              <strong>{active}</strong> in{' '}
-              {used.length === projects.length ? 'all my projects' : listOf(used.map((slug) => projectTitle[slug]))}
-            </>
-          ) : (
-            <>
-              <span className="pen hover-only">hover a skill to see where I used it</span>
-              <span className="pen touch-only">tap a skill to see where I used it</span>
-            </>
-          )}
-        </p>
-      )}
-    </article>
+      </div>
+
+      <div className="monitor" ref={monitor}>
+        <div className="monitor-bezel">
+          <div className="screen" style={{ '--c': skillColors[open % skillColors.length][0], '--on': skillColors[open % skillColors.length][1] }}>
+            <div className="screen-window">
+            <div className="screen-bar">
+              <span className="dots" aria-hidden="true"><i /><i /><i /></span>
+              <span className="screen-path">anja / skills / {group.toLowerCase()}</span>
+            </div>
+            <div className="screen-body">
+              <nav className="screen-side" aria-label="Skill groups">
+                {groups.map(([name], k) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className={k === open ? 'on' : undefined}
+                    style={{ '--c': skillColors[k % skillColors.length][0], '--on': skillColors[k % skillColors.length][1] }}
+                    aria-pressed={k === open}
+                    onClick={() => {
+                      setOpen(k)
+                      setActive(null)
+                    }}
+                  >
+                    <span className="side-icon" aria-hidden="true">{skillIcons[k % skillIcons.length]}</span>
+                    <span className="side-name">{name}</span>
+                  </button>
+                ))}
+              </nav>
+              <div className="screen-main" key={group}>
+                <Backdrop kind={open % 5} />
+                <h3>{group}</h3>
+                <ul>
+                  {items.map((s, k) => (
+                    <li key={s} className={skillProjects[s] ? 'linked' : undefined} style={{ '--k': k }}>
+                      {skillProjects[s] ? (
+                        <Link
+                          to={`/projects?skill=${encodeURIComponent(s)}`}
+                          onMouseEnter={() => setActive(s)}
+                          onMouseLeave={() => setActive(null)}
+                          onFocus={() => setActive(s)}
+                          onBlur={() => setActive(null)}
+                        >
+                          {s}
+                        </Link>
+                      ) : (
+                        s
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            </div>
+            <p className={`screen-status${used ? ' on' : ''}`} aria-live="polite">
+              {used ? (
+                <>
+                  <strong>{active}</strong>{' in '}
+                  {used.length === projects.length ? 'all my projects' : listOf(used.map((slug) => projectTitle[slug]))}
+                </>
+              ) : (
+                <>
+                  <span className="hover-only">hover a skill to see where I used it</span>
+                  <span className="touch-only">tap a skill to see where I used it</span>
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+        <div className="monitor-neck" aria-hidden="true" />
+        <div className="monitor-foot" aria-hidden="true" />
+      </div>
+
+      <div className="desk-furniture" aria-hidden="true">
+        <i className="desk-leg back left" />
+        <i className="desk-leg back right" />
+        <i className="desk-leg front left" />
+        <i className="desk-leg front right" />
+        <i className="desk-apron" />
+        <i className="desk-slab" />
+      </div>
+    </div>
+      </div>
+    </div>
   )
 }
 
@@ -189,30 +306,7 @@ function useRipOffNavbar(badge) {
   return state === 'hanging' ? '' : ` ${state}`
 }
 
-// A small spinning globe: a strip of landmasses (two copies of the same map) slides sideways behind a round window.
-function Globe() {
-  const land = [
-    'M18 22 34 14 52 16 62 24 56 34 48 44 40 46 34 36 22 32Z',
-    'M46 52 58 52 66 62 60 78 52 88 48 72Z',
-    'M92 22 104 14 116 18 112 28 100 32 92 30Z',
-    'M96 36 112 34 124 44 118 62 108 72 100 58 94 46Z',
-    'M118 18 140 10 170 14 178 28 166 40 150 46 136 38 124 30Z',
-    'M162 62 178 60 184 72 170 80 160 72Z',
-  ]
-  return (
-    <span className="globe" aria-hidden="true">
-      <svg className="globe-map" viewBox="0 0 400 100">
-        {[0, 200].map((x) => (
-          <g key={x} transform={`translate(${x} 0)`}>
-            {land.map((d) => <path key={d} d={d} />)}
-          </g>
-        ))}
-      </svg>
-    </span>
-  )
-}
-
-// Hanging ID badge with the profile photo. It flips over on hover (or tap / Enter) to show fun facts.
+// Hanging ID badge with the profile photo. It flips over when you click (or tap / press Enter) to show the back of the card.
 function IdBadge() {
   const [photoMissing, setPhotoMissing] = useState(false)
   const [flipped, setFlipped] = useState(false)
@@ -227,8 +321,8 @@ function IdBadge() {
       role="button"
       tabIndex={0}
       aria-pressed={flipped}
-      aria-label="ID badge for Anja van Staden. Flip it over for some fun facts."
-      onClick={() => !window.matchMedia('(hover: hover)').matches && flip()}
+      aria-label="ID badge for Anja van Staden. Click to flip it over."
+      onClick={flip}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
@@ -241,9 +335,6 @@ function IdBadge() {
       <div className="badge-card">
         <div className="badge-face badge-front">
           <span className="badge-slot" aria-hidden="true" />
-          <p className="badge-head">
-              <Globe /> open to work from 2027
-            </p>
           <div className="badge-photo">
             {photoMissing ? (
               <span className="monogram">AvS</span>
@@ -257,14 +348,71 @@ function IdBadge() {
         </div>
         <div className="badge-face badge-back">
           <span className="badge-slot" aria-hidden="true" />
-          <p className="pen badge-back-title">fun facts!</p>
-          <ul>
-            {funFacts.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
+          {/* the back of a real access card: magnetic stripe, the areas this card opens, a signature
+              strip, and a barcode with the card number */}
+          <span className="badge-stripe" aria-hidden="true" />
+          <div className="badge-back-main" aria-hidden="true">
+            <span className="badge-seal"><img src="/favicon.svg" alt="" /></span>
+            <ul className="badge-back-info">
+              <li><small>Based in</small>Stellenbosch, ZA</li>
+              <li><small>Moving to</small>Germany</li>
+              <li><small>Valid from</small>2027</li>
+            </ul>
+          </div>
+          <span className="badge-signature" aria-hidden="true">
+            <span className="pen">Anja van Staden</span>
+            <small>Authorised signature</small>
+          </span>
+          <span className="badge-back-foot" aria-hidden="true">
+            <span className="badge-barcode small" />
+            <span>ID 2027-0001</span>
+          </span>
+          <p className="badge-small-print">If found, please return to Germany (from 2027)</p>
         </div>
       </div>
+    </div>
+  )
+}
+
+// The text side of the hero. It is drawn twice: once for real, and once as the blueprint under it (`copy`),
+// where elements carry their name and the code behind them for the blueprint's labels (see Blueprint.jsx).
+function HeroText({ copy = false }) {
+  const bp = (name, code) => (copy ? { 'data-bp': name, ...(code && { 'data-code': code }) } : {})
+  const Name = copy ? 'div' : 'h1'
+  return (
+    <div className={`hero-text${copy ? ' bp-copy' : ''}`}>
+      <Name className="hero-name" {...bp('h1.hero-name', '<h1 className="hero-name">Anja</h1>')}>
+        <Split text="Anja" />
+        <Split text="van Staden" className="accent-line" offset={4} />
+      </Name>
+      <p className="hero-role hero-fade" style={{ '--d': '700ms' }} {...bp('p.hero-role')}>
+        UI/UX designer <span className="pen amp">&amp;</span> software engineer
+      </p>
+      <p className="pen hero-note write" style={{ '--d': '1100ms' }} {...bp('p.hero-note')}>
+        designer at heart, software engineer by degree
+        <Underline className="draw" />
+      </p>
+      {copy ? (
+        <div className="hero-actions">
+          <span className="button primary" {...bp('Button/primary', '<Link to="/projects" />')}>View projects</span>
+          <span className="button">Get in touch</span>
+        </div>
+      ) : (
+        <div className="hero-actions hero-fade" style={{ '--d': '950ms' }}>
+          <Link to="/projects" className="button primary">View projects</Link>
+          <Link to="/#contact" className="button">Get in touch</Link>
+        </div>
+      )}
+      {copy && (
+        <div className="bp-palette">
+          {[['--ink', '#000A1A'], ['--blue', '#0E4798'], ['--pink', '#DFA4B8'], ['--butter', '#F7DE93'], ['--cream', '#FBF8F1']].map(([name, value]) => (
+            <span key={name}>
+              <i style={{ background: value }} />
+              {name} <b>{value}</b>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -272,38 +420,20 @@ function IdBadge() {
 function Hero() {
   return (
     <section className="hero">
-      <div className="hero-text">
-        <p className="hello hero-fade">
-          Hallo! <FlagZA /> <FlagNL /> <FlagDE />
-        </p>
-        <h1 className="hero-name">
-          <Split text="Anja" />
-          <Split text="van Staden" className="accent-line" offset={4} />
-        </h1>
-        <p className="hero-role hero-fade" style={{ '--d': '700ms' }}>
-          UI/UX designer <span className="pen amp">&amp;</span> software engineer
-        </p>
-        <p className="pen hero-note write" style={{ '--d': '1100ms' }}>
-          designer at heart, software engineer by degree
-          <Underline className="draw" />
-        </p>
-        <p className="hero-sub hero-fade" style={{ '--d': '850ms' }}>
-          Final-year Computer Science &amp; Operations Research student at Stellenbosch University.
-        </p>
-        <div className="hero-actions hero-fade" style={{ '--d': '950ms' }}>
-          <Link to="/projects" className="button primary">View projects</Link>
-          <Link to="/#contact" className="button">Get in touch</Link>
-        </div>
-      </div>
+      <HeroText />
 
       <div className="hero-visual">
         <div className="photo-blob" aria-hidden="true" />
         <IdBadge />
-        <span className="pen badge-hint" aria-hidden="true">psst... flip me!</span>
         <Sparkle className="s1" />
         <Sparkle className="s2" />
         <Sparkle className="s3" />
       </div>
+
+      {/* Under it all, its blueprint: move the mouse over the hero to look through (see Blueprint.jsx) */}
+      <Blueprint>
+        <HeroText copy />
+      </Blueprint>
     </section>
   )
 }
@@ -430,13 +560,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="skills" className="section slide-section from-right">
-        <Title en="My Skills" de="Meine Fähigkeiten" />
-        <div className="bento">
-          {Object.entries(skills).map(([group, items], i) => (
-            <SkillCard key={group} group={group} items={items} look={skillCards[i % skillCards.length]} i={i} />
-          ))}
-        </div>
+      <section id="skills" className="skills-section">
+        <SkillsDesk />
       </section>
 
       <section id="contact" className="contact slide-section from-left">
@@ -500,6 +625,14 @@ export default function Home() {
                   <path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2ZM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Zm1.8 13.1H3.6V9h3.5v11.5ZM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0Z" />
                 </svg>
                 LinkedIn <NavArrow inline out />
+              </a>
+            </span>
+            <span className="pop" style={{ '--d': '440ms', '--from': '60px' }}>
+              <a href={contact.cv} download className="social cv">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Download my CV
               </a>
             </span>
           </div>

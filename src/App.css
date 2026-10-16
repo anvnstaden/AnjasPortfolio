@@ -650,6 +650,7 @@ main,
 
 /* ---------- Hero ---------- */
 .hero {
+  position: relative;
   min-height: calc(100svh - 72px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -662,16 +663,6 @@ main,
   container-type: inline-size;
 }
 
-.hello {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: clamp(0.85rem, 1.8cqw, 1.1rem);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin: 0 0 12px;
-}
 
 .hero-name {
   font-size: clamp(3.4rem, 16cqw, 11.5rem);
@@ -727,9 +718,14 @@ main,
 }
 
 .amp {
-  font-size: 1.7em;
-  vertical-align: -0.18em;
-  margin: 0 0.05em;
+  /* the handwritten ampersand sits on the same line as the words: no extra line height, nudged up to the
+     text's baseline (the pen font draws it low) */
+  display: inline-block;
+  font-size: 1.4em;
+  line-height: 0;
+  vertical-align: baseline;
+  translate: 0 -0.12em;
+  margin: 0 0.1em;
 }
 
 .hero-note {
@@ -742,13 +738,6 @@ main,
   margin: 6px 0 24px;
 }
 
-.hero-sub {
-  max-width: 34em;
-  font-size: clamp(1.15rem, 2.8cqw, 1.7rem);
-  line-height: 1.5;
-  color: var(--plum-soft);
-  margin: 0 0 32px;
-}
 
 .hero-actions .button {
   padding: 16px 32px;
@@ -829,13 +818,7 @@ main,
   animation: badge-rehang 0.9s cubic-bezier(0.3, 1.4, 0.5, 1), swing 5s ease-in-out 0.9s infinite;
 }
 
-.badge-hint {
-  transition: opacity 0.3s;
-}
 
-.ripped ~ .badge-hint {
-  opacity: 0;
-}
 
 /* The strap runs from the clip up behind the navbar and on past the top of the browser (an extra
    screen-and-a-half of it), so its end never shows when the badge drops back down. When ripped it's cut
@@ -878,15 +861,8 @@ main,
   transition: transform 0.8s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 
-.badge.flipped .badge-card,
-.badge:focus-visible .badge-card {
+.badge.flipped .badge-card {
   transform: rotateY(180deg);
-}
-
-@media (hover: hover) {
-  .badge:hover .badge-card {
-    transform: rotateY(180deg);
-  }
 }
 
 .badge-face {
@@ -909,7 +885,10 @@ main,
 }
 
 .badge-back {
-  background: var(--blue);
+  /* printed card stock with a faint security pattern */
+  background:
+    repeating-radial-gradient(circle at 20% 110%, transparent 0 9px, rgb(14 71 152 / 0.05) 9px 10px),
+    linear-gradient(160deg, #f7f9fc, #e8eef7);
   transform: rotateY(180deg);
   align-items: stretch;
 }
@@ -932,60 +911,10 @@ main,
   background: var(--cream);
 }
 
-.badge-head {
-  display: inline-flex;
-  align-items: center;
-  gap: 2.4cqi;
-  margin: 0 0 5.4cqi;
-  padding: 1.1cqi 4.2cqi 1.1cqi 1.6cqi;
-  font-size: 4.5cqi;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--ink);
-  background: var(--butter);
-  border: 2.5px solid var(--ink);
-  border-radius: 999px;
-  box-shadow: 3px 3px 0 var(--ink);
-}
 
-/* Little spinning globe */
-.globe {
-  position: relative;
-  flex: none;
-  width: 1.7em;
-  height: 1.7em;
-  overflow: hidden;
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  background: var(--blue);
-}
 
-.globe-map {
-  display: block;
-  width: 400%;
-  height: 100%;
-  fill: var(--pink);
-  stroke: var(--pink);
-  stroke-width: 3;
-  stroke-linejoin: round;
-  animation: globe-spin 5s linear infinite;
-}
 
-.globe::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.45), transparent 42%),
-    radial-gradient(circle at 50% 50%, transparent 52%, rgb(0 10 26 / 0.5));
-}
 
-@keyframes globe-spin {
-  to {
-    translate: -50% 0;
-  }
-}
 
 .badge-photo {
   width: 70%;
@@ -1032,56 +961,220 @@ main,
   background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 7px, transparent 7px 9px, var(--ink) 9px 10px, transparent 10px 13px);
 }
 
-.badge-back-title {
-  margin: 0 0 3.6cqi;
-  color: var(--paper);
-  font-size: 13.4cqi;
-  line-height: 1;
-  text-align: center;
-  rotate: -3deg;
+.badge-stripe {
+  margin: -3cqi -7cqi 3cqi;
+  height: 9cqi;
+  flex: none;
+  background: linear-gradient(180deg, #2b2e33, #121417 60%, #2b2e33);
 }
 
-.badge-back ul {
+.badge-back-kicker {
+  margin: 0;
+  color: var(--blue);
+  font-size: 3.3cqi;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.badge-back-title {
+  margin: 0 0 2.6cqi;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 6.6cqi;
+  font-weight: 800;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+/* Access levels: a printed table, one row per area, each with a status light */
+.access {
   display: grid;
-  gap: 4.3cqi;
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.badge-back li {
-  padding: 3.2cqi 4.6cqi;
-  font-size: 4.9cqi;
-  font-weight: 500;
-  line-height: 1.3;
-  background: var(--paper);
   border: 2px solid var(--ink);
-  border-radius: 4.5cqi;
+  border-radius: 2.4cqi;
+  overflow: hidden;
+  background: #fff;
 }
 
-.badge-back li:nth-child(odd) {
-  rotate: -1.5deg;
+.access li {
+  display: flex;
+  align-items: center;
+  gap: 2.4cqi;
+  padding: 1.5cqi 2.6cqi;
 }
 
-.badge-back li:nth-child(even) {
-  rotate: 1.5deg;
+.access li + li {
+  border-top: 1.5px dashed rgb(0 10 26 / 0.25);
 }
 
-.badge-hint {
-  position: absolute;
-  z-index: 5;
-  top: -5%;
-  left: 0;
-  padding: 0.15em 0.7em 0.05em;
-  font-size: clamp(1.5rem, 4.6cqi, 2.4rem);
-  color: var(--ink);
-  background: var(--ivory);
-  border: 2.5px solid var(--ink);
+.access-area {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.access-area strong {
+  font-size: 4cqi;
+  line-height: 1.15;
+}
+
+.access-area small {
+  font-size: 2.9cqi;
+  line-height: 1.2;
+  opacity: 0.65;
+}
+
+.access-status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 1.2cqi;
+  font-size: 2.9cqi;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* a little indicator light: green for granted, a blinking amber for pending */
+.access-led {
+  width: 2.6cqi;
+  aspect-ratio: 1;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+}
+
+.access .granted .access-led {
+  background: radial-gradient(circle at 35% 35%, #c9f7d3, #2fb355 60%);
+}
+
+.access .pending .access-led {
+  background: radial-gradient(circle at 35% 35%, #fff1b8, #f0a920 60%);
+  animation: led-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes led-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.access-bar {
+  display: block;
+  height: 1.6cqi;
+  margin-top: 1cqi;
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
   border-radius: 999px;
-  box-shadow: 3px 3px 0 var(--ink);
-  rotate: -7deg;
-  pointer-events: none;
+  background: #fff;
 }
+
+.access-bar i {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(-45deg, var(--butter) 0 4px, #e9c45a 4px 8px);
+}
+
+/* signature strip, as on the back of a bank card */
+.badge-back-main {
+  display: flex;
+  align-items: center;
+  gap: 5cqi;
+  margin-top: 2cqi;
+}
+
+/* my logo, on its own */
+.badge-seal {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26cqi;
+  aspect-ratio: 1;
+}
+
+.badge-seal img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.badge-back-info {
+  display: grid;
+  gap: 1.8cqi;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 3.8cqi;
+  font-weight: 700;
+}
+
+.badge-back-info li {
+  padding-bottom: 1.2cqi;
+  border-bottom: 1.5px dashed rgb(0 10 26 / 0.25);
+}
+
+.badge-back-info small {
+  display: block;
+  font-size: 2.4cqi;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.badge-signature {
+  display: grid;
+  margin-top: 3cqi;
+  padding: 1cqi 3cqi 1.2cqi;
+  border: 1.5px solid rgb(0 10 26 / 0.35);
+  border-radius: 1.6cqi;
+  background: repeating-linear-gradient(-30deg, #f3f6fb 0 3px, #e3eaf5 3px 6px);
+}
+
+.badge-signature .pen {
+  font-size: 6cqi;
+  line-height: 1.1;
+  color: var(--blue);
+  rotate: -3deg;
+  width: fit-content;
+}
+
+.badge-signature small {
+  font-size: 2.5cqi;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.badge-back-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3cqi;
+  margin-top: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 3cqi;
+  font-weight: 700;
+}
+
+.badge-barcode.small {
+  flex: 1;
+  height: 6cqi;
+  margin-top: 0;
+}
+
+.badge-small-print {
+  margin: 1.4cqi 0 0;
+  color: var(--ink);
+  font-size: 2.7cqi;
+  font-style: italic;
+  text-align: center;
+  opacity: 0.6;
+}
+
 
 @keyframes swing {
   0%,
@@ -2507,189 +2600,443 @@ main,
   color: var(--cream);
 }
 
-/* ---------- My Skills (bento) ---------- */
-.bento {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 18px;
+/* ---------- My Skills (desk) ---------- */
+.skills-section {
+  position: relative;
 }
 
-.bento-card {
+/* The tall pin is what you scroll through; the stage inside it stays on screen while the desk zooms */
+.desk-pin {
+  height: 420vh;
+}
+
+.desk-stage {
+  position: sticky;
+  top: 0;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: clip;
+}
+
+.desk-title {
+  position: absolute;
+  top: clamp(90px, 14vh, 140px);
+  left: 0;
+  right: 0;
+  z-index: 3;
+  max-width: 1680px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 72px);
+  opacity: var(--title, 1);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-pin {
+    height: auto;
+  }
+
+  .desk-stage {
+    position: relative;
+  }
+}
+
+
+/* The desk is drawn at a fixed size (in "u" units, so it can shrink on phones) and the whole thing is scaled
+   to the screen. Everything sits on the desk top, 844px up from the floor. */
+.desk {
+  --u: 1;
+  --slab: #d9a066;
+  --slab-edge: #b86f50;
+  --wood: #e8bf7a;
+  --wood-dark: #6b4228;
   position: relative;
-  grid-column: span 2;
-  min-height: 270px;
-  padding: 28px;
-  border-radius: 26px;
-  overflow: hidden;
+  flex: none;
+  width: calc(var(--u) * 3000px);
+  height: calc(var(--u) * 1800px);
+  will-change: transform;
+}
+
+:root[data-theme='dark'] .desk {
+  --slab: #b8804e;
+  --slab-edge: #94563f;
+  --wood: #c9a063;
+  --wood-dark: #523220;
+}
+
+.desk-wall {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* The decorations are little illustrations standing on the desk (or hanging on the wall), drawn at roughly
+   their real-life size next to a 24-inch monitor */
+.desk-wall .decor {
+  position: absolute;
+  bottom: calc(var(--u) * 824px);
+  height: auto;
+  user-select: none;
+}
+
+.decor-lamp {
+  left: calc(var(--u) * 30px);
+  width: calc(var(--u) * 660px);
+}
+
+.desk-wall .decor-pens {
+  left: calc(var(--u) * 585px);
+  width: calc(var(--u) * 250px);
+  bottom: calc(var(--u) * 816px);
+}
+
+.decor-bottle {
+  left: calc(var(--u) * 1900px);
+  width: calc(var(--u) * 400px);
+}
+
+.decor-coffee {
+  left: calc(var(--u) * 2150px);
+  width: calc(var(--u) * 330px);
+}
+
+.decor-plant {
+  left: calc(var(--u) * 2400px);
+  width: calc(var(--u) * 560px);
+  transform-origin: 50% 100%;
+  animation: sway 5s ease-in-out infinite;
+}
+
+.desk-wall .decor-clock {
+  left: calc(var(--u) * 2000px);
+  width: calc(var(--u) * 420px);
+  bottom: calc(var(--u) * 1360px);
+}
+
+@keyframes sway {
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+/* The monitor */
+.monitor {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: calc(var(--u) * 826px);
+  width: calc(var(--u) * 880px);
+  translate: -50% 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
-.bento-card.wide {
-  grid-column: span 4;
+.monitor-bezel {
+  width: 100%;
+  padding: calc(var(--u) * 16px);
+  border-radius: 16px;
+  background: #1c2027;
+  box-shadow: 0 18px 40px rgb(0 10 26 / 0.3);
 }
 
-.bento-card > :not(.bento-glyph) {
+.screen {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 560px;
+  padding: 18px 18px 14px;
+  border-radius: 6px;
+  overflow: hidden;
+  /* the "wallpaper" */
+  background: var(--blue);
+  color: #000a1a;
+  font-size: 17px;
 }
 
-.bento-glyph {
-  position: absolute;
-  right: -6px;
-  top: -18px;
-  font-family: var(--display);
-  font-size: clamp(5rem, 9vw, 8rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.06em;
-  opacity: 0.16;
-  pointer-events: none;
-  transition: translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), rotate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+.screen-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow: 0 14px 34px rgb(0 10 40 / 0.35);
 }
 
-.bento-card:hover .bento-glyph {
-  translate: -14px 16px;
-  rotate: -10deg;
-  opacity: 0.32;
+.screen-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: linear-gradient(#fff, #f4efe3);
+  border-bottom: 1px solid rgb(0 10 26 / 0.08);
+  font-size: 0.8em;
+  font-weight: 600;
 }
 
-.bento-note {
-  display: inline-block;
-  margin-left: 14px;
-  font-size: 1.7rem;
-  font-weight: 400;
-  letter-spacing: 0;
+.screen-bar .dots {
+  display: flex;
+  gap: 6px;
+}
+
+.screen-bar .dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #f08fb0;
+}
+
+.screen-bar .dots i:nth-child(2) {
+  background: #f7c948;
+}
+
+.screen-bar .dots i:nth-child(3) {
+  background: #4fc08d;
+}
+
+.screen-path {
+  opacity: 0.6;
+}
+
+.screen-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(150px, 30%) 1fr;
+  min-height: 0;
+}
+
+.screen-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: #f6f2ea;
+  border-right: 1px solid rgb(0 10 26 / 0.08);
+}
+
+.screen-side button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 14px;
+  border: 0;
+  border-bottom: 1px solid rgb(0 10 26 / 0.12);
+  border-radius: 0;
+  background: transparent;
   color: inherit;
-  rotate: -5deg;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-/* The title sits at the bottom of the card, above the skills */
-.bento-card h3 {
-  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+.screen-side button:hover {
+  background: rgb(255 255 255 / 0.6);
+}
+
+.screen-side button.on {
+  background: #fff;
+}
+
+/* each folder is a little coloured tile */
+.side-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.1em;
+  height: 2.1em;
+  border-radius: 10px;
+  background: var(--c);
+  color: var(--on);
+  font-family: var(--display);
+  font-size: 0.72em;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  transition: rotate 0.25s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.screen-side button:hover .side-icon,
+.screen-side button.on .side-icon {
+  rotate: -8deg;
+}
+
+.side-name {
+  flex: 1;
+  line-height: 1.2;
+}
+
+.screen-main {
+  position: relative;
+  padding: clamp(16px, 2.6vw, 30px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--c, #5b7bea) 16%, transparent), transparent 55%),
+    #fffdf8;
+}
+
+.screen-main h3 {
+  margin: 0 0 30px;
+  font-size: 1.8em;
   font-weight: 800;
   letter-spacing: -0.02em;
-  margin: auto 0 16px;
-  padding-top: 48px;
+  animation: screen-in 0.35s ease-out both;
 }
 
-.bento-card ul {
+.screen-main ul {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
-.bento-card li {
-  font-size: 0.88rem;
-  font-weight: 500;
-  padding: 6px 12px;
+.screen-main li {
+  padding: 12px 20px;
+  font-size: 1.1em;
   border-radius: 999px;
-  background: rgb(251 248 241 / 0.5);
+  background: color-mix(in srgb, var(--c) 24%, #fff);
+  font-weight: 600;
+  animation: screen-in 0.4s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  animation-delay: calc(var(--k) * 45ms);
   transition: background 0.2s, color 0.2s, translate 0.2s, rotate 0.2s;
 }
 
-.bento-card.plum li,
-.bento-card.blue li {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+.screen-main li:nth-child(3n + 2) {
+  background: color-mix(in srgb, var(--c) 38%, #fff);
 }
 
-.bento-card li:hover {
-  background: var(--cream);
-  color: var(--plum);
+.screen-main li:hover {
+  background: var(--c);
+  color: var(--on);
   translate: 0 -3px;
-  rotate: -4deg;
+  rotate: -3deg;
 }
 
-/* Skills used in my projects are links, marked with a dashed outline; hovering one fills in the
-   "used in" line at the bottom of the card */
-.bento-card li.linked {
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+    scale: 0.94;
+  }
+}
+
+/* Skills used in my projects are links, marked with a dashed outline */
+.screen-main li.linked {
   padding: 0;
-  outline: 1.5px dashed color-mix(in srgb, currentColor 45%, transparent);
+  outline: 1.5px dashed color-mix(in srgb, var(--c) 80%, #000);
   outline-offset: -1.5px;
 }
 
-.bento-card li.linked a {
+.screen-main li.linked a {
   display: block;
-  padding: 6px 12px;
+  padding: 12px 20px;
   color: inherit;
   text-decoration: none;
 }
 
-.bento-used {
-  min-height: 1.6em;
-  margin: 16px 0 0;
-  font-size: 0.9rem;
-  font-weight: 500;
+/* Faint moving doodles behind the skills */
+.screen-main > :not(.bd) {
+  position: relative;
 }
 
-.bento-used .pen {
-  font-size: 1.3rem;
-  color: inherit;
-  opacity: 0.7;
+.bd {
+  position: absolute;
+  right: 20px;
+  bottom: 6px;
+  color: var(--c);
+  opacity: 0.28;
+  font-family: var(--display);
+  font-size: 11rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  pointer-events: none;
 }
 
-.bento-used.on {
-  animation: used-in 0.3s ease-out;
+.bd-fonts {
+  display: flex;
+  gap: 0.1em;
+  font-size: 7rem;
 }
 
-@keyframes used-in {
-  from {
-    opacity: 0;
-    translate: 0 4px;
-  }
-}
-
-/* Each corner symbol's own hover animation */
-.glyph-fonts {
+.bd-stack {
   display: grid;
 }
 
-.glyph-fonts span {
+.bd-stack span {
   grid-area: 1 / 1;
   opacity: 0;
+  animation: bd-flick 2.4s steps(1) infinite;
 }
 
-.glyph-fonts span:nth-child(1) {
+.bd-stack span:nth-child(1) {
   opacity: 1;
 }
 
-.glyph-fonts span:nth-child(2) {
+.bd-stack span:nth-child(2) {
   font-family: var(--pen);
   font-weight: 400;
   letter-spacing: 0;
-}
-
-.glyph-fonts span:nth-child(3) {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-weight: 400;
-}
-
-.glyph-fonts span:nth-child(4) {
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.bento-card:hover .glyph-fonts span {
-  animation: font-flick 2.4s steps(1) infinite;
-}
-
-.bento-card:hover .glyph-fonts span:nth-child(2) {
   animation-delay: 0.6s;
 }
 
-.bento-card:hover .glyph-fonts span:nth-child(3) {
+.bd-stack span:nth-child(3) {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
   animation-delay: 1.2s;
 }
 
-.bento-card:hover .glyph-fonts span:nth-child(4) {
+.bd-stack span:nth-child(4) {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-weight: 700;
   animation-delay: 1.8s;
 }
 
-@keyframes font-flick {
+.bd-stack:nth-child(2) span {
+  animation-delay: calc(var(--n) * -0.8s);
+}
+
+.bd-stack:nth-child(2) span:nth-child(2) {
+  animation-delay: -0.2s;
+}
+
+.bd-stack:nth-child(2) span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.bd-stack:nth-child(2) span:nth-child(4) {
+  animation-delay: 1s;
+}
+
+.bd-stack:nth-child(3) span:nth-child(1) {
+  animation-delay: 1.4s;
+}
+
+.bd-stack:nth-child(3) span:nth-child(2) {
+  animation-delay: 2s;
+}
+
+.bd-stack:nth-child(3) span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.bd-stack:nth-child(3) span:nth-child(4) {
+  animation-delay: 0.8s;
+}
+
+@keyframes bd-flick {
   0% {
     opacity: 1;
   }
@@ -2699,25 +3046,21 @@ main,
   }
 }
 
-.glyph-type .caret {
+.bd-code .caret {
   display: inline-block;
   width: 0.08em;
   height: 0.8em;
   margin-left: 0.04em;
   background: currentColor;
-  opacity: 0;
+  animation: bd-caret 0.6s steps(1) infinite;
 }
 
-.bento-card:hover .glyph-type span {
-  animation: type-char 2.4s steps(1) infinite;
-  animation-delay: calc(var(--k) * 0.25s);
+.bd-code span {
+  animation: bd-type 3s steps(1) infinite;
+  animation-delay: calc(var(--k) * 0.3s);
 }
 
-.bento-card:hover .glyph-type .caret {
-  animation: caret-blink 0.6s steps(1) infinite;
-}
-
-@keyframes type-char {
+@keyframes bd-type {
   0% {
     opacity: 0;
   }
@@ -2731,112 +3074,302 @@ main,
   }
 }
 
-@keyframes caret-blink {
+@keyframes bd-caret {
   50% {
-    opacity: 1;
+    opacity: 0;
   }
 }
 
-.glyph-braces {
+.bd-braces {
   display: flex;
   align-items: center;
 }
 
-.glyph-braces span {
+.bd-braces > span {
   display: inline-block;
-  transition: translate 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 
-.glyph-braces .dots {
+.bd-braces > span:first-child {
+  animation: bd-open-left 2.4s ease-in-out infinite;
+}
+
+.bd-braces > span:last-child {
+  animation: bd-open-right 2.4s ease-in-out infinite;
+}
+
+.bd-braces .dots {
   font-size: 0.4em;
-  opacity: 0;
-  transition: opacity 0.3s;
 }
 
-.bento-card:hover .glyph-braces span:first-child {
-  animation: brace-open-left 1.6s ease-in-out infinite;
-}
-
-.bento-card:hover .glyph-braces span:last-child {
-  animation: brace-open-right 1.6s ease-in-out infinite;
-}
-
-.bento-card:hover .glyph-braces .dots {
-  opacity: 1;
-}
-
-@keyframes brace-open-left {
+@keyframes bd-open-left {
   50% {
-    translate: -0.18em 0;
+    translate: -0.22em 0;
   }
 }
 
-@keyframes brace-open-right {
+@keyframes bd-open-right {
   50% {
-    translate: 0.18em 0;
+    translate: 0.22em 0;
   }
 }
 
-.glyph-graph svg,
-.glyph-git svg {
-  position: absolute;
-  left: 0;
-  width: 100%;
+.bd-graph svg,
+.bd-git svg {
+  display: block;
+  width: 22rem;
   overflow: visible;
 }
 
-.glyph-graph svg {
-  top: 88%;
-  height: 0.5em;
-}
-
-.glyph-git svg {
-  top: 90%;
-  height: 0.38em;
-}
-
-.glyph-graph path,
-.glyph-git path {
+.bd-graph path,
+.bd-git path {
   fill: none;
   stroke: currentColor;
-  stroke-width: 7;
+  stroke-width: 9;
   stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 1.1s ease-in-out;
+  animation: bd-draw 5s ease-in-out infinite;
 }
 
-.glyph-git circle {
+.bd-graph rect {
   fill: currentColor;
-  scale: 0;
+  opacity: 0.55;
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: bd-grow 5s ease-in-out infinite;
+  animation-delay: calc(var(--n) * 0.12s);
+}
+
+.bd-git .branch {
+  animation-delay: 0.5s;
+}
+
+.bd-git circle {
+  fill: currentColor;
   transform-box: fill-box;
   transform-origin: center;
-  transition: scale 0.3s cubic-bezier(0.3, 1.8, 0.5, 1) 0.2s;
+  animation: bd-pop 5s ease-in-out infinite;
 }
 
-.glyph-git .branch {
-  transition-delay: 0.4s;
+.bd-git circle.late {
+  animation-delay: 1s;
 }
 
-.glyph-git circle.late {
-  transition-delay: 0.9s;
+@keyframes bd-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  45%,
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
 }
 
-.bento-card:hover .glyph-graph path,
-.bento-card:hover .glyph-git path {
-  stroke-dashoffset: 0;
+@keyframes bd-grow {
+  0% {
+    scale: 1 0;
+  }
+  35%,
+  85% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 1;
+    opacity: 0;
+  }
 }
 
-.bento-card:hover .glyph-git circle {
-  scale: 1;
+@keyframes bd-pop {
+  0%,
+  10% {
+    scale: 0;
+  }
+  25%,
+  85% {
+    scale: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 0;
+  }
+}
+
+/* the "dock" along the bottom of the screen */
+.screen-status {
+  align-self: center;
+  margin: 0;
+  display: block;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: rgb(0 10 26 / 0.55);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.85em;
+}
+
+.screen-status.on {
+  animation: used-in 0.3s ease-out;
+}
+
+@keyframes used-in {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+.monitor-neck {
+  width: calc(var(--u) * 76px);
+  height: calc(var(--u) * 44px);
+  background: linear-gradient(90deg, #b9bec6, #e3e6ea, #b9bec6);
+}
+
+.monitor-foot {
+  width: calc(var(--u) * 240px);
+  height: 12px;
+  border-radius: 999px 999px 0 0;
+  background: #d6dae0;
+}
+
+/* The desk itself */
+.desk-furniture i {
+  position: absolute;
+  display: block;
+}
+
+.desk-furniture {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.desk-slab {
+  left: 0;
+  right: 0;
+  bottom: calc(var(--u) * 800px);
+  height: calc(var(--u) * 44px);
+  background: linear-gradient(var(--slab) 0 45%, var(--slab-edge) 45%);
+  border-radius: calc(var(--u) * 6px);
+}
+
+.desk-slab::before,
+.desk-slab::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--u) * 10px);
+  height: calc(var(--u) * 16px);
+  border-radius: calc(var(--u) * 5px);
+  background: #e9ecf0;
+}
+
+.desk-slab::before {
+  left: 50%;
+  width: calc(var(--u) * 700px);
+  translate: -50% 0;
+}
+
+.desk-slab::after {
+  left: calc(50% + calc(var(--u) * 470px));
+  width: calc(var(--u) * 54px);
+  border-radius: 999px;
+}
+
+/* a plain apron under the top, and four legs: the back pair is shorter and slimmer, as if seen in perspective */
+.desk-apron {
+  left: calc(var(--u) * 56px);
+  right: calc(var(--u) * 56px);
+  bottom: calc(var(--u) * 710px);
+  height: calc(var(--u) * 90px);
+  background: var(--slab-edge);
+  box-shadow: inset 0 calc(var(--u) * -8px) 0 rgb(0 0 0 / 0.14);
+}
+
+.desk-leg {
+  bottom: 0;
+  background: linear-gradient(90deg, var(--wood-dark), color-mix(in srgb, var(--wood-dark) 75%, #000));
+  border-radius: calc(var(--u) * 4px);
+}
+
+.desk-leg.front {
+  width: calc(var(--u) * 60px);
+  height: calc(var(--u) * 800px);
+}
+
+.desk-leg.back {
+  width: calc(var(--u) * 44px);
+  height: calc(var(--u) * 740px);
+  bottom: calc(var(--u) * 60px);
+}
+
+.desk-leg.left.front {
+  left: calc(var(--u) * 90px);
+}
+
+.desk-leg.right.front {
+  right: calc(var(--u) * 90px);
+}
+
+.desk-leg.left.back {
+  left: calc(var(--u) * 250px);
+}
+
+.desk-leg.right.back {
+  right: calc(var(--u) * 250px);
+}
+
+@media (max-width: 760px) {
+  .desk {
+    --u: 0.6;
+  }
+
+  .screen {
+    height: 700px;
+    font-size: 22px;
+  }
+
+  .screen-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .screen-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 8px;
+    border-right: 0;
+    border-bottom: 1px solid rgb(0 10 26 / 0.1);
+  }
+
+  .screen-side button {
+    flex: none;
+    width: auto;
+    padding: 6px 10px;
+    border-bottom: 0;
+    border-radius: 8px;
+    font-size: 0.8em;
+    white-space: nowrap;
+  }
+
+  .side-name br,
+  .side-icon {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bento-card:hover .glyph-fonts span,
-  .bento-card:hover .glyph-type span,
-  .bento-card:hover .glyph-type .caret,
-  .bento-card:hover .glyph-braces span,
-  .bento-used.on {
+  .decor-plant,
+  .bd *,
+  .bd,
+  .screen-main h3,
+  .screen-main li,
+  .screen-status.on {
     animation: none;
   }
 }
@@ -3332,6 +3865,15 @@ main,
   translate: -2px -4px;
   rotate: 0deg;
   box-shadow: 8px 9px 0 var(--pink);
+}
+
+.social.cv {
+  background: var(--butter);
+  rotate: -1deg;
+}
+
+.social.cv svg {
+  fill: none;
 }
 
 .social.linkedin:hover {
@@ -4431,16 +4973,6 @@ a:hover .nav-arrow.inline.out {
     justify-self: center;
   }
 
-  .bento {
-    grid-template-columns: 1fr;
-  }
-
-  .bento-card,
-  .bento-card.wide {
-    grid-column: auto;
-    min-height: 0;
-  }
-
   .section {
     padding-block: 88px;
   }
@@ -5121,7 +5653,7 @@ a:hover .nav-arrow.inline.out {
 }
 
 .wallet-section.pinned .wallet-scroller {
-  height: 780vh;
+  height: 930vh;
 }
 
 .wallet-section.pinned .wallet-stage {
@@ -5146,6 +5678,21 @@ a:hover .nav-arrow.inline.out {
   z-index: 2;
   transform-origin: 0 0;
   will-change: translate, rotate, scale;
+}
+
+/* The hand that wipes the cards away at the end of the scene */
+.wipe-hand {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9;
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  /* it turns about the cut end of the forearm (top right of the picture), which stays off the screen */
+  transform-origin: 71% 7%;
+  will-change: translate, rotate;
+  filter: drop-shadow(6px 10px 0 rgb(0 0 0 / 0.12));
 }
 
 /* The wallet: two leather halves with an open slot between them, joined across the top by a strap.
@@ -5373,6 +5920,58 @@ a:hover .nav-arrow.inline.out {
 @media (prefers-reduced-motion: reduce) {
   .sun::before,
   .cloud {
+    animation: none;
+  }
+}
+
+/* Night sky (dark mode): the sun and clouds give way to a crescent moon and twinkling stars */
+.moon,
+.star {
+  display: none;
+}
+
+:root[data-theme='dark'] .sun,
+:root[data-theme='dark'] .cloud {
+  display: none;
+}
+
+:root[data-theme='dark'] .moon {
+  display: block;
+  position: absolute;
+  top: 15vh;
+  right: 13vw;
+  width: 96px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: inset -26px 10px 0 0 #f7de93;
+  filter: drop-shadow(0 0 18px rgb(247 222 147 / 0.55));
+  rotate: -12deg;
+}
+
+:root[data-theme='dark'] .star {
+  display: block;
+  position: absolute;
+  aspect-ratio: 1;
+  background: #fbf8f1;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: twinkle 3.6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    scale: 0.7;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star {
     animation: none;
   }
 }
@@ -5651,4 +6250,219 @@ a:hover .nav-arrow.inline.out {
   overflow: visible;
   opacity: 0;
   filter: drop-shadow(3px 4px 0 rgb(0 0 0 / 0.18));
+}
+
+/* ---------- The hero's blueprint (Blueprint.jsx) ----------
+   The same layout as a wireframe on graph paper. With a mouse it shows only inside a circle round the
+   cursor (--mx, --my, --lens); on touch screens everything right of a draggable line (--split) shows it. */
+@property --lens {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+.blueprint {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  --mx: -999px;
+  --my: -999px;
+  -webkit-mask-image: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 calc(var(--lens) - 1px), transparent var(--lens));
+  mask-image: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 calc(var(--lens) - 1px), transparent var(--lens));
+  transition: --lens 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.bp-paper {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgb(79 107 255 / 0.16) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(90deg, rgb(79 107 255 / 0.16) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(rgb(79 107 255 / 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgb(79 107 255 / 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
+    #f2f5fb;
+}
+
+.bp-copy-wrap {
+  position: absolute;
+}
+
+/* the copy: no animation, every word and shape in wireframe grey, the name as outlines */
+.bp-copy,
+.bp-copy * {
+  animation: none !important;
+  transition: none !important;
+}
+
+.bp-copy {
+  color: #8a93a5;
+}
+
+.bp-copy .write {
+  clip-path: none;
+}
+
+.bp-copy .draw path {
+  stroke-dashoffset: 0;
+}
+
+.bp-copy .hero-name,
+.bp-copy .accent-line {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #7c8698;
+}
+
+.bp-copy .hero-role,
+.bp-copy .pen {
+  color: #8a93a5;
+}
+
+.bp-copy .flag {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.bp-copy .button {
+  color: #6b7588;
+  background: #dde3ec;
+  border: 1.5px dashed #8a93a5;
+  box-shadow: none;
+}
+
+.bp-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 26px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  color: #5b6b85;
+}
+
+.bp-palette span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bp-palette i {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #5b6b85;
+  border-radius: 4px;
+}
+
+.bp-marks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+/* the lens itself: a blue ring with crosshairs */
+.bp-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 7;
+  width: 260px;
+  height: 260px;
+  border: 2px solid #4f6bff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgb(79 107 255 / 0.15), 0 14px 30px rgb(0 10 26 / 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.bp-ring::before,
+.bp-ring::after {
+  content: '';
+  position: absolute;
+  background: rgb(79 107 255 / 0.5);
+}
+
+.bp-ring::before {
+  left: 50%;
+  top: 42%;
+  width: 1px;
+  height: 16%;
+}
+
+.bp-ring::after {
+  top: 50%;
+  left: 42%;
+  height: 1px;
+  width: 16%;
+}
+
+.bp-ring span {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  translate: -50% 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #4f6bff;
+  color: #fff;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* touch screens: wipe between design and blueprint with a draggable line */
+.bp-handle {
+  display: none;
+}
+
+.bp-touch .blueprint {
+  -webkit-mask-image: none;
+  mask-image: none;
+  clip-path: inset(0 0 0 var(--split, 72%));
+}
+
+.bp-touch .bp-ring {
+  display: none;
+}
+
+.bp-touch .bp-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 7;
+  display: block;
+  width: 3px;
+  padding: 0;
+  translate: -50% 0;
+  border: 0;
+  background: #4f6bff;
+  touch-action: none;
+}
+
+.bp-touch .bp-handle span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  translate: -50% -50%;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #4f6bff;
+  color: #fff;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 14px rgb(0 10 26 / 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blueprint {
+    transition: none;
+  }
 }

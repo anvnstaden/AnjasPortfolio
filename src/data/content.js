@@ -256,10 +256,10 @@ export const projects = [
 
 export const skills = {
   'Design & Prototyping': ['UI/UX design', 'Product design', 'User-centred design', 'Responsive design', 'Prototyping', 'Figma', 'Canva'],
-  'Frontend & Web': ['JavaScript', 'HTML', 'CSS', 'React', 'Express.js'],
+  'Frontend & Web': ['JavaScript', 'HTML', 'CSS', 'React', 'Vite', 'Express.js'],
   Programming: ['Java', 'JavaFX', 'C', 'Python', 'MATLAB', 'R', 'x86 Assembly'],
-  'Data & Optimisation': ['SQL', 'MySQL', 'LINGO', 'AnyLogic', 'Business analytics'],
-  'Tools & Collaboration': ['Git', 'GitHub', 'GitLab', 'Docker', 'CI/CD', 'Scrum', 'Jira', 'Confluence'],
+  'Data & Optimisation': ['SQL', 'MySQL', 'LINGO', 'AnyLogic'],
+  'Tools & Collaboration': ['Git', 'GitHub', 'GitLab', 'Maven', 'Docker', 'CI/CD', 'Agile', 'Scrum', 'Jira', 'Confluence'],
 }
 
 // Which projects (by slug) use each skill. Hovering a skill on the home page shows these, and clicking it
@@ -270,6 +270,8 @@ const projectsWithGui = projects.filter((p) => p.gui !== false).map((p) => p.slu
 export const skillProjects = {
   'UI/UX design': ['hackathon-hosting-platform', 'community-event-volunteer-platform', 'honours-lab-management-app', 'peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer'],
   'Product design': ['community-event-volunteer-platform'],
+  'Responsive design': ['community-event-volunteer-platform'],
+  Prototyping: ['community-event-volunteer-platform'],
   'User-centred design': ['community-event-volunteer-platform', 'honours-lab-management-app'],
   Figma: ['community-event-volunteer-platform'],
   Canva: projectsWithGui,
@@ -277,6 +279,7 @@ export const skillProjects = {
   HTML: ['hackathon-hosting-platform', 'honours-lab-management-app'],
   CSS: ['hackathon-hosting-platform', 'honours-lab-management-app'],
   React: ['hackathon-hosting-platform', 'honours-lab-management-app'],
+  Vite: ['honours-lab-management-app', 'hackathon-hosting-platform'],
   'Express.js': ['hackathon-hosting-platform'],
   Java: ['peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer', 'quasi-palindromes-in-dna'],
   JavaFX: ['peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer'],
@@ -286,6 +289,7 @@ export const skillProjects = {
   GitLab: everyProject,
   Docker: ['parallel-othello-ai'],
   'CI/CD': ['community-event-volunteer-platform'],
+  Agile: ['hackathon-hosting-platform', 'community-event-volunteer-platform'],
   Scrum: ['community-event-volunteer-platform'],
   Jira: ['community-event-volunteer-platform'],
   Confluence: ['community-event-volunteer-platform'],
@@ -295,13 +299,19 @@ export const contact = {
   email: 'anvnstaden@gmail.com',
   github: 'https://github.com/anvnstaden',
   linkedin: 'https://www.linkedin.com/in/anja-van-staden',
+  // The CV the contact section offers for download (the PDF lives in public/)
+  cv: '/Anja-vanStaden-CV-Oct2026.pdf',
 }
 
 // Shown on the back of the ID badge on the home page when it flips over.
-export const funFacts = [
-  'I came 2nd in South Africa for public speaking',
-  'I got into programming after watching CSI: Cyber',
-  "I'm a makeup artist in my free time",
+// The back of the ID badge on the home page: a tongue-in-cheek security clearance list. `status` is
+// 'granted', or 'pending' with a `progress` from 0 to 1 for things still being learned.
+export const accessLevels = [
+  { area: 'UI/UX design', detail: 'Figma · prototyping', status: 'granted' },
+  { area: 'Frontend', detail: 'React · JavaScript · CSS', status: 'granted' },
+  { area: 'Systems', detail: 'Java · C · Python', status: 'granted' },
+  { area: 'Data', detail: 'SQL · optimisation', status: 'granted' },
+  { area: 'Deutsch', detail: 'learning every day', status: 'pending', progress: 0.6 },
 ]
 
 // "My Journey" timeline under About Me, oldest first. `scene` picks the illustrated postcard
