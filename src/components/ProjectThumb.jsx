@@ -1,3 +1,5 @@
+import Media from './Media.jsx'
+
 const colors = ['pink', 'blue', 'butter', 'plum']
 
 // Shows the project's first still screenshot (recordings only play on the projects page, to keep the home
@@ -7,7 +9,7 @@ export default function ProjectThumb({ project, index }) {
   if (image) {
     return (
       <div className="thumb">
-        <img src={image.src} alt={image.caption || project.title} loading="lazy" />
+        <Media skeleton src={image.src} alt={image.caption || project.title} loading="lazy" />
       </div>
     )
   }

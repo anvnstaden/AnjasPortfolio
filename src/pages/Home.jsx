@@ -4,6 +4,7 @@ import Split from '../components/Split.jsx'
 import Title from '../components/Title.jsx'
 import ProjectThumb from '../components/ProjectThumb.jsx'
 import Journey from '../components/Journey.jsx'
+import FactsWallet from '../components/FactsWallet.jsx'
 import { FlagDE, FlagNL, FlagZA } from '../components/Flags.jsx'
 import { Circle, NavArrow, PointingHand, Sparkle, Underline } from '../components/Doodles.jsx'
 import { contact, funFacts, projects, skillProjects, skills } from '../data/content.js'
@@ -125,14 +126,6 @@ function SkillCard({ group, items, look, i }) {
     </article>
   )
 }
-
-// Languages for the chat-bubble card: how each one says hello, and how well I speak it.
-const languages = [
-  { name: 'English', hello: 'Hello!', level: 'fluent' },
-  { name: 'Afrikaans', hello: 'Hallo!', level: 'fluent' },
-  { name: 'Deutsch', hello: 'Guten Tag!', level: 'learning', typing: true },
-  { name: 'Nederlands', hello: 'Hoi!', level: 'understand' },
-]
 
 // How far (px) you scroll before the badge rips off the navbar.
 const RIP_AT = 60
@@ -383,85 +376,9 @@ export default function Home() {
             <PointingHand className="note-hand" />
           </aside>
         </div>
-        {/* Quick facts as little travel documents: passports, a visa stamp, a boarding pass and chat bubbles */}
-        <dl className="facts">
-          <div className="fact passport tilt reveal" style={{ '--d': '0ms' }}>
-            <dt>Citizenship</dt>
-            <dd>
-              <span className="passports" aria-hidden="true">
-                <span className="pp za">
-                  <span className="pp-title">Suid-Afrika</span>
-                  <span className="pp-crest" />
-                  <span className="pp-word">Passport</span>
-                  <FlagZA />
-                </span>
-                <span className="pp nl">
-                  <span className="pp-title">Nederland</span>
-                  <span className="pp-crest" />
-                  <span className="pp-word">Paspoort</span>
-                  <FlagNL />
-                </span>
-              </span>
-              South African &amp; Dutch
-            </dd>
-          </div>
-
-          <div className="fact visa tilt reveal" style={{ '--d': '90ms' }}>
-            <dt>Work rights</dt>
-            <dd>
-              <span className="visa-stamp" aria-hidden="true">
-                <span>EU work permit</span>
-                <strong>✓ No visa</strong>
-                <span>needed</span>
-              </span>
-              EU authorisation, no visa or sponsorship needed
-            </dd>
-          </div>
-
-          <div className="fact ticket tilt reveal" style={{ '--d': '180ms' }}>
-            <dt>Looking for</dt>
-            <dd>
-              <span className="ticket-route" aria-hidden="true">
-                <span className="ticket-stop">
-                  <strong>ZA</strong>
-                  <small>Stellenbosch</small>
-                </span>
-                <svg className="ticket-plane" viewBox="0 0 40 30">
-                  <path d="M2 15 38 2 26 28 18 18Z" />
-                  <path d="M38 2 18 18 16 27 22 21" />
-                </svg>
-                <span className="ticket-stop">
-                  <strong>DE</strong>
-                  <small>Germany</small>
-                </span>
-              </span>
-              Roles anywhere in Germany from 2027
-              <span className="ticket-stub" aria-hidden="true">
-                <span className="ticket-notch-shadow" />
-                <span>Departs 2027</span>
-                <span className="ticket-barcode" />
-              </span>
-            </dd>
-          </div>
-
-          <div className="fact chat tilt reveal" style={{ '--d': '270ms' }}>
-            <dt>Languages</dt>
-            <dd>
-              <ul className="bubbles">
-                {languages.map((l, i) => (
-                  <li key={l.name} className={`bubble${i % 2 ? ' them' : ''}`} style={{ '--b': i }}>
-                    <span className="bubble-hello" aria-hidden="true">
-                      {l.hello}
-                      {l.typing && <span className="typing"><i /><i /><i /></span>}
-                    </span>
-                    <span className="bubble-lang">{l.name} · {l.level}</span>
-                  </li>
-                ))}
-              </ul>
-            </dd>
-          </div>
-        </dl>
       </section>
+
+      <FactsWallet />
 
       <Journey />
 

@@ -61,7 +61,7 @@ function Carousel({ project, onOpen }) {
                   onClick={() => onSlide(img, i)}
                 >
                   {img ? (
-                    <Media src={img.src} alt={img.caption || `${project.title} screenshot ${i + 1}`} loading="lazy" draggable="false" />
+                    <Media skeleton src={img.src} alt={img.caption || `${project.title} screenshot ${i + 1}`} loading="lazy" draggable="false" />
                   ) : (
                     <span className="slide-empty">
                       <span>Screenshot {i + 1}</span>
