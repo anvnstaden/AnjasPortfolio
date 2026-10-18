@@ -60,6 +60,8 @@ function useDeskZoom() {
       el.style.transformOrigin = '0 0'
       el.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
       area.style.setProperty('--title', String(1 - Math.min(1, k * 2.2)))
+      // the screen's own animations only play once the camera has pushed all the way in
+      el.classList.toggle('zoomed', k > 0.95)
     }
     const queue = () => {
       if (!frame) frame = requestAnimationFrame(update)
@@ -132,6 +134,41 @@ function Backdrop({ kind }) {
   )
 }
 
+// The wall clock: the clock face drawing with real hands on top that keep the time (the viewer's local time)
+function WallClock() {
+  const hour = useRef(null)
+  const minute = useRef(null)
+  const second = useRef(null)
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date()
+      const s = now.getSeconds()
+      const m = now.getMinutes() + s / 60
+      const h = (now.getHours() % 12) + m / 60
+      hour.current.style.transform = `rotate(${(h * 30).toFixed(2)}deg)`
+      minute.current.style.transform = `rotate(${(m * 6).toFixed(2)}deg)`
+      second.current.style.transform = `rotate(${s * 6}deg)`
+    }
+    tick()
+    const id = setInterval(tick, 500)
+    return () => clearInterval(id)
+  }, [])
+  return (
+    <span className="decor decor-clock">
+      <img src="/desk_decor/wall-clock-face.svg" alt="" loading="lazy" />
+      <svg viewBox="0 0 375 375">
+        <g ref={hour} className="hand hour"><rect x="183.5" y="112" width="8" height="84" rx="4" /></g>
+        <g ref={minute} className="hand minute"><rect x="184.5" y="78" width="6" height="118" rx="3" /></g>
+        <g ref={second} className="hand second">
+          <rect x="186.2" y="66" width="2.6" height="140" rx="1.3" />
+          <circle cx="187.5" cy="187.5" r="6" />
+        </g>
+        <circle cx="187.5" cy="187.5" r="5" className="hub" />
+      </svg>
+    </span>
+  )
+}
+
 function SkillsDesk() {
   const { pin, stage, desk, monitor } = useDeskZoom()
   const groups = Object.entries(skills)
@@ -148,8 +185,6 @@ function SkillsDesk() {
     <div className="desk" ref={desk} translate="no">
       <div className="desk-wall" aria-hidden="true">
         {[
-          ['clock', 'wall%20clock'],
-          ['lamp', 'lamp'],
           ['bottle', 'water'],
           ['coffee', 'coffee'],
           ['pens', 'penholder'],
@@ -157,6 +192,12 @@ function SkillsDesk() {
         ].map(([cls, file]) => (
           <img key={cls} className={`decor decor-${cls}`} src={`/desk_decor/${file}.svg`} alt="" loading="lazy" />
         ))}
+        <WallClock />
+        {/* the lamp: the switched-off drawing with the lit one on top, which flickers on and off */}
+        <span className="decor decor-lamp">
+          <img src="/desk_decor/lamp_off.svg" alt="" loading="lazy" />
+          <img className="lamp-on" src="/desk_decor/lamp.svg" alt="" loading="lazy" />
+        </span>
       </div>
 
       <div className="monitor" ref={monitor}>

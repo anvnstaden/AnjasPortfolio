@@ -2168,6 +2168,94 @@ main,
   animation: sway 4s ease-in-out infinite;
 }
 
+.decor-clock,
+.decor-lamp {
+  aspect-ratio: 1;
+}
+
+.decor-lamp img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.lamp-on {
+  animation: lamp-flicker 6s steps(1) infinite;
+}
+
+/* mostly on, then it stutters, goes dark for a moment and stutters back on */
+@keyframes lamp-flicker {
+  0%,
+  38% {
+    opacity: 1;
+  }
+  39% {
+    opacity: 0;
+  }
+  41% {
+    opacity: 1;
+  }
+  43% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  46%,
+  60% {
+    opacity: 0;
+  }
+  61% {
+    opacity: 1;
+  }
+  63% {
+    opacity: 0;
+  }
+  65%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamp-on {
+    animation: none;
+  }
+}
+
+.decor-clock img,
+.decor-clock svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.decor-clock .hand {
+  transform-origin: 187.5px 187.5px;
+}
+
+.decor-clock .hour rect,
+.decor-clock .minute rect {
+  fill: #a8788c;
+}
+
+.decor-clock .second {
+  transition: transform 0.25s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.decor-clock .second rect,
+.decor-clock .second circle {
+  fill: #e0507e;
+}
+
+.decor-clock .hub {
+  fill: #fbf8f1;
+  stroke: #a8788c;
+  stroke-width: 2.5;
+}
+
 @keyframes sway {
   25% {
     transform: rotate(2deg);
@@ -2943,6 +3031,27 @@ main,
   padding: 12px 20px;
   color: inherit;
   text-decoration: none;
+}
+
+/* The screen's animations only run when the camera is fully in on the monitor (.zoomed, set while scrolling);
+   from further out the screen just shows its finished state */
+.desk:not(.zoomed) .screen-main h3,
+.desk:not(.zoomed) .screen-main li,
+.desk:not(.zoomed) .screen-status.on {
+  animation: none;
+}
+
+.desk:not(.zoomed) .bd {
+  opacity: 0;
+}
+
+.desk:not(.zoomed) .bd,
+.desk:not(.zoomed) .bd * {
+  animation-play-state: paused;
+}
+
+.bd {
+  transition: opacity 0.5s;
 }
 
 /* Faint moving doodles behind the skills */
