@@ -66,6 +66,7 @@ export const projects = [
     mark: 'TBA',
     featured: true,
     note: 'team of six!',
+    link: 'https://neighbourly.dpdns.org/',
     images: [
       { src: '/project_screenshots/volunteer_platform/walkthrough.mp4', caption: 'A quick walkthrough as a volunteer: the landing page, browsing events, My Attendance, My Statistics, the achievements road and the profile page.' },
       { src: '/project_screenshots/volunteer_platform/landing_page.png', caption: 'The landing page for Neighbourly, with a hand-drawn neighbourhood and the headline "The future of volunteering is here".' },
