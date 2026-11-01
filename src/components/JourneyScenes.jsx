@@ -1,6 +1,8 @@
 // Illustrated postcards for the "My Journey" timeline, one per place. They use fixed colours (like the
 // flags) so they look the same in light and dark mode. Every `.sprout` group pops up out of the
 // ground, staggered by --d, once its postcard scrolls into view; the other classes are idle animations.
+import { useLang } from '../i18n.js'
+
 const ink = '#000a1a'
 const ivory = '#fbf8f1'
 const blue = '#0e4798'
@@ -267,6 +269,7 @@ export function Stellenbosch() {
 
 /* ---------- Europe: half-timbered houses, the Brandenburg Gate, cathedral spires, the TV tower and a windmill ---------- */
 export function Europe() {
+  const { t } = useLang()
   return (
     <svg className="scene" viewBox="0 0 480 300" stroke={ink} strokeWidth="2.5" strokeLinejoin="round" aria-hidden="true">
       <defs>
@@ -339,8 +342,8 @@ export function Europe() {
         <path d="M324 244V196L346 178L368 196V244" fill="none" strokeDasharray="6 5" stroke={ivory} />
         <line x1="346" y1="246" x2="346" y2="222" />
         <rect x="318" y="200" width="56" height="26" rx="4" fill={butter} />
-        <text x="346" y="211" textAnchor="middle" className="scene-pen small" stroke="none" fill={ink}>your team</text>
-        <text x="346" y="222" textAnchor="middle" className="scene-pen small" stroke="none" fill={ink}>here?</text>
+        <text x="346" y="211" textAnchor="middle" className="scene-pen small" stroke="none" fill={ink}>{t.journey.yourTeam[0]}</text>
+        <text x="346" y="222" textAnchor="middle" className="scene-pen small" stroke="none" fill={ink}>{t.journey.yourTeam[1]}</text>
       </Sprout>
 
       {/* Berlin's TV tower */}

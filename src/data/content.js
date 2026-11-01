@@ -1,5 +1,6 @@
-// Site content. Edit text here; the pages pick it up automatically.
-// Projects are listed newest first, and the projects page shows them in this order.
+// Site content. Edit text here; the pages pick it up automatically. The German version of it is in content.de.js.
+// `projects` are my university projects and `personalProjects` the ones I built myself; each has its own page.
+// Projects are listed newest first, and the projects pages show them in this order.
 //
 // Screenshots: put image files in public/project_screenshots/<folder>/ and list them in that
 // project's `images`, e.g.
@@ -14,11 +15,13 @@
 //
 // Projects without a user interface set `gui: false` and list `highlights` instead;
 // they get a terminal-style panel rather than a screenshot gallery.
-// Projects marked `featured` appear on the home page. Add `link` to show a "View project" link.
+// Projects marked `featured` appear on the home page. Add `link` to show a "View project" link
+// (`linkLabel` changes its text).
 // `note` is an optional handwritten aside next to the title.
 // `theme` is an optional paragraph explaining the project's visual theme.
 // `module` is the university module the project was for.
-// `mark` is the final mark; use 'TBA' while a project is still in progress.
+// `mark` is the final mark; use 'TBA' while a project is still in progress. Its German grade is worked out from it.
+// `stack` is the list of technologies shown under "Tech stack", and `technical` optional notes on how it's built.
 
 export const projects = [
   {
@@ -58,12 +61,12 @@ export const projects = [
       'A website for running student hackathons, built in a group of four. Admins create groups, add problems with hidden test cases and start the hackathon. Teams write code together in a shared editor that updates live, and their Python submissions get marked automatically and show up on a live leaderboard. We called it HALT after the four of us (Hannah, Anja, Leo and Tiana), and because HALT is also an assembly instruction. We were not allowed to use any external libraries, so the entire frontend is built with plain React.',
     theme:
       'We went for a retro synthwave look: a neon pink and cyan grid, a starry sky, glitchy fonts and shiny chrome hands and figures. On the landing, log-in and sign-up pages they move with a parallax effect.',
-    tags: ['React', 'Express.js', 'WebSockets', 'JWT', 'Real-time sync'],
+    stack: ['React', 'Vite', 'Express.js', 'WebSockets', 'PostgreSQL', 'Prisma', 'JWT', 'Vitest'],
   },
   {
     title: 'Community Event & Volunteer Platform',
     slug: 'community-event-volunteer-platform',
-    mark: 'TBA',
+    mark: '85.4%',
     featured: true,
     note: 'team of six!',
     link: 'https://neighbourly.dpdns.org/',
@@ -90,7 +93,7 @@ export const projects = [
     meta: '2026',
     description:
       "Our industry project with Entelect, built in a team of six. It's a website for community organisations to create events, find volunteers and keep track of attendance and volunteer hours. I worked on both the code and the usability of the site.",
-    tags: ['Full-stack', 'Teamwork', 'Usability'],
+    stack: ['Next.js', 'React', 'Tailwind CSS', 'shadcn/ui', 'Express.js', 'Prisma', 'Better Auth', 'Vitest', 'GitLab CI/CD'],
   },
   {
     title: 'Honours Lab Management App',
@@ -114,7 +117,7 @@ export const projects = [
       "A single-page app for managing the honours computer lab. The main part is a 7 × 10 seat map that shows who is sitting where. It also has logging in, profiles you can edit, a Q&A section, announcements you can filter by tag, and your own colour theme, all saved in the browser. We weren't allowed to use any external libraries, so it's all plain React.",
     theme:
       'I gave it a medieval fantasy theme. Students are called "Scholars" and log in on a parchment scroll, seats are thrones, announcements are decrees, and profile pictures are "sigils". Every page has its own illustrated background, and all the text is written in the same medieval style.',
-    tags: ['React', 'JavaScript', 'localStorage', 'UI design'],
+    stack: ['React', 'Vite', 'JavaScript', 'CSS', 'localStorage'],
   },
   {
     title: 'Peer-to-Peer File Sharing',
@@ -135,7 +138,7 @@ export const projects = [
       'An anonymous file-sharing app where people download files straight from each other. A small server handles searches and returns exact and close matches. It introduces two people using encrypted keys, and then the file goes directly between them over Tailscale, with pause, resume and an animated progress bar. I built the entire frontend using only JavaFX.',
     theme:
       'We gave it a pirate theme: old treasure maps, wooden signs, skulls and ships, and all the text is in pirate speak. Files are treasure, and sharing them is "distributing plunder among yer crew". Typing sounds like coins, clicking sounds like water drops, and the log-in screen sways like a ship while the Pirates of the Caribbean soundtrack plays.',
-    tags: ['Java', 'JavaFX', 'Encryption', 'Tailscale'],
+    stack: ['Java', 'JavaFX', 'Encryption', 'Tailscale'],
   },
   {
     title: 'Parallel Othello AI',
@@ -152,7 +155,7 @@ export const projects = [
       'Parallelised with MPI across multiple cores',
       'Plays stronger within a fixed time limit',
     ],
-    tags: ['C', 'MPI', 'MCTS', 'Optimisation'],
+    stack: ['C', 'MPI', 'Docker', 'Monte Carlo Tree Search'],
   },
   {
     title: 'VoIP Chat',
@@ -177,7 +180,7 @@ export const projects = [
       'A voice-over-IP app. The server keeps track of who is online, and the calls go directly between the people talking over UDP. You can make one-on-one and group calls, chat in group channels, text during a call and send voice notes. I built the entire frontend using only JavaFX.',
     theme:
       'We made it look like a dark web hacker program: everything is red and black, with 0s and 1s falling in the background and creepy music while it loads. The log-in screen greets you with "Welcome stranger. Your IP has been noted.", private chats tell you to "Behave...", and the server even has a fake PANIC button.',
-    tags: ['Java', 'UDP', 'Audio streaming', 'GUI'],
+    stack: ['Java', 'JavaFX', 'UDP', 'Audio streaming'],
   },
   {
     title: 'Multicore Process Scheduler',
@@ -195,7 +198,7 @@ export const projects = [
       'Full lifecycle from initialisation to termination',
       'Deadlock detection and handling',
     ],
-    tags: ['C', 'Operating systems', 'Scheduling', 'Concurrency'],
+    stack: ['C', 'Operating systems', 'Scheduling'],
   },
   {
     title: 'RBUDP & TCP File Transfer',
@@ -215,7 +218,7 @@ export const projects = [
       'Our version of the Reliable Blast UDP protocol for sending files. The file gets sent in numbered UDP packets, and TCP is used to ask for any lost packets again. There are sender and receiver GUIs with progress bars, and we ran experiments comparing its speed to TCP with different packet sizes, send rates and loss rates. I built the entire frontend using only JavaFX.',
     theme:
       "The design is a race between a snail and a rocket. TCP is the snail, because it's reliable but slow: it waits for every packet to be confirmed. RBUDP is the rocket, because it sends the whole file over UDP and only goes back for the packets that got lost, which makes it much faster. That's why there's a waving snail on the home screen and the receiver is set in space. The footer also has rotating jokes about it, written to make our markers laugh.",
-    tags: ['Java', 'UDP', 'TCP', 'Performance analysis'],
+    stack: ['Java', 'JavaFX', 'UDP', 'TCP'],
   },
   {
     title: 'WISTL Compiler',
@@ -233,7 +236,7 @@ export const projects = [
       'Semantic analysis and type checking',
       'Code generation to JVM bytecode via Jasmin',
     ],
-    tags: ['C', 'Compilers', 'JVM', 'Jasmin'],
+    stack: ['C', 'Jasmin', 'JVM bytecode'],
   },
   {
     title: 'Quasi-Palindromes in DNA',
@@ -251,7 +254,67 @@ export const projects = [
       'Generates strings with a set number of quasi-palindromes',
       'Graded on speed as well as correctness',
     ],
-    tags: ['Java', 'String algorithms', 'Performance'],
+    stack: ['Java', 'String algorithms'],
+  },
+]
+
+export const personalProjects = [
+  {
+    title: 'Makeup Artist Commercial Site',
+    slug: 'eva-website',
+    note: 'and its own dashboard!',
+    link: 'https://evakritzas.vercel.app/',
+    linkLabel: 'Visit the website',
+    images: [
+      { src: '/project_screenshots/eva_website/load_in.mp4', caption: "The load-in screen: the logo draws itself in gold, Eva's signature writes on, and the black panel lifts like a curtain to reveal the home page." },
+      { src: '/project_screenshots/eva_website/home.png', caption: 'The home page, with Eva in front of her embossed logo.' },
+      { src: '/project_screenshots/eva_website/home_scroll.mp4', caption: 'Scrolling down the home page: sections fade in, the torn-paper edges move past, and her reels play in phone frames.' },
+      { src: '/project_screenshots/eva_website/bridal.png', caption: 'The bridal page, with black torn-paper edges and gold details that carry through the whole site.' },
+      { src: '/project_screenshots/eva_website/bridal_scroll.mp4', caption: 'Scrolling down the bridal page, from the steps of a booking to the behind-the-scenes polaroids.' },
+      { src: '/project_screenshots/eva_website/how_it_works.png', caption: 'How It Works takes brides through the steps, from the first enquiry to the wedding morning.' },
+      { src: '/project_screenshots/eva_website/behind_the_scenes.png', caption: "Behind the scenes, with photos from real wedding mornings laid out like polaroids and Eva's signature." },
+      { src: '/project_screenshots/eva_website/whats_included.png', caption: 'What you get with a bridal booking, next to a card for asking for a quote.' },
+      { src: '/project_screenshots/eva_website/portfolio.png', caption: 'The portfolio, a photo grid you can filter by category, like Bridal, Editorial or Brows & Lashes.' },
+      { src: '/project_screenshots/eva_website/portfolio_more.png', caption: 'Further down the portfolio, where bigger photos break up the grid.' },
+      { src: '/project_screenshots/eva_website/portfolio_filter.mp4', caption: 'The filters swap the photos with a soft fade, and clicking a photo opens it full size.' },
+      { src: '/project_screenshots/eva_website/faq.png', caption: 'The FAQ, with the questions grouped by topic.' },
+      { src: '/project_screenshots/eva_website/contact.png', caption: 'The enquiry form, with a note pinned to the corner for anyone ready to book.' },
+      { src: '/project_screenshots/eva_website/dashboard.png', caption: 'The dashboard, shown here with sample numbers. It sums up the week in a sentence, then shows the statistics underneath.' },
+    ],
+    ratio: '16 / 9',
+    kind: 'Astro · Vite · TypeScript',
+    description:
+      "A website for Eva Kritzas, a makeup and hair artist based in Stellenbosch. It has pages for her bridal work, portfolio, services and FAQ, plus an enquiry form. I also built a dashboard that tracks all of the website's statistics: how many people visited, which pages they looked at, how they found her, where they are, whether they're on a phone or a computer, and how fast the site loads.",
+    technical: [
+      'A static Astro site with no database or CMS. The business details and copy live in one data file, so most updates need no page code.',
+      'The dashboard is its own Vercel project, written in plain TypeScript with Vite.',
+      'Serverless functions call the APIs and hold the secret keys, so nothing private reaches the browser.',
+      'The statistics come from the Vercel Web Analytics API and the speed score from Google PageSpeed Insights, reused for 30 minutes.',
+    ],
+    stack: ['Astro', 'TypeScript', 'Vite', 'Vercel', 'Vercel Web Analytics', 'PageSpeed Insights API'],
+  },
+  {
+    title: 'Study Tracker',
+    slug: 'study-tracker',
+    images: [
+      { src: '/project_screenshots/study_tracker/today.png', caption: 'The Today page, with how long I studied today, my daily goal and the last two weeks by app. All the screenshots show demo data.' },
+      { src: '/project_screenshots/study_tracker/study.png', caption: 'The Study page: a calendar of how close I came to my goal each day, when I tend to study, and where my week went.' },
+      { src: '/project_screenshots/study_tracker/job_ideas.png', caption: 'Job ideas: openings from job boards, each rated against my skills and marked if it needs German.' },
+      { src: '/project_screenshots/study_tracker/todo_habits.png', caption: 'My calendar, to-do list and habits, all on the same page as my study time.' },
+    ],
+    ratio: '16 / 9',
+    kind: 'Python · ActivityWatch · Personal tool',
+    description:
+      'A dashboard that tracks what I do on my computer and turns it into something useful. It uses ActivityWatch to see which apps and websites I use, works out which of that counts as studying, and shows my progress towards my daily goals. It also helps with my job search by finding openings, rating how well they fit me and keeping track of my applications, and it has my to-do list, habits, calendar and break reminders. It is completely customised to my needs, so every feature is there because I actually wanted it.',
+    technical: [
+      'One Python file using only the standard library, so there is nothing to install. It runs its own local web server.',
+      'Activity comes from the ActivityWatch local API, and regex rules I can edit decide what counts as studying.',
+      'Openings come from the Arbeitsagentur, Arbeitnow and Remotive APIs, and each one gets scored against my profile.',
+      'Applications are saved to a Google Sheet through Google Apps Script.',
+    ],
+    theme:
+      'It matches the aesthetic of this portfolio, with the same pink and butter colours, cream cards, chunky outlines and hard shadows.',
+    stack: ['Python', 'JavaScript', 'HTML', 'CSS', 'ActivityWatch', 'Google Apps Script', 'Google Sheets'],
   },
 ]
 

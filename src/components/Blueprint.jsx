@@ -1,15 +1,22 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useLang } from '../i18n.js'
 
 // "Designer at heart, software engineer by degree", as something you can play with: under the hero lies its
 // blueprint (the same layout as a wireframe, with selection boxes, live specs, red spacing lines, colour
-// codes and the JSX behind it). With a mouse, the cursor is an X-ray lens that shows the blueprint wherever
-// it goes; on touch screens a line can be dragged across to wipe between the two.
+// codes and the JSX behind it). It stays out of the way until someone presses the Inspect button in the hero's corner.
+// Then, with a mouse, the cursor is an X-ray lens that shows the blueprint wherever it goes; on touch screens
+// a line can be dragged across to wipe between the two.
 // The blueprint copy of the hero text is passed in as children. Every element in it marked with `data-bp`
 // (its name) gets a box and a spec label measured from the page, and `data-code` adds the code behind it.
 
 const LENS = 130 // lens radius, px
-const BLUE = '#4f6bff'
-const RED = '#f2453d'
+// Drawn in chalk on blue paper: white boxes, butter measurements, pink code
+const LINE = '#ffffff'
+const PAPER = '#0e4798'
+const MEASURE = '#f7de93'
+const CODE = '#dfa4b8'
+const INK = '#000a1a'
+const FAINT = 'rgb(255 255 255 / 0.65)'
 
 const hex = (rgb) => {
   const [r, g, b] = rgb.match(/\d+/g).map(Number)
@@ -23,12 +30,59 @@ function tag(x, y, text, fill, color = '#fff') {
   return `<rect x="${x}" y="${y}" width="${w}" height="17" rx="3" fill="${fill}"/><text x="${x + 6}" y="${y + 12.5}" fill="${color}">${esc(text)}</text>`
 }
 
-export default function Blueprint({ children }) {
+// `intro` is 'playing' while the page opens on the blueprint (the sweep itself is timed in CSS, see .bp-sweep):
+// it holds until the fonts are in, and any click, key or scroll skips the rest. `onIntroEnd` says it's over.
+export default function Blueprint({ children, intro, onIntroEnd }) {
+  const { lang, t } = useLang()
   const layer = useRef(null)
   const copy = useRef(null)
   const marks = useRef(null)
   const ring = useRef(null)
   const handle = useRef(null)
+  const applyInspecting = useRef(null)
+  const redraw = useRef(null)
+  const [inspecting, setInspecting] = useState(false)
+
+  const playing = intro === 'playing'
+  useEffect(() => {
+    if (!playing) return
+    const hero = layer.current.parentElement
+    const finish = (e) => {
+      if (e.type !== 'animationend' || e.animationName.startsWith('bp-wipe')) onIntroEnd()
+    }
+    let failsafe = 0
+    let cancelled = false
+    const go = () => {
+      if (cancelled) return
+      hero.classList.add('bp-go')
+      failsafe = setTimeout(onIntroEnd, 3000)
+    }
+    const fontWait = setTimeout(go, 800)
+    document.fonts?.ready.then(() => {
+      clearTimeout(fontWait)
+      if (!hero.classList.contains('bp-go')) go()
+    })
+    const skips = ['pointerdown', 'wheel', 'touchmove', 'keydown']
+    hero.addEventListener('animationend', finish)
+    skips.forEach((type) => window.addEventListener(type, finish, { passive: true }))
+    return () => {
+      cancelled = true
+      clearTimeout(fontWait)
+      clearTimeout(failsafe)
+      hero.classList.remove('bp-go')
+      hero.removeEventListener('animationend', finish)
+      skips.forEach((type) => window.removeEventListener(type, finish))
+    }
+  }, [playing, onIntroEnd])
+
+  useEffect(() => {
+    applyInspecting.current?.(inspecting)
+  }, [inspecting])
+
+  // New wording means new boxes to draw around it
+  useEffect(() => {
+    redraw.current?.()
+  }, [lang])
 
   useEffect(() => {
     const blueprint = layer.current
@@ -42,9 +96,10 @@ export default function Blueprint({ children }) {
     hero.classList.toggle('bp-touch', touch)
     let frame = 0
     let demo = 0
+    let active = false
 
     // The blueprint: a box and spec label round every marked element, red lines measuring the gaps between
-    // them, the code behind them, and a wireframe of the badge and the blob behind it
+    // them, the code behind them, and a wireframe of the badge
     const draw = () => {
       frame = 0
       const hr = hero.getBoundingClientRect()
@@ -57,19 +112,21 @@ export default function Blueprint({ children }) {
         const r = rel(range.getBoundingClientRect())
         // the specs come from the real element, not the grey wireframe copy (`p.hello` → `.hello`)
         const name = el.dataset.bp
-        const real = source.querySelector(name.includes('.') ? `.${name.split('.')[1]}` : '.button.primary') ?? el
+        const real = source.querySelector(name.includes('.') ? `.${name.split('.')[1]}` : '.folder-btn') ?? el
         const cs = getComputedStyle(real)
         const family = cs.fontFamily.split(',')[0].replace(/["']/g, '')
-        const spec = `${name} · ${family} ${cs.fontWeight} · ${Math.round(parseFloat(cs.fontSize))}px · ${hex(cs.color)}`
-        out += `<rect x="${r.x - 4}" y="${r.y - 4}" width="${r.w + 8}" height="${r.h + 8}" fill="none" stroke="${BLUE}" stroke-width="1.2"/>`
-        out += [[-4, -4], [r.w + 4, -4], [-4, r.h + 4], [r.w + 4, r.h + 4]]
-          .map(([dx, dy]) => `<rect x="${r.x + dx - 3}" y="${r.y + dy - 3}" width="6" height="6" fill="#fff" stroke="${BLUE}" stroke-width="1.2"/>`)
-          .join('')
-        // the name's label sits above it; the smaller lines are too close together, so theirs go beside them
+        const size = `${Math.round(parseFloat(cs.fontSize))}px · ${hex(cs.color)}`
         const big = r.h > 80
-        out += big ? tag(r.x - 4, r.y - 24, spec, BLUE) : tag(r.x + r.w + 14, r.y + r.h / 2 - 8, spec, BLUE)
+        // the name has room for its whole spec; the lines beside the badge only get their size and colour
+        const spec = big ? `${name} · ${family} ${cs.fontWeight} · ${size}` : `${name} · ${size}`
+        out += `<rect x="${r.x - 4}" y="${r.y - 4}" width="${r.w + 8}" height="${r.h + 8}" fill="none" stroke="${LINE}" stroke-width="1.2"/>`
+        out += [[-4, -4], [r.w + 4, -4], [-4, r.h + 4], [r.w + 4, r.h + 4]]
+          .map(([dx, dy]) => `<rect x="${r.x + dx - 3}" y="${r.y + dy - 3}" width="6" height="6" fill="${PAPER}" stroke="${LINE}" stroke-width="1.2"/>`)
+          .join('')
+        // the name's labels sit above it; the smaller lines are too close together, so theirs go beside them
+        out += big ? tag(r.x - 4, r.y - 24, spec, LINE, PAPER) : tag(r.x + r.w + 14, r.y + r.h / 2 - 8, spec, LINE, PAPER)
         if (el.dataset.code) {
-          out += big ? tag(r.x + r.w + 16, r.y + r.h * 0.3, el.dataset.code, '#fff', '#c2416b') : tag(r.x, r.y + r.h + 10, el.dataset.code, '#fff', '#c2416b')
+          out += big ? tag(r.x + spec.length * 6.7 + 20, r.y - 24, el.dataset.code, CODE, INK) : tag(r.x, r.y + r.h + 10, el.dataset.code, CODE, INK)
         }
         return r
       })
@@ -80,30 +137,24 @@ export default function Blueprint({ children }) {
         const bottom = next.y - 4
         if (bottom - top < 6) return
         const x = Math.max(r.x, next.x) + Math.min(r.w, next.w) * 0.62
-        out += `<path d="M${x} ${top}V${bottom}M${x - 5} ${top}H${x + 5}M${x - 5} ${bottom}H${x + 5}" stroke="${RED}" stroke-width="1.2"/>`
-        out += tag(x + 8, (top + bottom) / 2 - 8, `${Math.round(next.y - r.y - r.h)}`, RED)
+        out += `<path d="M${x} ${top}V${bottom}M${x - 5} ${top}H${x + 5}M${x - 5} ${bottom}H${x + 5}" stroke="${MEASURE}" stroke-width="1.2"/>`
+        out += tag(x + 8, (top + bottom) / 2 - 8, `${Math.round(next.y - r.y - r.h)}`, MEASURE, INK)
       })
       // the width of the name
       const name = boxes[1]
       if (name) {
         const y = name.y + name.h + 2
-        out += `<path d="M${name.x} ${y}H${name.x + name.w}M${name.x} ${y - 5}V${y + 5}M${name.x + name.w} ${y - 5}V${y + 5}" stroke="${RED}" stroke-width="1.2" opacity="0.8"/>`
+        out += `<path d="M${name.x} ${y}H${name.x + name.w}M${name.x} ${y - 5}V${y + 5}M${name.x + name.w} ${y - 5}V${y + 5}" stroke="${MEASURE}" stroke-width="1.2" opacity="0.8"/>`
       }
-      // the badge and the blob behind it, as wireframes
-      const blob = hero.querySelector('.photo-blob')
-      if (blob) {
-        const r = rel(blob.getBoundingClientRect())
-        out += `<ellipse cx="${r.x + r.w / 2}" cy="${r.y + r.h / 2}" rx="${r.w / 2}" ry="${r.h / 2}" fill="none" stroke="#8a93a5" stroke-width="1.4" stroke-dasharray="6 6"/>`
-        out += tag(r.x + r.w * 0.62, r.y + r.h - 20, 'div.photo-blob · border-radius morph 9s', '#8a93a5')
-      }
+      // the badge, as a wireframe
       const badge = hero.querySelector('.badge-card')
       if (badge) {
         const r = rel(badge.getBoundingClientRect())
-        out += `<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="14" fill="#f7f9fd" stroke="${BLUE}" stroke-width="1.4"/>`
-        out += `<path d="M${r.x} ${r.y}L${r.x + r.w} ${r.y + r.h}M${r.x + r.w} ${r.y}L${r.x} ${r.y + r.h}" stroke="#b9c1d0" stroke-width="1.2"/>`
-        out += tag(r.x, r.y - 24, `IdBadge · ${Math.round(r.w)} × ${Math.round(r.h)} · flips on hover`, BLUE)
-        out += tag(r.x + 12, r.y + r.h / 2 - 8, '<IdBadge photo="/profile.jpeg" />', '#fff', '#c2416b')
-        out += tag(r.x + 12, r.y + r.h / 2 + 14, 'transform: rotateY(180deg)', '#fff', '#5b6b85')
+        out += `<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="14" fill="${PAPER}" stroke="${LINE}" stroke-width="1.4"/>`
+        out += `<path d="M${r.x} ${r.y}L${r.x + r.w} ${r.y + r.h}M${r.x + r.w} ${r.y}L${r.x} ${r.y + r.h}" stroke="${FAINT}" stroke-width="1"/>`
+        out += tag(r.x + 12, r.y + 14, `IdBadge · ${Math.round(r.w)} × ${Math.round(r.h)}`, LINE, PAPER)
+        out += tag(r.x + 12, r.y + r.h / 2 - 8, '<IdBadge />', CODE, INK)
+        out += tag(r.x + 12, r.y + r.h / 2 + 14, 'rotateY(180deg) on click', LINE, PAPER)
       }
       svg.innerHTML = out
     }
@@ -131,18 +182,24 @@ export default function Blueprint({ children }) {
       frame ||= requestAnimationFrame(draw)
     }
     const onMove = (e) => {
+      if (!active) return
+      // the cursor is still on the button just after pressing it, which shouldn't cut the demo short
+      const onToggle = e.target.closest?.('.bp-toggle')
+      if (demo && onToggle) return
       cancelAnimationFrame(demo)
       demo = 0
+      // the lens gets out of the way of the buttons and the badge, so you can see them move
+      if (onToggle || e.target.closest?.('.fun-btn, .badge')) return lensAt(-999, -999, 0)
       const hr = hero.getBoundingClientRect()
       lensAt(e.clientX - hr.left, e.clientY - hr.top, LENS)
     }
     const onLeave = () => lensAt(-999, -999, 0)
 
-    // On first load (with a mouse) the lens drifts over the name by itself for a few seconds, so people find it
+    // On pressing Inspect (with a mouse) the lens drifts over the name by itself for a moment, to show what it does
     const wander = (start) => (now) => {
       const t = (now - start) / 1000
       const name = copyEl.querySelector('.hero-name')
-      if (t > 5 || !name) return onLeave()
+      if (t > 3 || !name) return onLeave()
       const r = name.getBoundingClientRect()
       const hr = hero.getBoundingClientRect()
       const x = r.left - hr.left + r.width * (0.3 + 0.3 * Math.sin(t * 1.1))
@@ -165,6 +222,17 @@ export default function Blueprint({ children }) {
     }
     const endDrag = () => knob.removeEventListener('pointermove', onDrag)
 
+    applyInspecting.current = (on) => {
+      active = on
+      hero.classList.toggle('bp-on', on)
+      if (touch) return
+      cancelAnimationFrame(demo)
+      demo = 0
+      if (!on) onLeave()
+      else if (!still) demo = requestAnimationFrame((now) => requestAnimationFrame(wander(now)))
+    }
+
+    redraw.current = place
     const resized = new ResizeObserver(place)
     resized.observe(hero)
     place()
@@ -179,7 +247,6 @@ export default function Blueprint({ children }) {
     } else {
       hero.addEventListener('pointermove', onMove)
       hero.addEventListener('pointerleave', onLeave)
-      if (!still) demo = requestAnimationFrame((now) => requestAnimationFrame(wander(now)))
     }
     return () => {
       cancelAnimationFrame(frame)
@@ -198,15 +265,37 @@ export default function Blueprint({ children }) {
     <>
       <div ref={layer} className="blueprint" aria-hidden="true">
         <div className="bp-paper" />
-        <div ref={copy} className="bp-copy-wrap">{children}</div>
-        <svg ref={marks} className="bp-marks" />
+        <div className="bp-inner">
+          <div ref={copy} className="bp-copy-wrap">{children}</div>
+          <svg ref={marks} className="bp-marks" />
+        </div>
       </div>
       <div ref={ring} className="bp-ring" aria-hidden="true">
-        <span>inspect</span>
+        <span>{t.hero.inspect}</span>
       </div>
-      <button ref={handle} type="button" className="bp-handle" aria-label="Drag to see how this page is built">
+      <button
+        type="button"
+        className="bp-toggle"
+        aria-pressed={inspecting}
+        onClick={() => setInspecting((on) => !on)}
+      >
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          {inspecting ? <path d="M5 5l10 10M15 5L5 15" /> : <path d="M12.5 12.5L17 17M14 8.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0z" />}
+        </svg>
+        {t.hero.inspect}
+      </button>
+      <button ref={handle} type="button" className="bp-handle" aria-label={t.hero.dragBlueprint}>
         <span aria-hidden="true">⇆</span>
       </button>
+      <div className="bp-sweep" aria-hidden="true">
+        <svg viewBox="0 0 34 34">
+          <g stroke="#000a1a" strokeWidth="1.4" strokeLinejoin="round">
+            <path d="M3 31l3-9 6 6z" fill="#000a1a" />
+            <path d="M6 22L22 6l6 6-16 16z" fill="#dfa4b8" />
+            <path d="M22 6l3-3a2 2 0 0 1 3 0l3 3a2 2 0 0 1 0 3l-3 3z" fill="#f7de93" />
+          </g>
+        </svg>
+      </div>
     </>
   )
 }

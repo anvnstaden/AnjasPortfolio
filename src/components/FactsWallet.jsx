@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Girl from './Girl.jsx'
+import { useLang } from '../i18n.js'
 
 // Languages for the phone: how each one says hello, and how well I speak it.
 const languages = [
@@ -68,15 +69,9 @@ const ZOOM_END = 0.46
 const FIRST_ITEM = 0.62 // the briefcase spits out the cards one after another
 const ITEM_STEP = 0.04
 const ITEM_TIME = 0.22
-// After the briefcase has gone, the last part of the scroll is a pen writing a note beside each card
+// After the briefcase has gone, the last part of the scroll is a pen writing a note beside each card (the notes
+// themselves are in strings.js)
 const MAIN_END = 0.8 // share of the scroll taken up by the walk, the briefcase and the cards falling out
-const NOTES = [
-  'proudly South African',
-  '...and Dutch!',
-  'EU work rights, no visa needed',
-  "I'm looking for jobs in Germany in 2027",
-  '4 languages & counting',
-]
 // ...and at the very end of the scroll a hand reaches in from the top right corner and, with a flick of the
 // wrist, shoos the cards and notes off to the left. WIPE_SHARE is how much of the whole scroll that takes.
 const WIPE_SHARE = 0.16
@@ -373,6 +368,8 @@ function OpenCaseFront() {
 // phone. On wide screens a girl walks across the screen and drops a wallet as you scroll; the camera zooms
 // into it and it spits the items out.
 export default function FactsWallet() {
+  const { lang, t } = useLang()
+  const w = t.wallet
   const wide = useWide()
   const scroller = useRef(null)
   const stage = useRef(null)
@@ -653,7 +650,8 @@ export default function FactsWallet() {
         item.style.scale = ''
       }
     }
-  }, [wide])
+    // new wording changes the size of the cards and notes, so the scene is laid out again
+  }, [wide, lang])
 
   // In the wallet scene the scroll drives each item; otherwise they tilt and reveal like other cards.
   const item = (kind, delay) =>
@@ -662,7 +660,7 @@ export default function FactsWallet() {
       : { className: `item ${kind} tilt reveal`, style: { '--d': `${delay}ms` } }
 
   return (
-    <section id="facts" className={`section wallet-section${wide ? ' pinned' : ''}`} aria-label="Quick facts">
+    <section id="facts" className={`section wallet-section${wide ? ' pinned' : ''}`} aria-label={w.label}>
       <div className="wallet-scroller" ref={scroller}>
         <div className="wallet-stage" ref={stage}>
           {wide && (
@@ -707,11 +705,11 @@ export default function FactsWallet() {
 
           <ul className="facts">
             <li {...item('passport za', 0)}>
-              <img src="/passports/SA.jpeg" alt="South African passport" draggable="false" />
+              <img src="/passports/SA.jpeg" alt={w.passportZa} draggable="false" />
             </li>
 
             <li {...item('passport nl', 80)}>
-              <img src="/passports/NETHERLANDS.jpeg" alt="Dutch passport" draggable="false" />
+              <img src="/passports/NETHERLANDS.jpeg" alt={w.passportNl} draggable="false" />
             </li>
 
             {/* Work rights: an EU work authorisation card, like the ID cards kept in a wallet */}
@@ -739,23 +737,23 @@ export default function FactsWallet() {
                 <span className="permit-head">
                   <EuRing />
                   <span>
-                    <strong>EU work authorisation</strong>
-                    <small>Right to work · Recht auf Arbeit</small>
+                    <strong>{w.permit.title}</strong>
+                    <small>{w.permit.subtitle}</small>
                   </span>
                 </span>
                 <span className="permit-body">
                   <img className="permit-photo" src="/profile.jpeg" alt="" />
                   <span className="permit-fields">
-                    <span><small>Name</small>Anja van Staden</span>
-                    <span><small>Nationality</small>Dutch · NLD</span>
-                    <span><small>Valid</small>Unlimited</span>
+                    <span><small>{w.permit.name}</small>Anja van Staden</span>
+                    <span><small>{w.permit.nationality}</small>{w.permit.nationalityValue}</span>
+                    <span><small>{w.permit.valid}</small>{w.permit.validValue}</span>
                   </span>
                 </span>
                 <span className="permit-stamp" aria-hidden="true">
-                  <span>✓ No visa</span>
-                  <small>needed</small>
+                  <span>{w.permit.noVisa}</span>
+                  <small>{w.permit.needed}</small>
                 </span>
-                <span className="permit-note">EU authorisation, no visa or sponsorship needed</span>
+                <span className="permit-note">{w.permit.note}</span>
                 <span className="permit-mrz" aria-hidden="true">P&lt;NLDVAN&lt;STADEN&lt;&lt;ANJA&lt;&lt;&lt;&lt;&lt;&lt;</span>
               </span>
             </li>
@@ -764,8 +762,8 @@ export default function FactsWallet() {
             <li {...item('ticket', 240)}>
               <span className="bp-main">
                 <span className="bp-head">
-                  <strong>Boarding pass</strong>
-                  <span>Economy</span>
+                  <strong>{w.ticket.title}</strong>
+                  <span>{w.ticket.cabin}</span>
                 </span>
                 <span className="bp-route" aria-hidden="true">
                   <span className="bp-stop">
@@ -775,24 +773,24 @@ export default function FactsWallet() {
                   <Plane />
                   <span className="bp-stop">
                     <strong>DE</strong>
-                    <small>Germany</small>
+                    <small>{w.ticket.destination}</small>
                   </span>
                 </span>
                 <span className="bp-grid" aria-hidden="true">
-                  <span><small>Passenger</small>A. VAN STADEN</span>
-                  <span><small>Flight</small>AVS 2027</span>
-                  <span><small>Gate</small>DE</span>
-                  <span><small>Seat</small>1A</span>
+                  <span><small>{w.ticket.passenger}</small>A. VAN STADEN</span>
+                  <span><small>{w.ticket.flight}</small>AVS 2027</span>
+                  <span><small>{w.ticket.gate}</small>DE</span>
+                  <span><small>{w.ticket.seat}</small>1A</span>
                 </span>
-                <span className="bp-note">Looking for roles anywhere in Germany from 2027</span>
+                <span className="bp-note">{w.ticket.note}</span>
               </span>
               {/* the tear-off stub, along a perforated line with a notch at each end */}
               <span className="bp-stub" aria-hidden="true">
                 <span className="bp-notch top" />
                 <span className="bp-notch bottom" />
                 <strong>ZA → DE</strong>
-                <span>Departs 2027</span>
-                <span>Seat 1A</span>
+                <span>{w.ticket.departs}</span>
+                <span>{w.ticket.seatNumber}</span>
                 <span className="bp-barcode" />
               </span>
             </li>
@@ -807,7 +805,7 @@ export default function FactsWallet() {
                 </span>
                 <span className="phone-bar">
                   <span className="phone-avatar" aria-hidden="true">Aa</span>
-                  <strong>Languages</strong>
+                  <strong>{w.phone.title}</strong>
                 </span>
                 <ul className="bubbles">
                   {languages.map((l, i) => (
@@ -816,7 +814,7 @@ export default function FactsWallet() {
                         {l.hello}
                         {l.typing && <span className="typing"><i /><i /><i /></span>}
                       </span>
-                      <span className="bubble-lang">{l.name} · {l.level}</span>
+                      <span className="bubble-lang">{l.name} · {w.phone[l.level]}</span>
                     </li>
                   ))}
                 </ul>
@@ -829,15 +827,15 @@ export default function FactsWallet() {
           {wide && (
             <div className="notes" aria-hidden="true">
               <svg className="notes-svg">
-                {NOTES.map((text) => (
-                  <g key={text}>
+                {w.notes.map((_, i) => (
+                  <g key={i}>
                     <path className="note-line" pathLength="1" />
                     <path className="note-head" pathLength="1" />
                   </g>
                 ))}
               </svg>
-              {NOTES.map((text) => (
-                <span key={text} className="note">{text}</span>
+              {w.notes.map((text, i) => (
+                <span key={i} className="note">{text}</span>
               ))}
               <svg className="note-pen" viewBox="0 0 10 10">
                 <g transform="rotate(35)" stroke="var(--ink)" strokeWidth="2.4" strokeLinejoin="round">

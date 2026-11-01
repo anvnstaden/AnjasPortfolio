@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Projects from './pages/Projects.jsx'
+import PenCursor from './components/PenCursor.jsx'
+import { LANGUAGES, useLang } from './i18n.js'
 import './App.css'
 
 // Scrolls to the top on page change, or to #section when the link has one.
@@ -79,6 +81,7 @@ function useTilt() {
 }
 
 function ThemeToggle() {
+  const { t } = useLang()
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light')
   const next = theme === 'dark' ? 'light' : 'dark'
 
@@ -93,18 +96,45 @@ function ThemeToggle() {
   }
 
   return (
-    <button type="button" className="theme-toggle" onClick={toggle} aria-label={`Switch to ${next} mode`}>
-      <svg key={theme} viewBox="0 0 24 24" aria-hidden="true">
-        {theme === 'dark' ? (
-          <>
-            <circle cx="12" cy="12" r="4.5" />
-            <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" />
-          </>
-        ) : (
-          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
-        )}
-      </svg>
+    <button type="button" className="nav-charm theme-toggle" onClick={toggle} aria-label={t.nav.theme(next)}>
+      <span className="charm-knob">
+        <svg key={theme} viewBox="0 0 24 24" aria-hidden="true">
+          {theme === 'dark' ? (
+            <>
+              <circle cx="12" cy="12" r="4.5" />
+              <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" />
+            </>
+          ) : (
+            <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+          )}
+        </svg>
+      </span>
     </button>
+  )
+}
+
+// The language switch: a segmented control hanging off the rail, with a bubble that slides to the current language.
+function LanguageSwitch() {
+  const { lang, setLang, t } = useLang()
+  return (
+    <div className="nav-charm lang-switch" role="group" aria-label={t.nav.language}>
+      <span className="charm-knob" style={{ '--at': LANGUAGES.findIndex((l) => l.code === lang) }}>
+        <span className="lang-bubble" aria-hidden="true" />
+        {LANGUAGES.map(({ code, label, name }) => (
+          <button
+            key={code}
+            type="button"
+            lang={code}
+            className={code === lang ? 'on' : undefined}
+            aria-pressed={code === lang}
+            aria-label={name}
+            onClick={() => setLang(code)}
+          >
+            {label}
+          </button>
+        ))}
+      </span>
+    </div>
   )
 }
 
@@ -120,8 +150,27 @@ function useScrolled(offset = 40) {
   return scrolled
 }
 
+// True while scrolling down, so the nav slides out of the way; scrolling up brings it straight back. It always
+// stays near the top of the page. Small movements are ignored so a shaky trackpad doesn't make it flicker.
+function useHiddenOnScrollDown(offset = 120, slack = 8) {
+  const [hidden, setHidden] = useState(false)
+  useEffect(() => {
+    let last = window.scrollY
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y < offset) setHidden(false)
+      else if (Math.abs(y - last) < slack) return
+      else setHidden(y > last)
+      last = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [offset, slack])
+  return hidden
+}
+
 // Which nav link the visitor is "at": on the home page it follows the section in the middle of the
-// screen as you scroll (the journey counts as About); on the projects page it's always Projects.
+// screen as you scroll (the journey counts as About); on a projects page it's that page's link.
 const SECTION_LINKS = [
   ['about', 'about'],
   ['journey', 'about'],
@@ -134,7 +183,7 @@ function useCurrentSection(pathname) {
   const [current, setCurrent] = useState('')
   useEffect(() => {
     if (pathname.startsWith('/projects')) {
-      setCurrent('projects')
+      setCurrent(pathname.startsWith('/projects/personal') ? 'personal' : 'projects')
       return
     }
     let frame = 0
@@ -183,47 +232,91 @@ function useMenu(header) {
   return [open, setOpen]
 }
 
+// The Projects tab: opens its dropdown on hover with a mouse, on tap on a touch screen and on Enter from the keyboard.
+function ProjectsMenu({ current }) {
+  const { t } = useLang()
+  const root = useRef(null)
+  const [open, setOpen] = useMenu(root)
+  const onMouse = (value) => (e) => e.pointerType === 'mouse' && setOpen(value)
+  const onCurrent = current === 'projects' || current === 'personal'
+
+  return (
+    <div
+      ref={root}
+      className={`nav-drop${open ? ' open' : ''}`}
+      onPointerEnter={onMouse(true)}
+      onPointerLeave={onMouse(false)}
+      onBlur={(e) => root.current.contains(e.relatedTarget) || setOpen(false)}
+    >
+      <button
+        type="button"
+        className={`nav-link link-projects${onCurrent ? ' current' : ''}`}
+        aria-expanded={open}
+        aria-controls="projects-menu"
+        onClick={() => setOpen(matchMedia('(hover: hover)').matches || !open)}
+      >
+        <span className="nav-drop-label">
+          {t.nav.projects}
+          <svg className="nav-caret" viewBox="0 0 12 8" aria-hidden="true"><path d="M1.5 1.5 6 6l4.5-4.5" /></svg>
+        </span>
+      </button>
+      <div id="projects-menu" className="nav-drop-menu" onClick={() => setOpen(false)}>
+        {[['/projects', 'university', 'projects'], ['/projects/personal', 'personal', 'personal']].map(([to, id, section]) => (
+          <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
+            {/* a luggage tag on a string: the outline stretches to fit however long the words are */}
+            <span className="nav-tag">
+              <svg className="nav-tag-shape" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M20 1H80L99 16V90Q99 99 90 99H10Q1 99 1 90V16Z" />
+              </svg>
+              <i className="nav-tag-eye" aria-hidden="true" />
+              <span className="nav-tag-text">{t.nav[id]}</span>
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function App() {
+  const { t } = useLang()
   const location = useLocation()
   useScrollOnNavigate(location)
   useReveal(location.pathname)
   useTilt()
   const scrolled = useScrolled()
+  const hidden = useHiddenOnScrollDown()
   const current = useCurrentSection(location.pathname)
   const header = useRef(null)
   const [menuOpen, setMenuOpen] = useMenu(header)
-  // Each link gets a little handwritten German note that writes itself in on hover
   const link = (id) => `nav-link link-${id}${current === id ? ' current' : ''}`
 
   return (
     <>
       <div className="progress" aria-hidden="true" />
-      <header ref={header} className={`nav${scrolled ? ' scrolled' : ''}${menuOpen ? ' open' : ''}`}>
-        <Link to="/" className="nav-logo" aria-label="Anja van Staden, home">
-          <img src="/favicon.svg" alt="" />
+      <PenCursor />
+      <header ref={header} className={`nav${scrolled ? ' scrolled' : ''}${hidden && !menuOpen ? ' hidden' : ''}${menuOpen ? ' open' : ''}`}>
+        <Link to="/" className="nav-charm nav-logo" aria-label={t.nav.home}>
+          <span className="charm-knob"><img src="/favicon.svg" alt="" /></span>
         </Link>
         <nav id="site-menu" onClick={(e) => e.target.closest('a') && setMenuOpen(false)}>
-          <Link to="/#about" className={link('about')}>
-            About Me<span className="nav-de pen" lang="de" aria-hidden="true">über mich</span>
-          </Link>
-          <Link to="/projects" className={link('projects')}>
-            My Projects<span className="nav-de pen" lang="de" aria-hidden="true">meine Projekte</span>
-          </Link>
-          <Link to="/#skills" className={link('skills')}>
-            My Skills<span className="nav-de pen" lang="de" aria-hidden="true">Fähigkeiten</span>
-          </Link>
-          <Link to="/#contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}>
-            Contact Me<span className="nav-de pen" lang="de" aria-hidden="true">Kontaktieren Sie mich</span>
-          </Link>
+          <Link to="/#about" className={link('about')}>{t.nav.about}</Link>
+          <ProjectsMenu current={current} />
+          <Link to="/#skills" className={link('skills')}>{t.nav.skills}</Link>
+          <Link to="/#contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}>{t.nav.contact}</Link>
         </nav>
-        <ThemeToggle />
+        {/* Site settings hang here as .nav-charm buttons */}
+        <div className="nav-prefs">
+          <LanguageSwitch />
+          <ThemeToggle />
+        </div>
         <button
           type="button"
           className="menu-toggle"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-expanded={menuOpen}
           aria-controls="site-menu"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? t.nav.closeMenu : t.nav.openMenu}
         >
           <span aria-hidden="true" />
         </button>
@@ -231,12 +324,13 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects" element={<Projects key="university" page="university" />} />
+        <Route path="/projects/personal" element={<Projects key="personal" page="personal" />} />
         <Route path="*" element={<Home />} />
       </Routes>
 
       <footer className="footer">
-        © {new Date().getFullYear()} Anja van Staden · Stellenbosch, South Africa
+        © {new Date().getFullYear()} Anja van Staden · {t.footer}
       </footer>
     </>
   )

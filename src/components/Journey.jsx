@@ -4,11 +4,12 @@ import Title from './Title.jsx'
 import { NavArrow } from './Doodles.jsx'
 import { FlagDE, FlagZA } from './Flags.jsx'
 import { Europe, MosselBay, Stellenbosch } from './JourneyScenes.jsx'
-import { journey } from '../data/content.js'
+import { useLang } from '../i18n.js'
 
-// Postcard art and stamp for each `scene` in content.js.
+// Postcard art and stamp for each `scene` in content.js. Each card is greeted in the language of where it's sent
+// from; the first one has no fixed language, so it follows the site's.
 const scenes = {
-  'mossel-bay': { Art: MosselBay, Flag: FlagZA, greeting: 'Greetings from Mossel Bay!' },
+  'mossel-bay': { Art: MosselBay, Flag: FlagZA },
   stellenbosch: { Art: Stellenbosch, Flag: FlagZA, greeting: 'Groete uit Stellenbosch!' },
   europe: { Art: Europe, Flag: FlagDE, greeting: 'Grüße aus Deutschland!' },
 }
@@ -95,6 +96,7 @@ function Pin() {
 }
 
 export default function Journey() {
+  const { lang, t, content } = useLang()
   const wide = useWide()
   const scroller = useRef(null)
   const track = useRef(null)
@@ -110,13 +112,17 @@ export default function Journey() {
         <div className="journey-sticky">
           <div className="journey-track" ref={track}>
             <div className="journey-lead">
-              <Title en="My Journey" de="Meine Reise" />
+              <Title text={t.journey.title} />
               <p className="journey-intro">
-                From a seaside town on the Garden Route to Stellenbosch, and next, <mark className="hl">Germany</mark>.
+                {lang === 'de' ? (
+                  <>Von einer Küstenstadt an der Garden Route nach Stellenbosch und als Nächstes nach <mark className="hl">Deutschland</mark>.</>
+                ) : (
+                  <>From a seaside town on the Garden Route to Stellenbosch, and next, <mark className="hl">Germany</mark>.</>
+                )}
               </p>
               {wide && (
                 <p className="pen journey-hint" aria-hidden="true">
-                  keep scrolling <NavArrow inline pen />
+                  {t.journey.keepScrolling} <NavArrow inline pen />
                 </p>
               )}
             </div>
@@ -125,7 +131,7 @@ export default function Journey() {
               <span className="journey-road" aria-hidden="true" />
               <span className="journey-traveller" aria-hidden="true"><Pin /></span>
               <ol className="journey-stops">
-                {journey.map((stop, i) => {
+                {content.journey.map((stop, i) => {
                   const { Art, Flag, greeting } = scenes[stop.scene]
                   const town = stop.place.split(',')[0]
                   return (
@@ -141,7 +147,7 @@ export default function Journey() {
                           <span>{town}</span>
                           <span>{stop.when}</span>
                         </span>
-                        <figcaption className="pen">{greeting}</figcaption>
+                        <figcaption className="pen">{greeting ?? t.journey.firstGreeting}</figcaption>
                       </figure>
 
                       <div className={`stop-card${reveal('slide')}`} style={{ '--d': '150ms' }}>
@@ -184,7 +190,7 @@ export default function Journey() {
                 </svg>
               </span>
               <p className="pen journey-end-text">
-                to be continued
+                {t.journey.toBeContinued}
                 <span className="end-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
               </p>
             </div>

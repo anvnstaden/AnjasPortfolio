@@ -135,8 +135,52 @@ main,
   vertical-align: top;
 }
 
+/* the first half of a hyphenated word: no gap before the rest of it */
+.word.joined {
+  margin-right: 0;
+}
+
 .char {
   display: inline-block;
+}
+
+/* The little flick of ink the pen cursor makes where you click */
+.pen-dab {
+  position: fixed;
+  z-index: 70;
+  width: 24px;
+  height: 24px;
+  translate: -50% -50%;
+  pointer-events: none;
+  overflow: visible;
+  animation: dab-fade 0.45s ease-out forwards;
+}
+
+.pen-dab path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  animation: dab-draw 0.25s ease-out both;
+}
+
+@keyframes dab-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes dab-fade {
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 /* Scroll progress bar (browsers with scroll-driven animations) */
@@ -320,52 +364,146 @@ main,
   scale: 1.1;
 }
 
-.title-de {
-  position: relative;
-  display: inline-block;
-  font-size: 0.75em;
-  rotate: -3deg;
-}
-
 /* ---------- Nav ---------- */
-/* A floating pill that tightens up and changes shadow colour once you scroll */
+/* Coloured index tabs hanging off a rail along the top of the browser, the way dividers stick out of a binder.
+   Hovering (or being on a link's section) pulls a tab further down. */
 .nav {
   position: sticky;
-  top: 12px;
+  top: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  width: min(100% - 32px, 1560px);
-  margin: 12px auto 0;
-  padding: 8px 8px 8px 18px;
-  background: var(--cream);
-  border: 2px solid var(--plum);
-  border-radius: 999px;
-  box-shadow: 5px 5px 0 var(--pink);
-  transition: padding 0.3s, box-shadow 0.3s, width 0.3s;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 1680px;
+  height: 64px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 72px);
+  /* only the tabs catch the mouse, so the gaps between them still reach the hero under the nav */
+  pointer-events: none;
 }
 
-.nav.scrolled {
-  width: min(100% - 32px, 1360px);
-  padding-block: 5px;
-  box-shadow: 4px 4px 0 var(--blue);
+.nav::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--plum);
+}
+
+.nav-link,
+.nav nav a.nav-cta,
+.nav-drop-item,
+.menu-toggle {
+  flex-shrink: 0;
+  min-height: 52px;
+  background: var(--tab, var(--cream));
+  color: var(--tab-text, var(--plum));
+  border: 2px solid var(--plum);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  box-shadow: 3px 3px 0 var(--plum);
+  pointer-events: auto;
+  transform-origin: 50% 0;
+  transition: min-height 0.3s cubic-bezier(0.3, 1.3, 0.5, 1), translate 0.35s cubic-bezier(0.3, 0.8, 0.3, 1);
+  animation: tab-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) var(--delay, 0ms) backwards;
+}
+
+@keyframes tab-drop {
+  from {
+    translate: 0 -110%;
+  }
+}
+
+.nav nav > :nth-child(2) {
+  --delay: 80ms;
+}
+
+.nav nav > :nth-child(3) {
+  --delay: 160ms;
+}
+
+.nav nav > :nth-child(4) {
+  --delay: 240ms;
+}
+
+.nav.scrolled :is(.nav-link, .nav-cta, .menu-toggle) {
+  min-height: 44px;
+}
+
+/* Tucks up while scrolling down, leaving just the coloured ends showing (the current one a little longer).
+   Hovering them or tabbing to a link brings the tabs back. */
+.nav.hidden:not(:focus-within, :hover) :is(.nav-charm, .nav-link, .nav-cta, .menu-toggle) {
+  translate: 0 calc(-100% + 9px);
+}
+
+.nav.hidden:not(:focus-within, :hover) .current {
+  translate: 0 calc(-100% + 16px);
+}
+
+/* The logo and the settings aren't dividers, so they hang off the rail on a cord instead: round charms, the same
+   family as the badge's strap. Each setting is one .nav-charm inside .nav-prefs, so more can hang next to it. */
+.nav-charm {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--plum);
+  text-decoration: none;
+  pointer-events: auto;
+  transform-origin: 50% 0;
+  transition: translate 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
+  animation: tab-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+}
+
+.nav-charm::before {
+  content: '';
+  width: 2px;
+  height: var(--cord, 14px);
+  background: var(--plum);
+}
+
+.nav-charm:hover {
+  animation: tab-swing 0.7s ease;
+}
+
+/* pulling the cord */
+.nav-charm:active {
+  translate: 0 8px;
+  transition-duration: 0.08s;
+}
+
+.charm-knob {
+  display: grid;
+  place-items: center;
+  width: var(--knob, 40px);
+  height: var(--knob, 40px);
+  border: 2px solid var(--plum);
+  border-radius: 50%;
+  background: var(--cream);
+  box-shadow: 2px 2px 0 var(--plum);
+  transition: background 0.2s, color 0.2s;
 }
 
 .nav-logo {
-  display: block;
-  flex-shrink: 0;
+  --knob: 50px;
+  --cord: 8px;
 }
 
 .nav-logo img {
   display: block;
-  height: 40px;
+  height: 30px;
   width: auto;
   transition: rotate 0.3s, scale 0.3s;
 }
 
-.nav.scrolled .nav-logo img {
-  height: 34px;
+.nav-prefs {
+  display: flex;
+  gap: 6px;
+  margin-left: 8px;
 }
 
 .nav-logo:hover img {
@@ -388,121 +526,374 @@ main,
 
 .nav nav {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  align-items: flex-start;
+  gap: 8px;
   margin-left: auto;
+  pointer-events: none;
 }
 
-/* Each link has its own colour blob: it shows on hover, and stays on the link for the section you're
-   currently scrolled to (.current, from useCurrentSection in App.jsx) */
-.nav-link {
-  --blob: var(--butter);
-  --blob-text: var(--ink);
-  position: relative;
-  padding: 8px 14px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: background 0.25s, color 0.25s, rotate 0.25s, scale 0.25s cubic-bezier(0.3, 1.8, 0.5, 1);
+.link-about {
+  --tab: var(--butter);
+  --tab-text: var(--ink);
 }
 
 .link-projects {
-  --blob: var(--blue);
-  --blob-text: var(--ivory);
+  --tab: var(--blue);
+  --tab-text: var(--ivory);
 }
 
 .link-skills {
-  --blob: var(--pink);
-}
-
-.nav-link:hover,
-.nav-link.current {
-  background: var(--blob);
-  color: var(--blob-text);
-}
-
-.nav-link:hover {
-  rotate: -4deg;
-}
-
-.nav-link.current {
-  animation: blob-pop 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
-}
-
-@keyframes blob-pop {
-  from {
-    scale: 0.85;
-  }
-}
-
-/* Handwritten German note that writes itself in under a link on hover */
-.nav-de {
-  position: absolute;
-  top: calc(100% + 12px);
-  left: 50%;
-  translate: -50% 0;
-  padding: 0.1em 0.6em 0;
-  font-size: 1.35rem;
-  font-weight: 400;
-  line-height: 1.2;
-  white-space: nowrap;
-  color: var(--ink);
-  background: var(--ivory);
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  box-shadow: 2px 2px 0 var(--ink);
-  rotate: -4deg;
-  pointer-events: none;
-  clip-path: inset(-20% 100% -20% -5%);
-  transition: clip-path 0.45s cubic-bezier(0.5, 0, 0.3, 1);
-}
-
-.nav-link:hover .nav-de,
-.nav-cta:hover .nav-de {
-  clip-path: inset(-20% -5% -20% -5%);
+  --tab: var(--pink);
+  --tab-text: var(--ink);
 }
 
 .nav nav a.nav-cta {
-  position: relative;
-  margin-left: 6px;
-  padding: 8px 18px;
-  border-radius: 999px;
-  background: var(--plum);
-  color: var(--cream);
+  --tab: var(--plum);
+  --tab-text: var(--cream);
+}
+
+.nav-link,
+.nav nav a.nav-cta {
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  padding: 10px 16px 8px;
   text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nav nav a.nav-cta {
   font-weight: 700;
-  transition: rotate 0.2s;
 }
 
-/* Stays black on hover; it just tilts */
+.nav-link:hover,
+.nav-link.current,
+.nav nav a.nav-cta:hover,
+.nav nav a.nav-cta.current {
+  min-height: 62px;
+}
+
+.nav.scrolled :is(.nav-link:hover, .nav-link.current, .nav-cta:hover, .nav-cta.current) {
+  min-height: 52px;
+}
+
+.nav-link:hover,
 .nav nav a.nav-cta:hover {
-  rotate: 3deg;
+  animation: tab-swing 0.7s ease;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .nav-link.current {
-    animation: none;
+@keyframes tab-swing {
+  25% {
+    rotate: -3deg;
+  }
+  60% {
+    rotate: 2deg;
   }
 }
 
-.theme-toggle {
-  margin-left: 6px;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 2px solid var(--plum);
-  border-radius: 50%;
-  background: none;
-  color: var(--plum);
-  transition: background 0.2s, rotate 0.3s;
-}
-
-.theme-toggle:hover {
+.theme-toggle:hover .charm-knob {
   background: var(--butter);
   color: var(--ink);
-  rotate: 15deg;
+}
+
+/* The language switch: a segmented control. Both segments are the same width, so the bubble only has to slide by
+   its own width (--at is the current one), with a slight overshoot like an iOS switch and a squeeze when pressed. */
+.lang-switch .charm-knob {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: auto;
+  height: 40px;
+  padding: 3px;
+  border-radius: 999px;
+}
+
+.lang-bubble {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 999px;
+  background: var(--blue);
+  box-shadow: 0 1px 4px rgb(0 10 26 / 0.35);
+  translate: calc(var(--at) * 100%) 0;
+  transition: translate 0.38s cubic-bezier(0.32, 1.28, 0.5, 1), scale 0.2s ease;
+}
+
+.lang-switch .charm-knob:active .lang-bubble {
+  scale: 1.07 0.93;
+}
+
+.lang-switch button {
+  position: relative;
+  height: 100%;
+  min-width: 30px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--plum);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.25s;
+}
+
+.lang-switch button:hover:not(.on) {
+  color: var(--accent);
+}
+
+.lang-switch button.on {
+  color: var(--ivory);
+}
+
+/* ---------- The Projects dropdown: two paper luggage tags that drop down on strings and bounce ---------- */
+.nav-drop {
+  position: relative;
+  display: flex;
+  pointer-events: auto;
+}
+
+button.nav-link {
+  position: relative;
+  z-index: 2;
+  font: inherit;
+  font-weight: 600;
+}
+
+.nav-drop-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-caret {
+  width: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: rotate 0.25s;
+}
+
+.nav-drop.open .nav-caret {
+  rotate: 180deg;
+}
+
+.nav-drop-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s, visibility 0s 0.15s;
+}
+
+.nav-drop.open .nav-drop-menu {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+
+/* The phone menu's plain rows; from tablet size up they become the tags below */
+.nav-drop-item {
+  --tab: var(--blue);
+  --tab-text: var(--ivory);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (min-width: 901px) {
+  /* the tabs stay in front if a string swings across one */
+  .nav nav > .nav-link,
+  .nav nav > a.nav-cta {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Each string comes down from the top of the browser through the gap beside the Projects tab, so the whole
+     tag swings from up there like a pendulum (--pivot, the height of the tab above it, is near enough) */
+  .nav-drop-item {
+    --string: 16px;
+    --fill: var(--butter);
+    --pivot: -60px;
+    position: absolute;
+    top: 0;
+    left: -82px;
+    display: block;
+    width: 156px;
+    min-height: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    color: var(--ink);
+    outline: none;
+    transform-origin: 50% var(--pivot);
+    translate: 0 -26px;
+    transition: translate 0.15s;
+    animation: none;
+  }
+
+  /* the second one hangs lower, just clear of the first, and lands a beat later */
+  .nav-drop-item:nth-child(2) {
+    left: calc(100% - 74px);
+    --string: 72px;
+    --fill: var(--pink);
+    --sway-delay: -1.8s;
+  }
+
+  .nav-drop.open .nav-drop-item {
+    translate: 0;
+    animation: tag-drop 0.95s linear backwards;
+  }
+
+  .nav-drop.open .nav-drop-item:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  @keyframes tag-drop {
+    0% {
+      translate: 0 -70px;
+      rotate: -7deg;
+      animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+    }
+    34% {
+      translate: 0 9px;
+      rotate: 5deg;
+      animation-timing-function: ease-out;
+    }
+    52% {
+      translate: 0 -5px;
+      rotate: -3.5deg;
+      animation-timing-function: ease-in-out;
+    }
+    70% {
+      translate: 0 3px;
+      rotate: 2deg;
+      animation-timing-function: ease-in-out;
+    }
+    85% {
+      translate: 0 -1px;
+      rotate: -1deg;
+    }
+    100% {
+      translate: 0;
+      rotate: 0deg;
+    }
+  }
+
+  /* Inside the drop: a soft idle sway, and a livelier swing when the mouse bumps it */
+  .nav-tag {
+    position: relative;
+    display: block;
+    padding-top: var(--string);
+    transform-origin: 50% var(--pivot);
+    animation: tag-sway 2s ease-in-out var(--sway-delay, 0s) infinite alternate;
+  }
+
+  @keyframes tag-sway {
+    from {
+      rotate: -1.2deg;
+    }
+    to {
+      rotate: 1.2deg;
+    }
+  }
+
+  .nav-drop-item:hover .nav-tag,
+  .nav-drop-item:focus-visible .nav-tag {
+    animation: tag-swing 0.8s ease-out;
+  }
+
+  @keyframes tag-swing {
+    25% {
+      rotate: 6deg;
+    }
+    55% {
+      rotate: -4deg;
+    }
+    80% {
+      rotate: 2deg;
+    }
+  }
+
+  /* The string, running down to the eyelet */
+  .nav-tag::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: -200px;
+    left: 50%;
+    width: 2px;
+    height: calc(var(--string) + 213px);
+    margin-left: -1px;
+    background: var(--plum);
+    pointer-events: none;
+  }
+
+  .nav-tag-shape {
+    position: absolute;
+    inset: var(--string) 0 0;
+    width: 100%;
+    height: calc(100% - var(--string));
+    overflow: visible;
+    filter: drop-shadow(3px 3px 0 var(--ink));
+  }
+
+  :root[data-theme='dark'] .nav-tag-shape {
+    filter: drop-shadow(3px 3px 0 rgb(0 0 0 / 0.6));
+  }
+
+  .nav-tag-shape path {
+    fill: var(--ivory);
+    stroke: var(--ink);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.2s;
+  }
+
+  .nav-drop-item:hover .nav-tag-shape path,
+  .nav-drop-item:focus-visible .nav-tag-shape path,
+  .nav-drop-item.current .nav-tag-shape path {
+    fill: var(--fill);
+  }
+
+  .nav-drop-item:focus-visible .nav-tag-shape path {
+    stroke: var(--blue);
+    stroke-width: 3.5;
+  }
+
+  /* the punched hole, with a little metal ring round it */
+  .nav-tag-eye {
+    position: absolute;
+    z-index: 1;
+    top: calc(var(--string) + 7px);
+    left: 50%;
+    width: 13px;
+    height: 13px;
+    margin-left: -6.5px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--cream-deep);
+  }
+
+  .nav-tag-text {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    padding: 26px 10px 10px;
+    font-size: 0.9rem;
+    line-height: 1.15;
+    text-align: center;
+    text-wrap: balance;
+  }
 }
 
 .theme-toggle svg {
@@ -524,16 +915,12 @@ main,
 
 /* Hamburger for phones: three bars that fold into a cross while the menu is open */
 .menu-toggle {
+  --tab: var(--plum);
+  --tab-text: var(--cream);
   display: none;
   place-items: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 48px;
   padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: var(--plum);
-  color: var(--cream);
 }
 
 .menu-toggle span,
@@ -580,30 +967,25 @@ main,
   rotate: -45deg;
 }
 
-/* On phones the links fold away into a card that drops down under the pill */
-@media (max-width: 760px) {
+/* On phones and small tablets the links fold away into a stack of index cards that drops down under the tabs */
+@media (max-width: 900px) {
   .menu-toggle {
     display: grid;
   }
 
-  .theme-toggle {
+  .nav-prefs {
     margin-left: auto;
   }
 
   .nav nav {
     position: absolute;
-    top: calc(100% + 10px);
-    left: 0;
-    right: 0;
+    top: 60px;
+    left: clamp(16px, 4vw, 72px);
+    right: clamp(16px, 4vw, 72px);
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
     margin: 0;
-    padding: 12px;
-    background: var(--cream);
-    border: 2px solid var(--plum);
-    border-radius: 24px;
-    box-shadow: 5px 5px 0 var(--pink);
     visibility: hidden;
     opacity: 0;
     translate: 0 -8px;
@@ -617,58 +999,72 @@ main,
     transition: opacity 0.2s, translate 0.2s;
   }
 
+  /* The stack has no dropdown inside it: the two project links are just rows in it */
+  .nav-drop,
+  .nav-drop-menu {
+    display: contents;
+    visibility: inherit;
+    opacity: 1;
+  }
+
+  button.nav-link {
+    display: none;
+  }
+
   .nav-link,
-  .nav nav a.nav-cta {
+  .nav nav a.nav-cta,
+  .nav-drop-item {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    margin: 0;
     padding: 12px 18px;
     font-size: 1.1rem;
+    border-top: 2px solid var(--plum);
+    border-radius: 14px;
+    animation: none;
   }
 
-  .nav-link:hover,
-  .nav nav a.nav-cta:hover {
-    rotate: none;
+  .nav-link.current,
+  .nav-drop-item.current,
+  .nav nav a.nav-cta.current {
+    box-shadow: 6px 6px 0 var(--plum);
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 
-  /* No hover on phones, so the German notes just sit beside each link */
-  .nav-de {
-    position: static;
-    translate: none;
-    padding: 0;
-    font-size: 1.15rem;
-    color: inherit;
-    opacity: 0.75;
-    background: none;
-    border: 0;
-    box-shadow: none;
-    clip-path: none;
+  .nav-tag,
+  .nav-tag-text {
+    display: contents;
+  }
+
+  .nav-tag-shape,
+  .nav-tag-eye {
+    display: none;
   }
 }
 
 /* ---------- Hero ---------- */
+/* The name is the whole width of the page (or as big as the height allows, --name). The badge hangs in front of
+   it, scaled and placed off the same size, so its card always just covers the feet of the letters. */
 .hero {
+  --name: min(calc((min(100vw, 1680px) - 2 * clamp(16px, 4vw, 72px)) / 7), 22.5svh);
   position: relative;
-  min-height: calc(100svh - 72px);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: 40px;
-  padding-block: 40px 80px;
+  /* tall enough for the badge even in a short window, so it never runs into the next section */
+  min-height: max(calc(100svh - 64px), calc(var(--name) * 4 + 64px));
+  padding-block: 28px 64px;
 }
 
 .hero-text {
   container-type: inline-size;
 }
 
-
 .hero-name {
-  font-size: clamp(3.4rem, 16cqw, 11.5rem);
+  font-size: var(--name);
   font-weight: 800;
   letter-spacing: -0.05em;
-  line-height: 0.95;
+  /* just enough for the j's tail to clear the line below */
+  line-height: 1.03;
   margin-bottom: 24px;
   white-space: nowrap;
 }
@@ -677,21 +1073,23 @@ main,
   display: block;
 }
 
+/* The tight letter spacing would otherwise let each word's clipping box cut off its last letter, and the j's tail
+   (drawn with the Projects page's one, see .ph-box) hangs lower than the usual clip around a word */
+.hero-name .word {
+  padding-right: 0.06em;
+  padding-bottom: 0.5em;
+  margin-right: 0.14em;
+  margin-bottom: -0.5em;
+}
+
 .hero-name .char {
   animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   animation-delay: calc(var(--i) * 40ms);
-  transition: translate 0.25s, rotate 0.25s, color 0.25s;
-}
-
-.hero-name .char:hover {
-  translate: 0 -0.1em;
-  rotate: -8deg;
-  color: var(--pink);
 }
 
 @keyframes rise {
   from {
-    transform: translateY(115%);
+    transform: translateY(170%);
   }
 }
 
@@ -712,26 +1110,34 @@ main,
 }
 
 .hero-role {
-  font-size: clamp(1.4rem, 5.2cqw, 3rem);
+  font-size: clamp(1.4rem, 5.2cqw, 2.2rem);
   font-weight: 500;
   margin: 0;
+  text-wrap: balance;
+}
+
+/* Longer wording wraps rather than running behind the badge */
+@media (min-width: 901px) {
+  .hero-role {
+    max-width: calc(var(--name) * 4.3);
+  }
 }
 
 .amp {
-  /* the handwritten ampersand sits on the same line as the words: no extra line height, nudged up to the
-     text's baseline (the pen font draws it low) */
+  /* the big handwritten ampersand sits on the same line as the words: no extra line height, and moved down so
+     that its middle lines up with the middle of the capitals */
   display: inline-block;
-  font-size: 1.4em;
+  font-size: 1.7em;
   line-height: 0;
   vertical-align: baseline;
-  translate: 0 -0.12em;
-  margin: 0 0.1em;
+  translate: 0 0.125em;
+  margin: 0 0.05em;
 }
 
 .hero-note {
   position: relative;
   display: inline-block;
-  font-size: min(4.6cqw, 3rem);
+  font-size: min(4.6cqw, 1.9rem);
   white-space: nowrap;
   color: var(--plum-soft);
   rotate: -2deg;
@@ -739,24 +1145,285 @@ main,
 }
 
 
-.hero-actions .button {
-  padding: 16px 32px;
-  font-size: 1.1rem;
-}
-
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 40px;
+}
+
+/* Centred under the role and the note, in the space to the left of the badge */
+@media (min-width: 901px) {
+  .hero-actions {
+    max-width: calc(var(--name) * 3.4);
+  }
+}
+
+/* The hero's two buttons: stickers with work poking out of the top. Hovering sets everything off, on a spring: the
+   sticker wobbles, the letters hop in a wave, and what's behind it pops up. Pressing squashes it into its shadow. */
+.fun-btn {
+  --btn-bg: var(--blue);
+  --spring: cubic-bezier(0.3, 1.8, 0.5, 1);
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  color: var(--ivory);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  rotate: var(--tilt);
+  transition: translate 0.35s var(--spring), rotate 0.35s var(--spring), scale 0.2s ease;
+}
+
+.folder-btn {
+  --tilt: -2deg;
+}
+
+.mail-btn {
+  --tilt: 2deg;
+  --btn-bg: var(--butter);
+  color: var(--ink);
+}
+
+.fun-btn:hover,
+.fun-btn:focus-visible {
+  translate: 0 -5px;
+  rotate: calc(var(--tilt) * -1.5);
+}
+
+.fun-btn:active {
+  translate: 3px 3px;
+  rotate: 0deg;
+  scale: 1.03 0.94;
+  transition-duration: 0.08s;
+}
+
+.fun-face {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 0 26px 0 20px;
+  background: var(--btn-bg);
+  border: 2.5px solid var(--plum);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--plum);
+  transition: box-shadow 0.2s ease;
+}
+
+.fun-btn:is(:hover, :focus-visible) .fun-face {
+  box-shadow: 7px 7px 0 var(--plum);
+}
+
+.fun-btn:active .fun-face {
+  box-shadow: 1px 1px 0 var(--plum);
+}
+
+.fun-label i {
+  display: inline-block;
+  font-style: normal;
+  white-space: pre;
+}
+
+.fun-btn:is(:hover, :focus-visible) .fun-label i {
+  animation: letter-hop 0.5s var(--spring) calc(var(--i) * 28ms);
+}
+
+@keyframes letter-hop {
+  35% {
+    translate: 0 -0.32em;
+    rotate: -6deg;
+  }
+}
+
+.fun-btn svg {
+  flex: none;
+  width: 26px;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  transition: rotate 0.35s var(--spring), scale 0.35s var(--spring);
+}
+
+.fun-btn:is(:hover, :focus-visible) svg {
+  rotate: -8deg;
+  scale: 1.18;
+}
+
+.btn-cover,
+.btn-flap {
+  fill: var(--btn-bg);
+}
+
+.btn-page {
+  fill: var(--ivory);
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  transition: translate 0.3s var(--spring);
+}
+
+.fun-btn:is(:hover, :focus-visible) .btn-page {
+  translate: 0 -6px;
+}
+
+.btn-flap {
+  transform-origin: 50% 6.5px;
+  transition: scale 0.25s ease;
+}
+
+.fun-btn:is(:hover, :focus-visible) .btn-flap {
+  scale: 1 -1;
+}
+
+/* What's sticking out of the top, behind the button */
+.fun-peek {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+}
+
+.folder-btn .fun-peek i {
+  position: absolute;
+  top: -9px;
+  width: 30%;
+  height: 46px;
+  border: 2px solid var(--ink);
+  border-radius: 5px;
+  background: linear-gradient(var(--ink) 0 0) 7px 7px / 50% 2px no-repeat, linear-gradient(var(--ink) 0 0) 7px 13px / 70% 2px no-repeat, var(--page);
+  transform-origin: 50% 100%;
+  transition: translate 0.45s var(--spring), rotate 0.45s var(--spring);
+}
+
+.folder-btn .fun-peek i:nth-child(1) {
+  --page: var(--pink);
+  left: 12%;
+  rotate: -7deg;
+}
+
+.folder-btn .fun-peek i:nth-child(2) {
+  --page: var(--butter);
+  left: 35%;
+  rotate: 2deg;
+  transition-delay: 40ms;
+}
+
+.folder-btn .fun-peek i:nth-child(3) {
+  --page: var(--ivory);
+  left: 58%;
+  rotate: 8deg;
+  transition-delay: 80ms;
+}
+
+.folder-btn:is(:hover, :focus-visible) .fun-peek i:nth-child(1) {
+  translate: -22px -26px;
+  rotate: -20deg;
+}
+
+.folder-btn:is(:hover, :focus-visible) .fun-peek i:nth-child(2) {
+  translate: 0 -36px;
+  rotate: -2deg;
+}
+
+.folder-btn:is(:hover, :focus-visible) .fun-peek i:nth-child(3) {
+  translate: 22px -26px;
+  rotate: 20deg;
+}
+
+.mail-btn .fun-peek i {
+  position: absolute;
+  top: -9px;
+  left: 18%;
+  right: 18%;
+  height: 46px;
+  padding-top: 1px;
+  border: 2px solid var(--ink);
+  border-radius: 5px;
+  background: var(--ivory);
+  color: #c2416b;
+  font-size: 0.8rem;
+  font-style: normal;
+  line-height: 1;
+  text-align: center;
+  transition: translate 0.45s var(--spring), rotate 0.45s var(--spring), scale 0.45s var(--spring);
+}
+
+.mail-btn:is(:hover, :focus-visible) .fun-peek i {
+  translate: 0 -30px;
+  rotate: -4deg;
+  scale: 1.04;
+}
+
+/* The hearts floating away from the letter */
+.mail-btn .fun-peek b {
+  position: absolute;
+  top: -34px;
+  left: var(--x);
+  color: #c2416b;
+  font-size: var(--s);
+  font-weight: 400;
+  line-height: 1;
+  opacity: 0;
+}
+
+.mail-btn .fun-peek b:nth-of-type(1) {
+  --x: 26%;
+  --s: 0.85rem;
+  --drift: -14px;
+}
+
+.mail-btn .fun-peek b:nth-of-type(2) {
+  --x: 50%;
+  --s: 1.1rem;
+  --drift: 5px;
+  animation-delay: 0.12s !important;
+}
+
+.mail-btn .fun-peek b:nth-of-type(3) {
+  --x: 72%;
+  --s: 0.75rem;
+  --drift: 16px;
+  animation-delay: 0.24s !important;
+}
+
+.mail-btn:is(:hover, :focus-visible) .fun-peek b {
+  animation: heart-float 1s ease-out 0.15s;
+}
+
+@keyframes heart-float {
+  0% {
+    opacity: 0;
+    translate: 0 6px;
+    scale: 0.4;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--drift) -38px;
+    scale: 1;
+    rotate: 14deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fun-btn:is(:hover, :focus-visible) :is(.fun-label i, .fun-peek b) {
+    animation: none;
+  }
 }
 
 .hero-visual {
-  position: relative;
-  justify-self: end;
-  margin-top: clamp(48px, 9vh, 110px);
-  width: min(100%, 720px, calc(100svh - 190px));
+  position: absolute;
+  left: calc(var(--name) * 4.225);
+  top: calc(28px + var(--name) * 1.565);
+  width: calc(var(--name) * 2.35);
   aspect-ratio: 1;
-  animation: pop-in 1.1s cubic-bezier(0.3, 1.5, 0.5, 1) 0.25s both;
 }
 
 @keyframes pop-in {
@@ -767,13 +1434,15 @@ main,
   }
 }
 
-/* Pink blob that slowly morphs behind the photo */
-.photo-blob {
-  position: absolute;
-  inset: 0;
-  translate: 5% 4%;
-  background: var(--pink);
-  animation: morph 9s ease-in-out infinite;
+@media (min-width: 900px) {
+  /* These two lines scale with the name too, so they always stop short of the badge */
+  .hero-role {
+    font-size: min(2.2rem, calc(var(--name) * 0.21));
+  }
+
+  .hero-note {
+    font-size: min(1.9rem, calc(var(--name) * 0.18));
+  }
 }
 
 /* Hanging ID badge. Its strap runs up behind the navbar to the top of the browser; scrolling down
@@ -794,18 +1463,125 @@ main,
   height: 107cqi;
   container-type: inline-size;
   translate: -50% var(--pull);
-  transform: rotate(calc(var(--tension) * 4deg));
+  /* --swing and --stretch come from dragging it (see useBadgeSwing in Home.jsx) */
+  transform: rotate(calc(var(--tension) * 4deg + var(--swing, 0deg))) translateY(var(--stretch, 0px));
   /* Pivot at the top of the strap, so it swings like a pendulum */
   transform-origin: 50% calc(var(--reach, 0px) * -1);
-  perspective: 1400px;
   outline: none;
-  animation: swing 5s ease-in-out infinite;
+  user-select: none;
+  cursor: grab;
+  touch-action: none;
+  /* Drops in from the top of the browser and swings itself out into the gentle idle swing */
+  animation: badge-drop 1.3s linear 0.3s backwards, swing 5s ease-in-out 1.6s infinite;
 }
 
-.badge:hover,
-.badge:focus-visible,
+/* the button that flips it from the keyboard, invisible and over the card */
+.badge-flip {
+  position: absolute;
+  inset: 13cqi 0 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.badge.held {
+  cursor: grabbing;
+}
+
+/* Flipped over it stays put, so it's just a card to read and to click back over (and scrolls like the page does) */
 .badge.flipped {
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.badge-body {
+  position: absolute;
+  inset: 0;
+  /* --hang keeps the card from following the strap all the way over (see useBadgeSwing in Home.jsx) */
+  rotate: var(--hang, 0deg);
+  transform-origin: 50% 11cqi;
+  perspective: 900px;
+}
+
+/* The card's soft shadow on the page, which falls further away when it's lifted off it and shifts as it turns */
+.badge-shadow {
+  position: absolute;
+  inset: 15cqi 3cqi -1cqi;
+  border-radius: 7cqi;
+  background: rgb(0 10 26 / 0.34);
+  filter: blur(3cqi);
+  translate: calc(2.5cqi + var(--sheen, 0) * -2.5cqi) 3cqi;
+  transition: inset 0.25s ease, opacity 0.25s ease;
+}
+
+.badge.held .badge-shadow {
+  inset: 18cqi 1cqi -6cqi;
+  opacity: 0.7;
+}
+
+:root[data-theme='dark'] .badge-shadow {
+  background: rgb(0 0 0 / 0.6);
+}
+
+/* Hinged at the slot, so it tips the way a card on a clip does, and always turning very slightly in the air */
+.badge-tilt {
+  position: absolute;
+  inset: 0;
+  transform: rotateX(var(--pitch, 0deg)) rotateY(var(--twist, 0deg));
+  transform-origin: 50% 19cqi;
+  transform-style: preserve-3d;
+  animation: badge-turn 7s ease-in-out infinite;
+}
+
+.badge:hover .badge-tilt,
+.badge.held .badge-tilt {
   animation-play-state: paused;
+}
+
+.badge.flipped .badge-tilt {
+  animation: none;
+}
+
+.badge.ripped .badge-tilt {
+  animation: badge-tumble 0.8s cubic-bezier(0.5, 0, 0.9, 0.6) forwards;
+}
+
+@keyframes badge-turn {
+  0%,
+  100% {
+    rotate: y -5deg;
+  }
+  50% {
+    rotate: y 5deg;
+  }
+}
+
+@keyframes badge-tumble {
+  to {
+    rotate: 1 0.5 0.2 240deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-tilt {
+    animation: none;
+  }
+}
+
+/* Its thickness: layers stacked between the two faces, which show round the edge as it turns */
+.badge-edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 7cqi;
+  background: #1a2438;
+  transform: translateZ(calc((var(--i) - 3.5) * 0.34cqi));
+}
+
+/* the idle swing stops under the mouse, but the drop always finishes */
+.badge:hover,
+.badge:has(.badge-flip:focus-visible),
+.badge.held,
+.badge.flipped {
+  animation-play-state: running, paused;
 }
 
 /* Ripped off: the badge yanks up, then tumbles away with its torn strap still attached */
@@ -820,25 +1596,17 @@ main,
 
 
 
-/* The strap runs from the clip up behind the navbar and on past the top of the browser (an extra
-   screen-and-a-half of it), so its end never shows when the badge drops back down. When ripped it's cut
-   back to reach just the top of the browser, so the torn end shows as it falls. */
-.badge-strap {
-  --extra: 150vh;
-  position: absolute;
-  left: 50%;
-  top: calc((var(--reach, 0px) + var(--extra)) * -1);
-  width: 11cqi;
-  height: calc(var(--reach, 0px) + var(--extra) + 9cqi);
-  translate: -50% 0;
-  transform: scaleX(calc(1 - var(--tension) * 0.3));
-  background: repeating-linear-gradient(45deg, var(--butter) 0 8px, #fbeabb 8px 16px);
-  border-inline: 2.5px solid var(--ink);
+/* The strap is its own piece of fabric, drawn behind the badge (see Lanyard.jsx) */
+.lanyard {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.ripped .badge-strap {
-  --extra: 0px;
-  clip-path: polygon(0 12px, 15% 0, 30% 14px, 48% 2px, 62% 15px, 80% 0, 100% 12px, 100% 100%, 0 100%);
+.hero[data-intro='playing'] .lanyard {
+  visibility: hidden;
 }
 
 .badge-clip {
@@ -851,7 +1619,10 @@ main,
   translate: -50% 0;
   border: 3px solid var(--ink);
   border-radius: 6px 6px 12px 12px;
-  background: linear-gradient(#e3e3ea, #a9a9b6);
+  background: linear-gradient(#f3f3f8, #c8c8d2 45%, #8f8f9e);
+  box-shadow: inset 0 1px 1px #fff, 0 2px 3px rgb(0 10 26 / 0.4);
+  /* just in front of the card, whichever way round it is */
+  transform: translateZ(calc(1.3cqi + 3px));
 }
 
 .badge-card {
@@ -865,6 +1636,102 @@ main,
   transform: rotateY(180deg);
 }
 
+/* The notes pointing out that the card flips and drags, written beside it once it has dropped in.
+   They wave twice to catch the eye and then keep still. */
+.badge-hint {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  color: var(--plum);
+  font-size: min(1.7rem, calc(var(--name) * 0.16));
+  line-height: 1;
+  white-space: nowrap;
+  rotate: -5deg;
+  pointer-events: none;
+  animation: hint-in 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 2s backwards, hint-nudge 2.4s ease-in-out 3s 2;
+}
+
+.badge-hint svg {
+  width: 1.9em;
+  margin-bottom: -0.2em;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.badge-hint.flip {
+  top: 62%;
+  right: 89%;
+}
+
+.badge-hint.drag {
+  top: 36%;
+  left: 91%;
+  flex-direction: column;
+  align-items: center;
+  rotate: 5deg;
+  animation-name: hint-in, hint-sway;
+}
+
+.badge-hint.drag svg {
+  margin: 0.1em 0 0;
+}
+
+@keyframes hint-sway {
+  25% {
+    translate: -6px 0;
+  }
+  75% {
+    translate: 6px 0;
+  }
+}
+
+@keyframes hint-in {
+  from {
+    scale: 0.4;
+    opacity: 0;
+  }
+}
+
+@keyframes hint-nudge {
+  50% {
+    translate: 6px 0;
+  }
+}
+
+.hero[data-intro='playing'] .badge-hint {
+  visibility: hidden;
+}
+
+/* No room beside the card on a phone, so it sits above it, to the left of the strap (the blueprint's wipe
+   line covers the right) */
+@media (max-width: 900px) {
+  .badge-hint {
+    font-size: 1.1rem;
+  }
+
+  .badge-hint.flip {
+    top: -11%;
+    right: 58%;
+  }
+
+  .badge-hint.drag {
+    top: -24%;
+    left: auto;
+    right: 58%;
+    flex-direction: row;
+    gap: 0.4em;
+  }
+
+  .badge-hint.flip svg {
+    rotate: 30deg;
+  }
+}
+
 .badge-face {
   position: absolute;
   inset: 0;
@@ -874,14 +1741,28 @@ main,
   padding: 14cqi 7cqi 7cqi;
   border: 3px solid var(--ink);
   border-radius: 7cqi;
-  box-shadow: 7px 7px 0 var(--ink);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
   backface-visibility: hidden;
   color: var(--ink);
   overflow: hidden;
 }
 
+/* The front is printed in pink from edge to edge, so it stands out from the page in both themes */
 .badge-front {
-  background: #fffefb;
+  align-items: stretch;
+  padding-bottom: 0;
+  background: var(--pink);
+  transform: translateZ(1.3cqi);
+}
+
+/* The light moving across its laminated surface as it turns */
+.badge-face::after {
+  content: '';
+  position: absolute;
+  inset: -30% -60%;
+  background: linear-gradient(105deg, transparent 38%, rgb(255 255 255 / 0.07) 44%, rgb(255 255 255 / 0.28) 50%, rgb(255 255 255 / 0.07) 56%, transparent 62%);
+  translate: calc(var(--sheen, 0) * 42%) 0;
+  pointer-events: none;
 }
 
 .badge-back {
@@ -889,11 +1770,12 @@ main,
   background:
     repeating-radial-gradient(circle at 20% 110%, transparent 0 9px, rgb(14 71 152 / 0.05) 9px 10px),
     linear-gradient(160deg, #f7f9fc, #e8eef7);
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1.3cqi);
   align-items: stretch;
+  padding-bottom: 4cqi;
 }
 
-.badge:focus-visible .badge-face {
+.badge:has(.badge-flip:focus-visible) .badge-face {
   outline: 3px solid var(--blue);
   outline-offset: 4px;
 }
@@ -909,6 +1791,7 @@ main,
   border: 2.5px solid var(--ink);
   border-radius: 999px;
   background: var(--cream);
+  box-shadow: inset 0 2px 3px rgb(0 10 26 / 0.5);
 }
 
 
@@ -916,14 +1799,40 @@ main,
 
 
 
+.badge-portrait {
+  position: relative;
+  flex: none;
+}
+
 .badge-photo {
-  width: 70%;
-  aspect-ratio: 1;
-  flex-shrink: 0;
+  aspect-ratio: 1 / 0.8;
   border: 3px solid var(--ink);
-  border-radius: 5.4cqi;
+  border-radius: 4cqi;
   overflow: hidden;
   background: var(--butter);
+  box-shadow: 1.6cqi 1.6cqi 0 var(--blue);
+  rotate: -1.5deg;
+}
+
+/* My logo as a sticker, slapped on the corner of the photo */
+.badge-sticker {
+  position: absolute;
+  right: -3.5cqi;
+  bottom: -6cqi;
+  display: grid;
+  place-items: center;
+  width: 23cqi;
+  aspect-ratio: 1;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--butter);
+  rotate: 10deg;
+}
+
+.badge-sticker img {
+  width: 76%;
+  height: 76%;
+  object-fit: contain;
 }
 
 .badge-photo img,
@@ -932,33 +1841,45 @@ main,
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 50% 36%;
 }
 
 .badge-name {
-  margin: 4.5cqi 0 1.8cqi;
+  margin: 5.5cqi 0 1.6cqi;
   font-family: var(--display);
-  font-size: 8.2cqi;
+  font-size: 11.4cqi;
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  text-align: center;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
 .badge-role {
   margin: 0;
-  font-size: 4.6cqi;
-  font-weight: 500;
+  font-size: 4.3cqi;
+  font-weight: 600;
   line-height: 1.3;
-  text-align: center;
   color: var(--ink);
-  opacity: 0.75;
+}
+
+/* Runs edge to edge along the bottom of the card */
+.badge-id {
+  display: flex;
+  align-items: center;
+  gap: 3cqi;
+  margin: auto -7cqi 0;
+  padding: 3cqi 7cqi;
+  background: var(--ink);
+  color: var(--ivory);
+  font-family: ui-monospace, monospace;
+  font-size: 3cqi;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .badge-barcode {
-  width: 70%;
-  height: 8cqi;
-  margin-top: auto;
-  background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 7px, transparent 7px 9px, var(--ink) 9px 10px, transparent 10px 13px);
+  flex: 1;
+  height: 6cqi;
+  background: repeating-linear-gradient(90deg, var(--ivory) 0 2px, transparent 2px 4px, var(--ivory) 4px 7px, transparent 7px 9px, var(--ivory) 9px 10px, transparent 10px 13px);
 }
 
 .badge-stripe {
@@ -1090,7 +2011,7 @@ main,
   display: grid;
   place-items: center;
   flex: none;
-  width: 26cqi;
+  width: 22cqi;
   aspect-ratio: 1;
 }
 
@@ -1102,7 +2023,7 @@ main,
 
 .badge-back-info {
   display: grid;
-  gap: 1.8cqi;
+  gap: 1cqi;
   flex: 1;
   margin: 0;
   padding: 0;
@@ -1112,7 +2033,7 @@ main,
 }
 
 .badge-back-info li {
-  padding-bottom: 1.2cqi;
+  padding-bottom: 0.6cqi;
   border-bottom: 1.5px dashed rgb(0 10 26 / 0.25);
 }
 
@@ -1125,45 +2046,127 @@ main,
   opacity: 0.55;
 }
 
-.badge-signature {
-  display: grid;
+.badge-sign {
+  position: relative;
+  flex: none;
   margin-top: 3cqi;
-  padding: 1cqi 3cqi 1.2cqi;
-  border: 1.5px solid rgb(0 10 26 / 0.35);
+  cursor: var(--cursor-pen);
+}
+
+.badge-sign canvas {
+  display: block;
+  width: 100%;
+  height: 12cqi;
+  border: 1.5px solid rgb(0 10 26 / 0.45);
   border-radius: 1.6cqi;
-  background: repeating-linear-gradient(-30deg, #f3f6fb 0 3px, #e3eaf5 3px 6px);
+  background: repeating-linear-gradient(-30deg, #f8fafd 0 3px, #eaf0f8 3px 6px);
+  touch-action: none;
 }
 
-.badge-signature .pen {
-  font-size: 6cqi;
-  line-height: 1.1;
+.badge-sign-hint {
+  position: absolute;
+  top: 0;
+  left: 3cqi;
+  display: flex;
+  align-items: center;
+  height: 12cqi;
   color: var(--blue);
-  rotate: -3deg;
-  width: fit-content;
+  font-size: 5.6cqi;
+  white-space: nowrap;
+  opacity: 0.75;
+  rotate: -2deg;
+  pointer-events: none;
 }
 
-.badge-signature small {
-  font-size: 2.5cqi;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.6;
-}
-
-.badge-back-foot {
+.badge-sign-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 3cqi;
-  margin-top: auto;
-  font-family: ui-monospace, monospace;
-  font-size: 3cqi;
-  font-weight: 700;
+  min-height: 4cqi;
+  margin-top: 0.6cqi;
+  font-size: 2.5cqi;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
 }
 
-.badge-barcode.small {
-  flex: 1;
-  height: 6cqi;
-  margin-top: 0;
+.badge-sign-foot small {
+  font-size: inherit;
+  opacity: 0.65;
+}
+
+.badge-sign-foot button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: inherit;
+  text-decoration: underline;
+  text-transform: inherit;
+}
+
+/* Ways to get in touch, right there on the card: the main thing the back is for */
+.badge-contact {
+  display: grid;
+  gap: 2.2cqi;
+  flex: none;
+  margin-top: 3cqi;
+}
+
+.badge-contact a {
+  display: flex;
+  align-items: center;
+  gap: 2.6cqi;
+  min-height: 12.4cqi;
+  padding: 0 4cqi;
+  border: 2.5px solid var(--ink);
+  border-radius: 3cqi;
+  background: var(--blue);
+  color: var(--ivory);
+  font-size: 5cqi;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 1cqi 1cqi 0 var(--ink);
+  cursor: pointer;
+  transition: translate 0.15s ease, box-shadow 0.15s ease;
+}
+
+.badge-contact a:nth-child(2) {
+  background: var(--pink);
+  color: var(--ink);
+}
+
+.badge-contact a:nth-child(3) {
+  background: var(--butter);
+  color: var(--ink);
+}
+
+.badge-contact svg {
+  flex: none;
+  width: 6cqi;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.badge-contact a span {
+  margin-left: auto;
+  transition: translate 0.15s ease;
+}
+
+.badge-contact a:hover,
+.badge-contact a:focus-visible {
+  translate: -0.4cqi -0.6cqi;
+  box-shadow: 1.8cqi 1.8cqi 0 var(--ink);
+}
+
+.badge-contact a:hover span,
+.badge-contact a:focus-visible span {
+  translate: 0.8cqi 0;
 }
 
 .badge-small-print {
@@ -1183,6 +2186,36 @@ main,
   }
   50% {
     rotate: -1.2deg;
+  }
+}
+
+@keyframes badge-drop {
+  0% {
+    translate: -50% calc(-100% - var(--reach, 0px));
+    rotate: -5deg;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.85, 0.5);
+  }
+  36% {
+    translate: -50% calc(var(--pull) + 1.5cqi);
+    rotate: 6deg;
+    animation-timing-function: ease-out;
+  }
+  52% {
+    translate: -50% calc(var(--pull) - 1cqi);
+    rotate: -4.5deg;
+    animation-timing-function: ease-in-out;
+  }
+  68% {
+    translate: -50% var(--pull);
+    rotate: 3deg;
+    animation-timing-function: ease-in-out;
+  }
+  84% {
+    rotate: -1.8deg;
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    rotate: 1.2deg;
   }
 }
 
@@ -1221,19 +2254,6 @@ main,
   color: var(--ink);
 }
 
-@keyframes morph {
-  0%,
-  100% {
-    border-radius: 58% 42% 52% 48% / 46% 56% 44% 54%;
-  }
-  33% {
-    border-radius: 44% 56% 40% 60% / 58% 42% 58% 42%;
-  }
-  66% {
-    border-radius: 52% 48% 60% 40% / 40% 52% 48% 60%;
-  }
-}
-
 @keyframes float {
   50% {
     translate: 0 -14px;
@@ -1248,27 +2268,6 @@ main,
   stroke: var(--ink);
   stroke-width: 2;
   animation: twinkle 2.4s ease-in-out infinite;
-}
-
-.sparkle.s1 {
-  top: 0;
-  right: 8%;
-}
-
-.sparkle.s2 {
-  top: 18%;
-  left: 2%;
-  width: 28px;
-  fill: var(--blue);
-  animation-delay: 0.8s;
-}
-
-.sparkle.s3 {
-  bottom: 6%;
-  right: 4%;
-  width: 30px;
-  fill: var(--pink);
-  animation-delay: 1.6s;
 }
 
 @keyframes twinkle {
@@ -2924,7 +3923,7 @@ main,
   font: inherit;
   font-weight: 600;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cursor-pen-click);
   transition: background 0.2s;
 }
 
@@ -3535,7 +4534,7 @@ main,
   font-weight: 800;
   letter-spacing: -0.05em;
   line-height: 1;
-  margin-bottom: 8px;
+  margin-bottom: 40px;
 }
 
 /* "Let's talk" starts huge and blurred, then shrinks into place as it scrolls into view */
@@ -3582,21 +4581,6 @@ main,
   rotate: 10deg;
   translate: 0 -0.06em;
   color: var(--accent);
-}
-
-.contact-de {
-  position: relative;
-  display: inline-block;
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  rotate: -3deg;
-  margin: 0 0 28px;
-}
-
-.contact-translations {
-  font-family: var(--display);
-  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
-  color: var(--plum-soft);
-  margin: 0 0 40px;
 }
 
 .button.big {
@@ -4010,6 +4994,8 @@ main,
   line-height: 0.95;
   letter-spacing: -0.05em;
   margin-bottom: 36px;
+  /* Keeps the title clear of the round sticker in the corner */
+  padding-right: calc(clamp(110px, 14vw, 160px) + 24px);
 }
 
 .ph-line {
@@ -4020,7 +5006,7 @@ main,
 .ph-box {
   display: inline-block;
   margin-top: 0.12em;
-  padding: 0 0.18em 0.04em;
+  padding: 0 0.18em 0.27em;
   background: var(--blue);
   color: var(--paper);
   border: 3px solid var(--plum);
@@ -4040,14 +5026,32 @@ main,
   margin-right: 0;
 }
 
-.ph-de {
+/* Room for the j's tail below, which hangs lower than the usual clip around a word. The letters start further
+   down to stay hidden behind it. */
+.ph-title .word {
+  padding-bottom: 0.5em;
+  margin-bottom: -0.5em;
+}
+
+.ph-title .char {
+  transform: translateY(170%);
+}
+
+/* The display font's j is just a straight stem, so the big title draws it a curved tail like the y's */
+:is(.ph-box, .hero-name, .badge-name) .char-j {
   position: relative;
-  display: inline-block;
-  margin-left: 0.4em;
-  font-size: 0.36em;
-  letter-spacing: 0;
-  rotate: -5deg;
-  vertical-align: middle;
+}
+
+:is(.ph-box, .hero-name, .badge-name) .char-j::after {
+  content: '';
+  position: absolute;
+  top: 0.97em;
+  left: -0.25em;
+  width: 0.535em;
+  height: 0.24em;
+  border-right: 0.235em solid currentColor;
+  border-bottom: 0.17em solid currentColor;
+  border-bottom-right-radius: 0.36em;
 }
 
 .ph-sticker {
@@ -4114,6 +5118,357 @@ main,
   font-size: 1.15rem;
   color: var(--plum-soft);
   margin: 0 0 40px;
+}
+
+.freelance-note + .project-index {
+  margin-top: 48px;
+}
+
+/* Freelance note: a taped-on card that sways gently, with a spinning stamp where a pen doodles away.
+   On hover it wiggles, the sparkles pop out and the stamp spins faster. */
+.freelance-note {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: fit-content;
+  max-width: 720px;
+  margin: 8px auto 0;
+  padding: 24px 32px 24px 24px;
+  color: var(--ink);
+  background: var(--butter);
+  border: 2.5px solid var(--ink);
+  border-radius: 6px 22px 8px 26px / 24px 8px 22px 6px;
+  box-shadow: 6px 6px 0 var(--blue);
+  transform-origin: 50% 0;
+  animation: note-sway 5s ease-in-out infinite;
+}
+
+.freelance-note:hover {
+  animation: note-wiggle 0.6s ease-in-out;
+}
+
+@keyframes note-sway {
+  0%,
+  100% {
+    rotate: -1.6deg;
+  }
+  50% {
+    rotate: 0.8deg;
+  }
+}
+
+@keyframes note-wiggle {
+  20% {
+    rotate: 2.5deg;
+    scale: 1.02;
+  }
+  45% {
+    rotate: -3deg;
+  }
+  70% {
+    rotate: 1.5deg;
+  }
+}
+
+/* A strip of see-through tape holding the card up */
+.freelance-note::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 96px;
+  height: 26px;
+  translate: -50% 0;
+  rotate: -3deg;
+  background: rgb(223 164 184 / 0.75);
+  border-inline: 2px dashed rgb(0 10 26 / 0.3);
+}
+
+.freelance-stamp {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  aspect-ratio: 1;
+  background: var(--ivory);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.freelance-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: ring-spin 16s linear infinite;
+}
+
+.freelance-note:hover .freelance-ring {
+  animation-duration: 4s;
+}
+
+.freelance-ring text {
+  fill: var(--ink);
+  font-family: var(--body);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.freelance-stamp .mini-site {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 58px;
+  padding-bottom: 4px;
+  overflow: hidden;
+  background: var(--ivory);
+  border: 2px solid var(--ink);
+  border-radius: 5px;
+}
+
+.mini-site i {
+  display: block;
+}
+
+.mini-bar {
+  display: flex;
+  gap: 2px;
+  padding: 2px 3px;
+  background: var(--ink);
+}
+
+.mini-bar i {
+  width: 3px;
+  height: 3px;
+  background: var(--ivory);
+  border-radius: 50%;
+}
+
+.mini-hero,
+.mini-line,
+.mini-cards {
+  margin-inline: 4px;
+  transform-origin: left;
+  animation: site-build 4.5s ease-in-out infinite;
+}
+
+.mini-hero {
+  height: 13px;
+  background: var(--blue);
+  border-radius: 2px;
+  animation-name: site-build-hero;
+}
+
+.mini-line {
+  width: 60%;
+  height: 3px;
+  background: var(--pink);
+  border-radius: 2px;
+  animation-delay: 0.45s;
+}
+
+.mini-cards {
+  display: flex;
+  gap: 2px;
+  animation: none;
+}
+
+.mini-cards i {
+  flex: 1;
+  height: 8px;
+  background: var(--butter);
+  border: 1px solid var(--ink);
+  border-radius: 1px;
+  animation: site-pop 4.5s cubic-bezier(0.3, 1.5, 0.5, 1) infinite;
+}
+
+.mini-cards i:nth-child(1) {
+  animation-delay: 0.8s;
+}
+
+.mini-cards i:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.mini-cards i:nth-child(3) {
+  animation-delay: 1.2s;
+}
+
+/* The tiny website builds itself piece by piece, stays a while, then starts again */
+@keyframes site-build-hero {
+  0% {
+    scale: 0 1;
+  }
+  12%,
+  85% {
+    scale: 1 1;
+    opacity: 1;
+  }
+  95%,
+  100% {
+    scale: 1 1;
+    opacity: 0;
+  }
+}
+
+@keyframes site-build {
+  0% {
+    scale: 0 1;
+  }
+  12%,
+  75% {
+    scale: 1 1;
+    opacity: 1;
+  }
+  85%,
+  100% {
+    scale: 1 1;
+    opacity: 0;
+  }
+}
+
+@keyframes site-pop {
+  0% {
+    scale: 0;
+  }
+  10%,
+  70% {
+    scale: 1;
+    opacity: 1;
+  }
+  80%,
+  100% {
+    scale: 1;
+    opacity: 0;
+  }
+}
+
+.freelance-copy p {
+  margin: 0;
+}
+
+.freelance-psst {
+  font-size: 1.9rem;
+  line-height: 1.1;
+  color: var(--blue);
+  rotate: -2deg;
+  transform-origin: left;
+}
+
+.freelance-copy p:not(.freelance-psst) {
+  margin-top: 8px;
+  font-size: 1.05rem;
+}
+
+.freelance-copy .hl {
+  --marker: var(--pink);
+}
+
+.freelance-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 16px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--ivory);
+  background: var(--ink);
+  border-radius: 999px;
+  transition: rotate 0.3s cubic-bezier(0.3, 1.8, 0.5, 1), scale 0.3s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.freelance-cta:hover {
+  rotate: -3deg;
+  scale: 1.06;
+}
+
+.freelance-cta .nav-arrow {
+  animation: cta-nudge 1.2s ease-in-out infinite;
+}
+
+@keyframes cta-nudge {
+  50% {
+    translate: 4px 0;
+  }
+}
+
+.freelance-spark {
+  position: absolute;
+  width: 22px;
+  fill: var(--pink);
+  stroke: var(--ink);
+  stroke-width: 2;
+  animation: twinkle 2.6s ease-in-out infinite;
+  transition: scale 0.35s cubic-bezier(0.3, 1.8, 0.5, 1), translate 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.freelance-spark.a {
+  top: -10px;
+  right: 22px;
+}
+
+.freelance-spark.b {
+  right: -12px;
+  bottom: 26px;
+  width: 16px;
+  fill: var(--ivory);
+  animation-delay: 0.8s;
+}
+
+.freelance-spark.c {
+  bottom: -10px;
+  left: 44%;
+  width: 18px;
+  fill: var(--blue);
+  animation-delay: 1.5s;
+}
+
+.freelance-note:hover .freelance-spark {
+  scale: 1.7;
+}
+
+.freelance-note:hover .freelance-spark.a {
+  translate: 10px -10px;
+}
+
+.freelance-note:hover .freelance-spark.b {
+  translate: 12px 0;
+}
+
+.freelance-note:hover .freelance-spark.c {
+  translate: 0 12px;
+}
+
+@media (max-width: 560px) {
+  .freelance-note {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .freelance-note,
+  .freelance-ring,
+  .mini-hero,
+  .mini-line,
+  .mini-cards i,
+  .quote-word span,
+  .freelance-cta .nav-arrow,
+  .freelance-spark {
+    animation: none;
+  }
+}
+
+.projects-head > p.grade-note {
+  margin-top: -24px;
+  font-size: 0.9rem;
 }
 
 .project-index {
@@ -4222,6 +5577,123 @@ main,
   z-index: 1;
 }
 
+/* The quote form at the end of the personal page: a sentence with tappable coloured words */
+.project-entry.wide .quote-card {
+  width: min(100%, 860px);
+  margin-inline: auto;
+  padding: clamp(24px, 5vw, 48px);
+  color: var(--ink);
+  background: var(--ivory);
+  border: 2.5px solid var(--plum);
+  border-radius: 24px;
+  box-shadow: 7px 7px 0 var(--pink);
+}
+
+.quote-sentence {
+  margin: 0;
+  font-size: clamp(1.35rem, 3.1vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.9;
+}
+
+.quote-word {
+  display: inline-block;
+  padding: 0 0.5em;
+  font: inherit;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--butter);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--ink);
+  rotate: -1.5deg;
+  transition: rotate 0.25s cubic-bezier(0.3, 1.8, 0.5, 1), translate 0.15s, box-shadow 0.15s;
+}
+
+.quote-word span {
+  display: inline-block;
+  animation: word-pop 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.quote-word.who {
+  background: var(--pink);
+  rotate: 1deg;
+}
+
+.quote-word.feel {
+  color: var(--ivory);
+  background: var(--blue);
+  rotate: -1deg;
+}
+
+.quote-word.when {
+  rotate: 1.5deg;
+}
+
+.quote-word:hover {
+  rotate: -4deg;
+}
+
+.quote-word:active {
+  translate: 2px 2px;
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+@keyframes word-pop {
+  from {
+    opacity: 0;
+    translate: 0 0.5em;
+    scale: 0.7;
+  }
+}
+
+.quote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 28px;
+}
+
+/* Dark mode flips the button colours, but this card stays light */
+.quote-actions .button.primary {
+  color: var(--ivory);
+  background: var(--ink);
+}
+
+.quote-surprise {
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--ink);
+  background: none;
+  border: 2px dashed var(--ink);
+  border-radius: 999px;
+  transition: rotate 0.25s cubic-bezier(0.3, 1.8, 0.5, 1), background 0.2s;
+}
+
+.quote-surprise:hover {
+  background: var(--butter);
+  rotate: 3deg;
+}
+
+.quote-fallback {
+  margin: 20px 0 0;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.quote-fallback button,
+.quote-fallback a {
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+}
+
 /* Giant outlined number behind each project */
 .entry-bignum {
   position: absolute;
@@ -4296,6 +5768,12 @@ main,
   background: var(--butter);
 }
 
+.project-mark.german {
+  color: var(--ink);
+  background: var(--pink);
+  rotate: 2deg;
+}
+
 .project-module {
   margin: 12px 0 0;
   font-size: 0.95rem;
@@ -4313,6 +5791,46 @@ main,
   background: #f8e1e9;
   color: var(--ink);
   border-radius: 14px;
+}
+
+.project-tech {
+  margin-bottom: 20px;
+}
+
+.project-tech h3 {
+  margin: 20px 0 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--plum-soft);
+}
+
+.stack-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stack-list li {
+  padding: 3px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 2px solid var(--plum);
+  border-radius: 999px;
+}
+
+.tech-notes {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.95rem;
+}
+
+.tech-notes li + li {
+  margin-top: 6px;
 }
 
 .entry-title {
@@ -4493,6 +6011,10 @@ main,
     gap: 20px;
   }
 
+  .ph-title.title {
+    padding-right: 0;
+  }
+
   .ph-sticker {
     position: static;
     margin: -12px 0 28px auto;
@@ -4621,11 +6143,11 @@ main,
   overflow: hidden;
   background: var(--cream-deep);
   box-shadow: 0 0 0 2.5px var(--plum), 8px 8px 0 var(--pink);
-  cursor: pointer;
+  cursor: var(--cursor-pen-click);
 }
 
 .slide.active .slide-btn {
-  cursor: zoom-in;
+  cursor: var(--cursor-zoom);
 }
 
 /* Screenshots fill the whole slide, so slightly different sizes never leave empty bands. Anything that
@@ -4637,7 +6159,7 @@ main,
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 0;
+  object-position: 50% 36%;
   user-select: none;
 }
 
@@ -4908,18 +6430,11 @@ a:hover .nav-arrow.inline.out {
   font-size: clamp(2rem, 5vw, 3.4rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  margin-bottom: 14px;
+  margin-bottom: 32px;
 }
 
 .cta-title .hl {
   --marker: var(--pink);
-}
-
-.cta-de {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
-  color: var(--blue);
-  rotate: -3deg;
-  margin: 0 0 40px;
 }
 
 .cta-action {
@@ -5057,15 +6572,20 @@ a:hover .nav-arrow.inline.out {
 /* ---------- Responsive ---------- */
 @media (max-width: 899px) {
   .hero {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     min-height: 0;
     gap: 32px;
     padding-top: 24px;
   }
 
   .hero-visual {
+    position: relative;
+    left: auto;
+    top: auto;
     order: -1;
     justify-self: center;
+    margin-top: clamp(48px, 9vh, 110px);
     width: min(92%, 460px);
   }
 
@@ -5133,9 +6653,13 @@ a:hover .nav-arrow.inline.out {
     right: 0;
   }
 
+  /* Three lines on a phone, so "Staden" can fill the width by itself */
+  .hero {
+    --name: calc((100vw - 32px) / 4.7);
+  }
+
   .hero-name {
     white-space: normal;
-    font-size: clamp(3.4rem, 21cqw, 7rem);
   }
 }
 
@@ -6362,8 +7886,9 @@ a:hover .nav-arrow.inline.out {
 }
 
 /* ---------- The hero's blueprint (Blueprint.jsx) ----------
-   The same layout as a wireframe on graph paper. With a mouse it shows only inside a circle round the
-   cursor (--mx, --my, --lens); on touch screens everything right of a draggable line (--split) shows it. */
+   The same layout as a wireframe on graph paper, hidden until the Inspect button adds .bp-on. With a mouse it
+   then shows only inside a circle round the cursor (--mx, --my, --lens); on touch screens everything right of a
+   draggable line (--split) shows it. */
 @property --lens {
   syntax: '<length>';
   inherits: true;
@@ -6371,14 +7896,19 @@ a:hover .nav-arrow.inline.out {
 }
 
 .blueprint {
+  /* The paper runs to the edges of the browser and up behind the nav, so no page background shows beside it.
+     .bp-inner brings everything drawn on it back to the hero's own box, which is what the JS measures from. */
+  --bleed-x: 100vw;
+  --bleed-y: 140px;
   position: absolute;
-  inset: 0;
+  inset: calc(var(--bleed-y) * -1) calc(var(--bleed-x) * -1) 0;
   z-index: 6;
   pointer-events: none;
   --mx: -999px;
   --my: -999px;
-  -webkit-mask-image: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 calc(var(--lens) - 1px), transparent var(--lens));
-  mask-image: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 calc(var(--lens) - 1px), transparent var(--lens));
+  --at: calc(var(--mx) + var(--bleed-x)) calc(var(--my) + var(--bleed-y));
+  -webkit-mask-image: radial-gradient(circle var(--lens) at var(--at), #000 calc(var(--lens) - 1px), transparent var(--lens));
+  mask-image: radial-gradient(circle var(--lens) at var(--at), #000 calc(var(--lens) - 1px), transparent var(--lens));
   transition: --lens 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 
@@ -6386,18 +7916,26 @@ a:hover .nav-arrow.inline.out {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgb(79 107 255 / 0.16) 1px, transparent 1px) 0 0 / 120px 120px,
-    linear-gradient(90deg, rgb(79 107 255 / 0.16) 1px, transparent 1px) 0 0 / 120px 120px,
-    linear-gradient(rgb(79 107 255 / 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
-    linear-gradient(90deg, rgb(79 107 255 / 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
-    #f2f5fb;
+    linear-gradient(rgb(255 255 255 / 0.2) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(90deg, rgb(255 255 255 / 0.2) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--blue);
+}
+
+.bp-inner {
+  position: absolute;
+  top: var(--bleed-y);
+  bottom: 0;
+  left: var(--bleed-x);
+  right: var(--bleed-x);
 }
 
 .bp-copy-wrap {
   position: absolute;
 }
 
-/* the copy: no animation, every word and shape in wireframe grey, the name as outlines */
+/* the copy: no animation, every word and shape in chalk white, the name as outlines */
 .bp-copy,
 .bp-copy * {
   animation: none !important;
@@ -6405,7 +7943,7 @@ a:hover .nav-arrow.inline.out {
 }
 
 .bp-copy {
-  color: #8a93a5;
+  color: rgb(255 255 255 / 0.75);
 }
 
 .bp-copy .write {
@@ -6416,15 +7954,38 @@ a:hover .nav-arrow.inline.out {
   stroke-dashoffset: 0;
 }
 
+.bp-copy .hero-name {
+  font-family: var(--display);
+}
+
 .bp-copy .hero-name,
 .bp-copy .accent-line {
   color: transparent;
-  -webkit-text-stroke: 1.5px #7c8698;
+  -webkit-text-stroke: 1.5px #fff;
+}
+
+/* In the outlined copy the j's tail is traced as well: its outer edge, closing end and inner edge */
+.bp-copy .hero-name .char-j::after {
+  border-width: 0 1.5px 1.5px 0;
+  border-color: #fff;
+  background: linear-gradient(#fff, #fff) left bottom / 1.5px 0.17em no-repeat;
+}
+
+.bp-copy .hero-name .char-j::before {
+  content: '';
+  position: absolute;
+  top: 0.97em;
+  left: -0.25em;
+  width: 0.3em;
+  height: 0.07em;
+  border-right: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  border-bottom-right-radius: 0.125em 0.19em;
 }
 
 .bp-copy .hero-role,
 .bp-copy .pen {
-  color: #8a93a5;
+  color: rgb(255 255 255 / 0.75);
 }
 
 .bp-copy .flag {
@@ -6432,11 +7993,18 @@ a:hover .nav-arrow.inline.out {
   opacity: 0.5;
 }
 
-.bp-copy .button {
-  color: #6b7588;
-  background: #dde3ec;
-  border: 1.5px dashed #8a93a5;
+.bp-copy .fun-btn {
+  --btn-bg: transparent;
+  color: #fff;
+}
+
+.bp-copy .fun-face {
+  border: 1.5px dashed rgb(255 255 255 / 0.75);
   box-shadow: none;
+}
+
+.bp-copy :is(.btn-page, .fun-peek) {
+  display: none;
 }
 
 .bp-palette {
@@ -6446,7 +8014,7 @@ a:hover .nav-arrow.inline.out {
   margin-top: 26px;
   font-family: ui-monospace, monospace;
   font-size: 0.72rem;
-  color: #5b6b85;
+  color: #fff;
 }
 
 .bp-palette span {
@@ -6458,7 +8026,7 @@ a:hover .nav-arrow.inline.out {
 .bp-palette i {
   width: 16px;
   height: 16px;
-  border: 1px solid #5b6b85;
+  border: 1px solid #fff;
   border-radius: 4px;
 }
 
@@ -6472,7 +8040,7 @@ a:hover .nav-arrow.inline.out {
   font-size: 11px;
 }
 
-/* the lens itself: a blue ring with crosshairs */
+/* the lens itself: a butter ring with crosshairs */
 .bp-ring {
   position: absolute;
   top: 0;
@@ -6480,9 +8048,9 @@ a:hover .nav-arrow.inline.out {
   z-index: 7;
   width: 260px;
   height: 260px;
-  border: 2px solid #4f6bff;
+  border: 3px solid var(--butter);
   border-radius: 50%;
-  box-shadow: 0 0 0 5px rgb(79 107 255 / 0.15), 0 14px 30px rgb(0 10 26 / 0.15);
+  box-shadow: 0 0 0 2px var(--ink), 0 14px 30px rgb(0 10 26 / 0.25);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s;
@@ -6492,7 +8060,7 @@ a:hover .nav-arrow.inline.out {
 .bp-ring::after {
   content: '';
   position: absolute;
-  background: rgb(79 107 255 / 0.5);
+  background: rgb(255 255 255 / 0.6);
 }
 
 .bp-ring::before {
@@ -6516,12 +8084,54 @@ a:hover .nav-arrow.inline.out {
   translate: -50% 0;
   padding: 2px 10px;
   border-radius: 999px;
-  background: #4f6bff;
-  color: #fff;
+  background: var(--butter);
+  color: var(--ink);
   font-family: ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* The button in the hero's bottom corner that turns the blueprint on and off */
+.bp-toggle {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 9px;
+  translate: -50% 0;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--butter);
+  box-shadow: 2px 3px 0 var(--ink);
+  color: #000a1a;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: translate 0.15s, box-shadow 0.15s;
+}
+
+.bp-toggle:hover {
+  translate: -50% -2px;
+  box-shadow: 3px 5px 0 var(--ink);
+}
+
+.bp-toggle svg {
+  width: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.bp-toggle[aria-pressed='true'] {
+  background: var(--blue);
+  color: #fff;
 }
 
 /* touch screens: wipe between design and blueprint with a draggable line */
@@ -6532,16 +8142,21 @@ a:hover .nav-arrow.inline.out {
 .bp-touch .blueprint {
   -webkit-mask-image: none;
   mask-image: none;
-  clip-path: inset(0 0 0 var(--split, 72%));
+  clip-path: inset(0 0 0 calc(var(--split, 72vw) + var(--bleed-x)));
 }
 
 .bp-touch .bp-ring {
   display: none;
 }
 
-.bp-touch .bp-handle {
+/* Until the button is pressed there is no wipe (the intro still uses this layer to play) */
+.bp-touch:not(.bp-on, [data-intro='playing']) .blueprint {
+  visibility: hidden;
+}
+
+.bp-touch.bp-on .bp-handle {
   position: absolute;
-  top: 0;
+  top: -140px;
   bottom: 0;
   z-index: 7;
   display: block;
@@ -6549,11 +8164,11 @@ a:hover .nav-arrow.inline.out {
   padding: 0;
   translate: -50% 0;
   border: 0;
-  background: #4f6bff;
+  background: var(--butter);
   touch-action: none;
 }
 
-.bp-touch .bp-handle span {
+.bp-touch.bp-on .bp-handle span {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -6562,10 +8177,10 @@ a:hover .nav-arrow.inline.out {
   width: 44px;
   height: 44px;
   translate: -50% -50%;
-  border: 2px solid #fff;
+  border: 2px solid var(--ink);
   border-radius: 50%;
-  background: #4f6bff;
-  color: #fff;
+  background: var(--butter);
+  color: var(--ink);
   font-size: 1.2rem;
   box-shadow: 0 4px 14px rgb(0 10 26 / 0.25);
 }
@@ -6574,4 +8189,142 @@ a:hover .nav-arrow.inline.out {
   .blueprint {
     transition: none;
   }
+}
+
+/* The intro, once per visit (see Hero in Home.jsx): the page opens on nothing but blueprint paper, the wireframe
+   plots itself across it, then a pen sweeps over and leaves the finished design behind it. .bp-go starts it once
+   the fonts are in, so the outlines don't jump. */
+@property --wipe {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+/* the name and buttons skip their own entrances: the finished design is already there, under the paper */
+.hero[data-intro] .hero-name .char,
+.hero[data-intro] .hero-fade {
+  animation: none;
+}
+
+/* ...and the badge waits for the pen to go by, then arrives for real */
+.hero[data-intro='playing'] .badge {
+  visibility: hidden;
+  animation: none;
+}
+
+.hero[data-intro='done'] .badge {
+  animation-delay: 0s, 1.3s;
+}
+
+/* ...except the handwritten note, which writes itself once the pen has gone by */
+.hero[data-intro='playing'] > .hero-text .hero-note.write {
+  clip-path: inset(-40% 100% -40% -5%);
+  transition: none;
+}
+
+.hero[data-intro='playing'] > .hero-text .hero-note .draw path {
+  stroke-dashoffset: 1;
+  transition: none;
+}
+
+.hero[data-intro='done'] > .hero-text .hero-note {
+  --d: 50ms !important;
+}
+
+.hero[data-intro='playing'] {
+  animation: bp-wipe 1.05s cubic-bezier(0.55, 0, 0.35, 1) 0.8s both paused;
+}
+
+.hero[data-intro='playing'].bp-touch {
+  animation-name: bp-wipe-touch;
+}
+
+@keyframes bp-wipe {
+  from {
+    --wipe: -50vw;
+  }
+  to {
+    --wipe: 100vw;
+  }
+}
+
+/* on touch screens the sweep stops where the draggable line sits */
+@keyframes bp-wipe-touch {
+  from {
+    --wipe: -50vw;
+  }
+  to {
+    --wipe: var(--split, 72vw);
+  }
+}
+
+.hero[data-intro='playing'] .blueprint {
+  -webkit-mask-image: none;
+  mask-image: none;
+  clip-path: inset(0 0 0 calc(var(--wipe) + var(--bleed-x)));
+}
+
+.hero[data-intro='playing'] :is(.bp-copy-wrap, .bp-marks) {
+  animation: bp-plot 0.7s cubic-bezier(0.4, 0, 0.5, 1) both paused;
+}
+
+@keyframes bp-plot {
+  from {
+    clip-path: inset(-60px 100% -60px -60px);
+  }
+  to {
+    clip-path: inset(-60px -100vw -60px -60px);
+  }
+}
+
+.hero[data-intro='playing'] :is(.bp-ring, .bp-handle, .bp-toggle) {
+  display: none;
+}
+
+.bp-sweep {
+  display: none;
+}
+
+.hero[data-intro='playing'] .bp-sweep {
+  position: absolute;
+  z-index: 8;
+  top: -140px;
+  bottom: 0;
+  left: var(--wipe);
+  display: block;
+  width: 4px;
+  translate: -50% 0;
+  background: var(--butter);
+  box-shadow: 0 0 0 1.5px var(--ink);
+  pointer-events: none;
+}
+
+/* the pen, zigzagging up and down the line as if it's colouring everything in */
+.bp-sweep svg {
+  position: absolute;
+  bottom: 22%;
+  left: 0;
+  width: clamp(72px, 9vw, 130px);
+  filter: drop-shadow(5px 6px 0 rgb(0 10 26 / 0.35));
+}
+
+.hero[data-intro='playing'] .bp-sweep svg {
+  animation: bp-pen 0.26s ease-in-out infinite alternate paused;
+}
+
+@keyframes bp-pen {
+  from {
+    translate: 0 16vh;
+  }
+  to {
+    translate: 0 -16vh;
+  }
+}
+
+/* last, so it overrides the paused state above */
+.hero[data-intro='playing'].bp-go,
+.bp-go[data-intro='playing'] .bp-copy-wrap,
+.bp-go[data-intro='playing'] .bp-marks,
+.bp-go[data-intro='playing'] .bp-sweep svg {
+  animation-play-state: running;
 }

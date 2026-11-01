@@ -44,7 +44,7 @@ Then open **http://localhost:5173**
 │   ├── data/content.js      all site content
 │   ├── pages/
 │   │   ├── Home.jsx         hero, about, featured work, skills, contact
-│   │   └── Projects.jsx     every project, galleries and lightbox
+│   │   └── Projects.jsx     university and personal projects, galleries and lightbox
 │   ├── components/          flags, doodles, titles and text-splitting helpers
 │   ├── App.jsx              navbar, routing, theme toggle, scroll effects
 │   ├── App.css              layout, components and animations
