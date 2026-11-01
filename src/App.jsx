@@ -232,6 +232,12 @@ function useMenu(header) {
   return [open, setOpen]
 }
 
+// Link, name, and the section it marks as current
+const PROJECT_SIGNS = [
+  ['/projects', 'university', 'projects'],
+  ['/projects/personal', 'personal', 'personal'],
+]
+
 // The Projects tab: opens its dropdown on hover with a mouse, on tap on a touch screen and on Enter from the keyboard.
 function ProjectsMenu({ current }) {
   const { t } = useLang()
@@ -261,18 +267,15 @@ function ProjectsMenu({ current }) {
         </span>
       </button>
       <div id="projects-menu" className="nav-drop-menu" onClick={() => setOpen(false)}>
-        {[['/projects', 'university', 'projects'], ['/projects/personal', 'personal', 'personal']].map(([to, id, section]) => (
-          <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
-            {/* a luggage tag on a string: the outline stretches to fit however long the words are */}
-            <span className="nav-tag">
-              <svg className="nav-tag-shape" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M20 1H80L99 16V90Q99 99 90 99H10Q1 99 1 90V16Z" />
-              </svg>
-              <i className="nav-tag-eye" aria-hidden="true" />
-              <span className="nav-tag-text">{t.nav[id]}</span>
-            </span>
-          </Link>
-        ))}
+        {/* a road sign: two plates, one above the other on the same string */}
+        <div className="nav-sign">
+          {PROJECT_SIGNS.map(([to, id, section]) => (
+            <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
+              {t.nav[id]}
+              <svg className="nav-plate-arrow" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" /></svg>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )

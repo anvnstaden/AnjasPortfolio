@@ -631,7 +631,12 @@ function BadgeSignature() {
   }
   const clear = () => {
     const el = canvas.current
-    el.getContext('2d').clearRect(0, 0, el.width, el.height)
+    const ctx = el.getContext('2d')
+    // in device pixels: the drawing scale can be under 1 (a zoomed-out browser), which would leave the far edges behind
+    ctx.save()
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.clearRect(0, 0, el.width, el.height)
+    ctx.restore()
     setSigned(false)
   }
 
@@ -743,17 +748,14 @@ function IdBadge() {
               <a href={`mailto:${contact.email}`}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3.5 7 12 13l8.5-6" /></svg>
                 {t.badge.email}
-                <span aria-hidden="true">→</span>
               </a>
               <a href={contact.linkedin} target="_blank" rel="noreferrer">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 11v6M8 7.5v.01M12 17v-6M12 14a2.5 2.5 0 0 1 5 0v3" /></svg>
-                LinkedIn
-                <span aria-hidden="true">→</span>
+                {t.badge.linkedin}
               </a>
               <a href={contact.cv} download>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10.5l5 5 5-5M4 20h16" /></svg>
                 {t.badge.cv}
-                <span aria-hidden="true">↓</span>
               </a>
             </div>
             <BadgeSignature />

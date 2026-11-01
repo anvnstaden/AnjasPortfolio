@@ -28,6 +28,7 @@
   --accent: var(--blue);
   --marker: rgb(223 164 184 / 0.55);
   --charcoal: #36393d;
+  --lit-contact: rgb(0 10 26 / 0.55);
 
   --display: 'Unbounded', 'Arial Black', sans-serif;
   --body: 'Familjen Grotesk', 'Helvetica Neue', sans-serif;
@@ -62,6 +63,7 @@ html {
   --accent: #8fb0e6;
   --marker: rgb(223 164 184 / 0.4);
   --charcoal: #c4c7cc;
+  --lit-contact: rgb(0 0 0 / 0.75);
   color-scheme: dark;
 }
 

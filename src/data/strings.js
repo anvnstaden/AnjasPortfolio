@@ -42,7 +42,8 @@ export const strings = {
       signed: 'Thanks for signing!',
       clear: 'Clear',
       email: 'Email Me',
-      cv: 'Download CV',
+      linkedin: 'My LinkedIn',
+      cv: 'Download my CV',
       smallPrint: 'If found, please return to Germany (from 2027)',
     },
     about: {
@@ -237,7 +238,8 @@ export const strings = {
       signed: 'Danke fürs Unterschreiben!',
       clear: 'Löschen',
       email: 'Schreib mir',
-      cv: 'CV herunterladen',
+      linkedin: 'Mein LinkedIn',
+      cv: 'Meinen CV herunterladen',
       smallPrint: 'Falls gefunden, bitte nach Deutschland bringen (ab 2027)',
     },
     about: {

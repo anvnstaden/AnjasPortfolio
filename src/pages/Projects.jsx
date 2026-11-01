@@ -368,7 +368,7 @@ export default function Projects({ page = 'university' }) {
                 )}
               </div>
               {p.link && (
-                <a href={p.link} className="text-link" target="_blank" rel="noreferrer">{p.linkLabel ?? t.viewProject} <NavArrow inline out /></a>
+                <a href={p.link} className="project-link" target="_blank" rel="noreferrer">{p.linkLabel ?? t.viewProject} <NavArrow inline out /></a>
               )}
             </div>
           </div>
