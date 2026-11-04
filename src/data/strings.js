@@ -140,7 +140,6 @@ export const strings = {
       },
       personal: {
         word: 'Personal',
-        intro: 'These are the projects I built in my own time, from a website for a makeup artist to a dashboard that helps me run my day.',
       },
       projects: 'Projects',
       sticker: 'projects',
@@ -173,8 +172,7 @@ export const strings = {
       quote: {
         title: 'Your Website?',
         note: 'tap the words!',
-        short: 'build your request',
-        text: 'This could be the next project on this page. Build your request below by tapping the coloured words, and when it sounds right, send it to me. You can add the real details in the email.',
+        text: 'This could be the next project on this page. Build your request below by tapping the handwritten words, and when it sounds right, send it to me. You can add the real details in the email.',
         // {what}, {who}, {feel} and {when} are the tappable words. Each list lines up with its German one, so
         // switching language keeps the same choices.
         sentence: "I need {what} for {who} and it should feel {feel}. I'd love it {when}.",
@@ -186,6 +184,9 @@ export const strings = {
         },
         labels: { what: 'What you need', who: 'Who it is for', feel: 'How it should feel', when: 'When you need it' },
         tapToChange: 'Tap to change.',
+        // the little website drawn beside the sentence; the stamps line up with the {when} words
+        sketchNew: 'NEW!',
+        stamps: ['Launch: next month', 'Launch: in a few weeks', 'No rush', 'Rush job!'],
         send: 'Send it to Anja',
         surprise: 'Surprise me',
         subject: 'Website enquiry from your portfolio',
@@ -341,7 +342,6 @@ export const strings = {
       },
       personal: {
         word: 'Eigene',
-        intro: 'Diese Projekte habe ich in meiner Freizeit gebaut, von einer Website für eine Make-up-Artistin bis zu einem Dashboard, das mir durch den Tag hilft.',
       },
       projects: 'Projekte',
       sticker: 'Projekte',
@@ -374,8 +374,7 @@ export const strings = {
       quote: {
         title: 'Deine Website?',
         note: 'tipp die Wörter an!',
-        short: 'stell deine Anfrage zusammen',
-        text: 'Das hier könnte das nächste Projekt auf dieser Seite sein. Stell unten deine Anfrage zusammen, indem du die farbigen Wörter antippst, und schick sie mir, wenn sie passt. Die Details kannst du in der E-Mail ergänzen.',
+        text: 'Das hier könnte das nächste Projekt auf dieser Seite sein. Stell unten deine Anfrage zusammen, indem du die handgeschriebenen Wörter antippst, und schick sie mir, wenn sie passt. Die Details kannst du in der E-Mail ergänzen.',
         sentence: 'Ich brauche {what} für {who} und es soll sich {feel} anfühlen. Am liebsten hätte ich es {when}.',
         options: {
           what: ['eine Website', 'einen Online-Shop', 'eine Landingpage', 'eine Buchungsseite', 'ein komplettes Redesign', 'ein Portfolio'],
@@ -385,6 +384,8 @@ export const strings = {
         },
         labels: { what: 'Was du brauchst', who: 'Für wen', feel: 'Wie es sich anfühlen soll', when: 'Bis wann' },
         tapToChange: 'Zum Ändern antippen.',
+        sketchNew: 'NEU!',
+        stamps: ['Start: nächsten Monat', 'Start: in ein paar Wochen', 'Kein Stress', 'Eilauftrag!'],
         send: 'An Anja schicken',
         surprise: 'Überrasch mich',
         subject: 'Website-Anfrage über dein Portfolio',

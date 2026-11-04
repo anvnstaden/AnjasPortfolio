@@ -736,6 +736,15 @@ button.nav-link {
   transition: opacity 0.15s;
 }
 
+.nav-plate-icon svg {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* The phone menu's plain rows; from tablet size up they become the tags below */
 .nav-drop-item {
   --tab: var(--blue);
@@ -830,10 +839,10 @@ button.nav-link {
     pointer-events: none;
   }
 
-  /* A plate */
+  /* A plate: white with a dark outline (the other tabs already have the colours), and a round icon that fills
+     with the Projects blue for the page you're on and on hover */
   .nav-drop-item {
     --lit: var(--ivory);
-    --fill: var(--butter);
     position: relative;
     display: flex;
     align-items: center;
@@ -851,14 +860,31 @@ button.nav-link {
     animation: none;
   }
 
-  .nav-drop-item:nth-child(2) {
-    --fill: var(--pink);
+  .nav-drop-item .nav-label {
+    margin-right: auto;
   }
 
-  .nav-drop-item:hover,
-  .nav-drop-item:focus-visible,
-  .nav-drop-item.current {
-    --lit: var(--fill);
+  .nav-plate-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--ivory);
+    color: var(--blue);
+    transition: background 0.2s, color 0.2s, rotate 0.3s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+
+  .nav-plate-icon svg {
+    width: 16px;
+  }
+
+  .nav-drop-item:is(:hover, :focus-visible, .current) .nav-plate-icon {
+    background: var(--blue);
+    color: var(--ivory);
+    rotate: -10deg;
   }
 
   .nav-drop-item:focus-visible {
@@ -1295,6 +1321,10 @@ button.nav-link {
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
+  }
+
+  .nav-plate-icon svg {
+    width: 20px;
   }
 }
 
@@ -5580,6 +5610,22 @@ button.nav-link {
   display: block;
 }
 
+/* The personal page has no sticker, so on desktop its title runs on one line, a little smaller to fit */
+@media (min-width: 901px) {
+  .ph-title.title.ph-one-line {
+    padding-right: 0;
+    font-size: clamp(2.8rem, 6.4vw, 7.4rem);
+  }
+
+  .ph-one-line .ph-line {
+    white-space: nowrap;
+  }
+
+  .ph-one-line .ph-box {
+    margin-left: 0.12em;
+  }
+}
+
 /* "Projects" sits in a tilted blue box that sweeps open */
 .ph-box {
   display: inline-block;
@@ -5692,7 +5738,8 @@ button.nav-link {
 }
 
 .projects-head > p {
-  max-width: 560px;
+  /* as wide as the project list under it */
+  max-width: none;
   font-size: 1.15rem;
   color: var(--plum-soft);
   margin: 0 0 40px;
@@ -6037,10 +6084,16 @@ button.nav-link {
   .mini-hero,
   .mini-line,
   .mini-cards i,
-  .quote-word span,
+  .quote-pick,
+  .quote-old,
+  .quote-old::after,
   .freelance-cta .nav-arrow,
   .freelance-spark {
     animation: none;
+  }
+
+  .quote-old {
+    display: none;
   }
 }
 
@@ -6155,75 +6208,141 @@ button.nav-link {
   z-index: 1;
 }
 
-/* The quote form at the end of the personal page: a sentence with tappable coloured words */
+/* The quote form at the end of the personal page: a sentence with tappable coloured words, and a sketch of the
+   website it describes beside it (below it on smaller screens) */
 .project-entry.wide .quote-card {
-  width: min(100%, 860px);
-  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-areas:
+    'sentence sketch'
+    'actions sketch'
+    'fallback sketch';
+  align-items: start;
+  column-gap: clamp(28px, 4vw, 56px);
+  width: 100%;
   padding: clamp(24px, 5vw, 48px);
   color: var(--ink);
   background: var(--ivory);
   border: 2.5px solid var(--plum);
   border-radius: 24px;
   box-shadow: 7px 7px 0 var(--pink);
+  /* the handwriting's ink: a deeper pink than --pink, so it reads as text on the light card */
+  --quote-pink: #c2416b;
 }
 
 .quote-sentence {
+  grid-area: sentence;
   margin: 0;
-  font-size: clamp(1.35rem, 3.1vw, 2.1rem);
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
   font-weight: 700;
   line-height: 1.9;
 }
 
+/* Each tappable word is handwritten in pink ink on a blank line, like a filled-in form. A tap scribbles the old
+   word out and writes the new one in; the little ↻ shows it can be changed. */
 .quote-word {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+  margin-inline: 0.1em 0.5em;
+  padding: 0 0.2em;
+  font-family: var(--pen);
+  font-size: 1.12em;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--quote-pink);
+  background: none;
+  border: 0;
+  border-bottom: 2px dashed color-mix(in srgb, var(--ink) 45%, transparent);
+  border-radius: 0;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.quote-word:hover,
+.quote-word:focus-visible {
+  border-bottom-color: var(--quote-pink);
+}
+
+/* the words stack in one cell: the invisible stack of every option (which sets the width), the scribbled-out old
+   word and the new one */
+.quote-word > span:not(.quote-redo),
+.quote-ghosts > span {
+  grid-area: 1 / 1;
+}
+
+.quote-ghosts {
+  display: grid;
+  visibility: hidden;
+}
+
+.quote-pick {
   display: inline-block;
-  padding: 0 0.5em;
-  font: inherit;
-  line-height: 1.5;
-  color: var(--ink);
-  --lit: var(--butter);
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  rotate: -1.5deg;
-  transition: rotate 0.25s cubic-bezier(0.3, 1.8, 0.5, 1), translate 0.15s;
+  animation: quote-write 0.5s steps(12, end) both;
 }
 
-.quote-word span {
-  display: inline-block;
-  animation: word-pop 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
+/* after a scribble, the new word waits for it to finish */
+.quote-old + .quote-pick {
+  animation-delay: 0.35s;
 }
 
-.quote-word.who {
-  --lit: var(--pink);
-  rotate: 1deg;
-}
-
-.quote-word.feel {
-  color: var(--ivory);
-  --lit: var(--blue);
-  rotate: -1deg;
-}
-
-.quote-word.when {
-  rotate: 1.5deg;
-}
-
-.quote-word:hover {
-  rotate: -4deg;
-}
-
-.quote-word:active {
-  translate: 2px 2px;
-}
-
-@keyframes word-pop {
+@keyframes quote-write {
   from {
-    opacity: 0;
-    translate: 0 0.5em;
-    scale: 0.7;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -10% 0 0);
   }
 }
 
+.quote-old {
+  position: relative;
+  animation: quote-gone 0.3s 0.3s forwards;
+}
+
+.quote-old::after {
+  content: '';
+  position: absolute;
+  inset: 15% -4%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Cpath d='M1 12 L6 5 L11 15 L16 4 L21 14 L26 5 L31 15 L36 4 L39 11' fill='none' stroke='%23c2416b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") repeat-x 0 50% / 1.6em 100%;
+  animation: quote-write 0.25s steps(8, end) both;
+}
+
+@keyframes quote-gone {
+  to {
+    opacity: 0;
+  }
+}
+
+.quote-glue {
+  white-space: nowrap;
+}
+
+.quote-glue .quote-word {
+  white-space: normal;
+}
+
+.quote-redo {
+  position: absolute;
+  top: 0.05em;
+  right: -0.75em;
+  font-family: var(--body);
+  font-size: 0.6em;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--quote-pink);
+  opacity: 0.6;
+  transition: rotate 0.4s cubic-bezier(0.3, 1.6, 0.5, 1), opacity 0.2s;
+}
+
+.quote-word:hover .quote-redo,
+.quote-word:focus-visible .quote-redo {
+  rotate: 360deg;
+  opacity: 1;
+}
+
 .quote-actions {
+  grid-area: actions;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -6231,29 +6350,104 @@ button.nav-link {
   margin-top: 28px;
 }
 
-/* Dark mode flips the button colours, but this card stays light */
-.quote-actions .button.primary {
+/* The two buttons, in the hero buttons' sticker style. The card stays light in dark mode, so they keep a dark
+   outline there too. */
+.quote-actions .fun-face {
+  min-height: 54px;
+  border-color: var(--ink);
+}
+
+.send-btn {
+  --tilt: -2deg;
+  --btn-bg: var(--ink);
   color: var(--ivory);
-  --lit: var(--ink);
 }
 
-.quote-surprise {
-  padding: 10px 18px;
-  font: inherit;
-  font-weight: 700;
+.send-btn svg {
+  fill: none;
+}
+
+.send-btn .plane {
+  fill: var(--quote-pink);
+}
+
+/* the plane flies off to the top right and swoops back in from the bottom left */
+.send-btn:is(:hover, :focus-visible) svg {
+  animation: plane-loop 0.7s cubic-bezier(0.5, 0, 0.3, 1);
+}
+
+@keyframes plane-loop {
+  45% {
+    translate: 22px -22px;
+    opacity: 0;
+  }
+  46% {
+    translate: -22px 22px;
+    opacity: 0;
+  }
+  100% {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+.dice-btn {
+  --tilt: 2deg;
+  --btn-bg: var(--pink);
   color: var(--ink);
-  --lit: var(--cream);
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  transition: rotate 0.25s cubic-bezier(0.3, 1.8, 0.5, 1);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
 
-.quote-surprise:hover {
-  --lit: var(--butter);
-  rotate: 3deg;
+.dice-btn rect {
+  fill: var(--ivory);
+}
+
+.dice-btn circle {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.dice-btn:is(:hover, :focus-visible) svg {
+  animation: dice-wiggle 0.5s ease-in-out;
+}
+
+/* each surprise rolls the die over to its new face */
+.dice-btn svg.rolled {
+  animation: dice-roll 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+@keyframes dice-wiggle {
+  30% {
+    rotate: -18deg;
+  }
+  65% {
+    rotate: 12deg;
+  }
+}
+
+@keyframes dice-roll {
+  from {
+    rotate: -400deg;
+    scale: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .send-btn:is(:hover, :focus-visible) svg,
+  .dice-btn:is(:hover, :focus-visible) svg,
+  .dice-btn svg.rolled {
+    animation: none;
+  }
 }
 
 .quote-fallback {
+  grid-area: fallback;
   margin: 20px 0 0;
   font-size: 0.9rem;
   overflow-wrap: anywhere;
@@ -6268,6 +6462,546 @@ button.nav-link {
   text-decoration: underline;
   background: none;
   border: 0;
+}
+
+/* The sketch of the visitor's website. --sk-* are set by the feel: page, text, accent and card colours, font,
+   corner radius and line width. The layout comes from what it is (.what-*), the stamp from when (.when-*). */
+.sketch {
+  grid-area: sketch;
+  align-self: center;
+  --sk-bg: #fff;
+  --sk-ink: #1d2433;
+  --sk-a: var(--blue);
+  --sk-b: #e8eef9;
+  --sk-font: var(--body);
+  --sk-r: 8px;
+  --sk-bw: 1.5px;
+}
+
+.sketch-frame {
+  position: relative;
+}
+
+.sk-browser {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.sk-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding-inline: 8px;
+  border-bottom: 2px solid var(--ink);
+  background: #f2ede2;
+}
+
+.sk-bar i {
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+}
+
+.sk-bar i:nth-child(1) {
+  background: var(--pink);
+}
+
+.sk-bar i:nth-child(2) {
+  background: var(--butter);
+}
+
+.sk-bar span {
+  flex: 1;
+  margin-left: 6px;
+  padding: 1px 8px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #fff;
+  color: #555;
+  font-size: 9px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sk-page {
+  min-height: 236px;
+  padding: 10px;
+  color: var(--sk-ink);
+  background: var(--sk-bg);
+  font-family: var(--sk-font);
+  line-height: 1.15;
+  transition: background 0.4s, color 0.4s;
+  animation: sk-in 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+@keyframes sk-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+.sk-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.sk-nav b {
+  margin-right: auto;
+}
+
+.sk-nav i {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+.sk-nav span {
+  font-size: 11px;
+}
+
+.sk-line {
+  display: block;
+  width: 85%;
+  height: 5px;
+  margin-top: 5px;
+  border-radius: 3px;
+  background: currentColor;
+  opacity: 0.28;
+}
+
+.sk-line.short {
+  width: 55%;
+}
+
+.sk-hero {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 12px;
+  border: var(--sk-bw) solid currentColor;
+  border-radius: var(--sk-r);
+  background: var(--sk-b);
+  transition: background 0.4s, border-radius 0.4s;
+}
+
+.sk-hero-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.sk-pic {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.sk-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.sk-title.big {
+  margin-top: 12px;
+  font-size: 22px;
+}
+
+.sk-btn {
+  display: block;
+  width: 58px;
+  height: 14px;
+  margin-top: 9px;
+  border-radius: var(--sk-r);
+  background: var(--sk-a);
+  transition: background 0.4s;
+}
+
+.sk-cards,
+.sk-shop {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.sk-card {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 7px 5px;
+  border: var(--sk-bw) solid currentColor;
+  border-radius: var(--sk-r);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sk-card .sk-line {
+  width: 70%;
+  height: 4px;
+}
+
+.sk-shop .sk-card {
+  padding: 5px;
+}
+
+.sk-shop small {
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: var(--sk-a);
+  color: var(--sk-bg);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* a landing page is one big centred hero with a big button */
+.what-landing .sk-hero {
+  flex-direction: column;
+  padding: 20px 12px;
+  text-align: center;
+}
+
+.what-landing .sk-pic {
+  font-size: 48px;
+}
+
+.what-landing .sk-title {
+  font-size: 19px;
+}
+
+.what-landing .sk-line {
+  margin-inline: auto;
+}
+
+.what-landing .sk-btn {
+  width: 96px;
+  height: 20px;
+  margin: 12px auto 0;
+}
+
+.what-shop .sk-hero,
+.what-booking .sk-hero {
+  padding-block: 8px;
+}
+
+.what-shop .sk-pic,
+.what-booking .sk-pic {
+  font-size: 28px;
+}
+
+.sk-dots {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.sk-dots i {
+  width: 22px;
+  height: 22px;
+  border: var(--sk-bw) solid currentColor;
+  border-radius: 50%;
+  background: var(--sk-b);
+}
+
+.sk-cal {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.sk-cal i {
+  height: 16px;
+  border: var(--sk-bw) solid currentColor;
+  border-radius: calc(var(--sk-r) / 2);
+}
+
+.sk-cal i.taken {
+  background: repeating-linear-gradient(-45deg, currentColor 0 1.5px, transparent 1.5px 5px);
+  opacity: 0.35;
+}
+
+.sk-cal i.picked {
+  background: var(--sk-a);
+}
+
+.sk-gallery {
+  columns: 3;
+  column-gap: 6px;
+  margin-top: 10px;
+}
+
+.sk-gallery .sk-card {
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+  break-inside: avoid;
+  background: var(--sk-b);
+}
+
+.sk-gallery .sk-card:nth-child(3n + 1) {
+  height: 58px;
+}
+
+.sk-gallery .sk-card:nth-child(3n + 2) {
+  height: 40px;
+}
+
+.sk-gallery .sk-card:nth-child(3n) {
+  height: 50px;
+}
+
+/* a redesign: the old site, scribbled out, behind the new one, and a NEW! sticker */
+.sk-old {
+  position: absolute;
+  inset: 8px -10px -8px 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - 2px), #c0392b calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)),
+    linear-gradient(to top right, transparent calc(50% - 2px), #c0392b calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)),
+    repeating-linear-gradient(#ddd 0 6px, #eee 6px 18px);
+  rotate: 5deg;
+}
+
+.sk-new {
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  right: -14px;
+  padding: 4px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 99px;
+  background: var(--butter);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 800;
+  rotate: 12deg;
+}
+
+/* when: a rubber stamp on the corner */
+.sk-stamp {
+  position: absolute;
+  z-index: 2;
+  right: -12px;
+  bottom: -14px;
+  padding: 4px 9px;
+  border: 2.5px solid currentColor;
+  border-radius: 6px;
+  background: color-mix(in srgb, #fff 88%, transparent);
+  color: var(--blue);
+  font-family: var(--display);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  rotate: -8deg;
+  animation: stamp-in 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.when-whenever .sk-stamp {
+  color: #3d7a4f;
+}
+
+.when-yesterday .sk-stamp {
+  color: #c0392b;
+  animation: stamp-in 0.35s cubic-bezier(0.3, 1.8, 0.5, 1), stamp-shake 0.5s 0.35s ease-in-out 2;
+}
+
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    scale: 1.8;
+  }
+}
+
+@keyframes stamp-shake {
+  25% {
+    translate: -3px 0;
+  }
+  75% {
+    translate: 3px 0;
+  }
+}
+
+/* The feels */
+.feel-fancy {
+  --sk-bg: #14110f;
+  --sk-ink: #f1e6cf;
+  --sk-a: #c9a45c;
+  --sk-b: #221d18;
+  --sk-font: Georgia, 'Times New Roman', serif;
+  --sk-r: 2px;
+  --sk-bw: 1px;
+}
+
+.feel-fancy .sk-title {
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.feel-fancy .sk-nav {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.feel-fancy :is(.sk-hero, .sk-card) {
+  border-color: #c9a45c;
+}
+
+.feel-playful {
+  --sk-bg: #fff4f8;
+  --sk-ink: #3b1f4a;
+  --sk-a: #ff6fae;
+  --sk-b: #ffe28a;
+  --sk-font: var(--display);
+  --sk-r: 16px;
+  --sk-bw: 2px;
+}
+
+.feel-playful .sk-card:nth-child(odd) {
+  rotate: -4deg;
+}
+
+.feel-playful .sk-card:nth-child(even) {
+  rotate: 3deg;
+}
+
+.feel-calm {
+  --sk-bg: #eef2ea;
+  --sk-ink: #34463b;
+  --sk-a: #87a98d;
+  --sk-b: #dfe8da;
+  --sk-r: 14px;
+  --sk-bw: 1px;
+}
+
+.feel-calm :is(.sk-hero, .sk-card, .sk-cal i, .sk-dots i) {
+  border-color: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+.feel-calm .sk-title {
+  font-weight: 500;
+}
+
+.feel-bold {
+  --sk-bg: #fff;
+  --sk-ink: #000;
+  --sk-a: #0047ff;
+  --sk-b: #ffe600;
+  --sk-font: var(--display);
+  --sk-r: 0;
+  --sk-bw: 3px;
+}
+
+.feel-bold .sk-title,
+.feel-bold .sk-nav {
+  text-transform: uppercase;
+}
+
+.feel-bold :is(.sk-hero, .sk-card) {
+  box-shadow: 4px 4px 0 #ff3b00;
+}
+
+.feel-retro {
+  --sk-bg: #f6e7c8;
+  --sk-ink: #3b2a1a;
+  --sk-a: #e0642b;
+  --sk-b: #f2c14e;
+  --sk-font: Rockwell, 'Roboto Slab', 'Courier New', serif;
+  --sk-r: 10px;
+  --sk-bw: 2px;
+}
+
+/* a sunburst behind the hero */
+.feel-retro .sk-hero {
+  background: repeating-conic-gradient(from 0deg at 15% 50%, #f2c14e 0 10deg, #f6d27a 10deg 20deg);
+}
+
+.feel-retro .sk-card:nth-child(3n + 2) {
+  background: #2a9d8f33;
+}
+
+.feel-unhinged {
+  --sk-bg: #d4ff3a;
+  --sk-ink: #2b0057;
+  --sk-a: #ff00a8;
+  --sk-b: #00e5ff;
+  --sk-font: 'Comic Sans MS', 'Comic Neue', 'Chalkboard SE', cursive;
+  --sk-r: 40% 10% 30% 8%;
+  --sk-bw: 2.5px;
+}
+
+.feel-unhinged .sk-hero {
+  rotate: -3deg;
+}
+
+.feel-unhinged .sk-title {
+  animation: sk-wobble 1.6s ease-in-out infinite;
+}
+
+.feel-unhinged .sk-card:nth-child(odd) {
+  rotate: 9deg;
+  translate: 0 4px;
+}
+
+.feel-unhinged .sk-card:nth-child(even) {
+  rotate: -7deg;
+}
+
+.feel-unhinged .sk-nav b {
+  rotate: 4deg;
+}
+
+@keyframes sk-wobble {
+  50% {
+    rotate: -4deg;
+    scale: 1.08;
+  }
+}
+
+/* Smaller screens: the sketch goes between the sentence and the buttons */
+@media (max-width: 860px) {
+  .project-entry.wide .quote-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'sentence'
+      'sketch'
+      'actions'
+      'fallback';
+  }
+
+  .sketch {
+    justify-self: center;
+    width: min(100%, 320px);
+    margin-top: 24px;
+  }
+
+  .quote-actions {
+    margin-top: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-page,
+  .sk-stamp,
+  .feel-unhinged .sk-title {
+    animation: none;
+  }
 }
 
 /* Giant outlined number behind each project */
@@ -8949,8 +9683,6 @@ a:hover .nav-arrow.inline.out {
 .social,
 .freelance-cta,
 .project-link,
-.quote-word,
-.quote-surprise,
 .carousel-nav,
 .lightbox-bar button,
 .lightbox-close,
@@ -8985,8 +9717,6 @@ a:hover .nav-arrow.inline.out {
 .social:active,
 .freelance-cta:active,
 .project-link:active,
-.quote-word:active,
-.quote-surprise:active,
 .carousel-nav:active,
 .lightbox-bar button:active,
 .lightbox-close:active,

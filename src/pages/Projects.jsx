@@ -230,7 +230,7 @@ export default function Projects({ page = 'university' }) {
   return (
     <main className="projects-page">
       <header className="projects-head">
-        <h1 className="ph-title title reveal">
+        <h1 className={`ph-title title reveal${page === 'personal' ? ' ph-one-line' : ''}`}>
           <span className="ph-line">
             <Split text={word} />
             <span className="ph-box">
@@ -238,13 +238,19 @@ export default function Projects({ page = 'university' }) {
             </span>
           </span>
         </h1>
-        <div className="ph-sticker" aria-hidden="true">
-          <strong>{list.length}</strong>
-          <span>{t.sticker}</span>
-        </div>
-        <Sparkle className="ph-spark a" />
-        <Sparkle className="ph-spark b" />
-        <p className="reveal">{intro}</p>
+        {page !== 'personal' && (
+          <div className="ph-sticker" aria-hidden="true">
+            <strong>{list.length}</strong>
+            <span>{t.sticker}</span>
+          </div>
+        )}
+        {page !== 'personal' && (
+          <>
+            <Sparkle className="ph-spark a" />
+            <Sparkle className="ph-spark b" />
+          </>
+        )}
+        {intro && <p className="reveal">{intro}</p>}
         {page === 'personal' && (
           <aside className="freelance-note reveal">
             <span className="freelance-stamp" aria-hidden="true">
@@ -300,24 +306,19 @@ export default function Projects({ page = 'university' }) {
             <button type="button" onClick={() => setParams({})}>{t.showAll}</button>
           </p>
         )}
-        <ol className="project-index">
-          {shown.map((p, i) => (
-            <li key={p.slug} className="reveal" style={{ '--d': `${i * 40}ms` }}>
-              <a href={`#${p.slug}`}>
-                <span>{num(p)}</span> {p.title}
-                {p.gui === false && <em>{t.noGui}</em>}
-              </a>
-            </li>
-          ))}
-          {page === 'personal' && (
-            <li className="reveal" style={{ '--d': `${shown.length * 40}ms` }}>
-              <a href="#your-website">
-                <span>{pad(list.length + 1)}</span> {t.quote.title}
-                <em>{t.quote.short}</em>
-              </a>
-            </li>
-          )}
-        </ol>
+        {/* A contents list for the university projects; the personal page is short enough without one */}
+        {page !== 'personal' && (
+          <ol className="project-index">
+            {shown.map((p, i) => (
+              <li key={p.slug} className="reveal" style={{ '--d': `${i * 40}ms` }}>
+                <a href={`#${p.slug}`}>
+                  <span>{num(p)}</span> {p.title}
+                  {p.gui === false && <em>{t.noGui}</em>}
+                </a>
+              </li>
+            ))}
+          </ol>
+        )}
       </header>
 
       {shown.map((p, i) => (
