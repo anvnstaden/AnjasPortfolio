@@ -39,6 +39,7 @@ export default function Blueprint({ children, intro, onIntroEnd }) {
   const marks = useRef(null)
   const ring = useRef(null)
   const handle = useRef(null)
+  const toggle = useRef(null)
   const applyInspecting = useRef(null)
   const redraw = useRef(null)
   const [inspecting, setInspecting] = useState(false)
@@ -159,13 +160,19 @@ export default function Blueprint({ children, intro, onIntroEnd }) {
       svg.innerHTML = out
     }
 
-    // Lay the copy exactly over the real hero text, then redraw the blueprint
+    // Lay the copy exactly over the real hero text, then redraw the blueprint. The Inspect button goes centred
+    // under the hero's two buttons (measured on the copy, which doesn't fade in, so it's already in its place).
     const place = () => {
       const hr = hero.getBoundingClientRect()
       const sr = source.getBoundingClientRect()
       copyEl.style.left = `${sr.left - hr.left}px`
       copyEl.style.top = `${sr.top - hr.top}px`
       copyEl.style.width = `${sr.width}px`
+      const actions = copyEl.querySelector('.hero-actions')?.getBoundingClientRect()
+      if (actions) {
+        toggle.current.style.left = `${actions.left + actions.width / 2 - hr.left}px`
+        toggle.current.style.top = `${actions.bottom - hr.top + 22}px`
+      }
       draw()
     }
 
@@ -274,6 +281,7 @@ export default function Blueprint({ children, intro, onIntroEnd }) {
         <span>{t.hero.inspect}</span>
       </div>
       <button
+        ref={toggle}
         type="button"
         className="bp-toggle"
         aria-pressed={inspecting}

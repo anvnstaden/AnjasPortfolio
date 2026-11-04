@@ -8693,21 +8693,21 @@ a:hover .nav-arrow.inline.out {
   text-transform: uppercase;
 }
 
-/* The button in the hero's bottom corner that turns the blueprint on and off */
+/* The button that turns the blueprint on and off: black, centred under the hero's two buttons (Blueprint.jsx sets
+   its left and top from where they are) */
 .bp-toggle {
   position: absolute;
   z-index: 8;
-  left: 50%;
-  bottom: 20px;
   display: inline-flex;
+  white-space: nowrap;
   align-items: center;
   gap: 6px;
   padding: 5px 12px 5px 9px;
   translate: -50% 0;
-  border: 2px solid var(--ink);
+  border: 2px solid var(--plum);
   border-radius: 999px;
-  --lit: var(--butter);
-  color: #000a1a;
+  --lit: #000a1a;
+  color: #fbf8f1;
   font-family: ui-monospace, monospace;
   font-size: 12px;
   letter-spacing: 0.08em;
