@@ -37,9 +37,9 @@ export const projectsDe = {
   },
   'community-event-volunteer-platform': {
     title: 'Plattform für Community-Events & Ehrenamt',
-    note: 'Sechserteam!',
+    module: 'Software Engineering',
     description:
-      'Unser Industrieprojekt mit Entelect, gebaut in einem Sechserteam. Es ist eine Website, auf der gemeinnützige Organisationen Events erstellen, Freiwillige finden und Anwesenheit und Einsatzstunden festhalten können. Ich habe sowohl am Code als auch an der Usability der Seite gearbeitet.',
+      'Unser Industrieprojekt mit Entelect, gebaut in einem Sechserteam. Es ist eine Website, auf der gemeinnützige Organisationen Events erstellen, Freiwillige finden und Anwesenheit und Einsatzstunden festhalten können. Ich war Scrum Master des Teams und habe sowohl am Code als auch an der Usability der Seite gearbeitet.',
     captions: {
       'walkthrough.mp4': 'Ein kurzer Rundgang als Freiwillige: die Startseite, Events durchstöbern, My Attendance, My Statistics, die Erfolgsstraße und die Profilseite.',
       'landing_page.webp': 'Die Startseite von Neighbourly, mit einer handgezeichneten Nachbarschaft und der Überschrift „The future of volunteering is here“.',
@@ -179,9 +179,9 @@ export const projectsDe = {
       'Eine Website für Eva Kritzas, eine Make-up- und Hair-Artistin aus Stellenbosch. Sie hat Seiten für ihre Brautstylings, ihr Portfolio, ihre Leistungen und ein FAQ sowie ein Anfrageformular. Außerdem habe ich ein Dashboard gebaut, das alle Statistiken der Website erfasst: wie viele Leute sie besucht haben, welche Seiten sie angesehen haben, wie sie Eva gefunden haben, wo sie sind, ob sie am Handy oder Computer sitzen und wie schnell die Seite lädt.',
     technical: [
       'Eine statische Astro-Seite ohne Datenbank oder CMS. Die Geschäftsdaten und Texte liegen in einer einzigen Datendatei, sodass die meisten Änderungen keinen Seitencode brauchen.',
-      'Das Dashboard ist ein eigenes Vercel-Projekt, geschrieben in reinem TypeScript mit Vite.',
+      'Das Dashboard ist ein eigenes Cloudflare-Projekt, geschrieben in reinem TypeScript mit Vite.',
       'Serverless Functions rufen die APIs auf und verwahren die geheimen Schlüssel, sodass nichts Privates den Browser erreicht.',
-      'Die Statistiken kommen von der Vercel Web Analytics API und der Geschwindigkeitswert von Google PageSpeed Insights, jeweils 30 Minuten lang wiederverwendet.',
+      'Die Statistiken kommen von Cloudflare Web Analytics und der Geschwindigkeitswert von Google PageSpeed Insights, jeweils 30 Minuten lang wiederverwendet.',
     ],
     captions: {
       'load_in.mp4': 'Der Ladebildschirm: Das Logo zeichnet sich in Gold, Evas Unterschrift schreibt sich, und die schwarze Fläche hebt sich wie ein Vorhang und gibt die Startseite frei.',

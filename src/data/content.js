@@ -70,7 +70,7 @@ export const projects = [
     slug: 'community-event-volunteer-platform',
     mark: '85.4%',
     featured: true,
-    note: 'team of six!',
+    module: 'Software Engineering',
     link: 'https://neighbourly.dpdns.org/',
     images: [
       { src: '/project_screenshots/volunteer_platform/walkthrough.mp4', caption: 'A quick walkthrough as a volunteer: the landing page, browsing events, My Attendance, My Statistics, the achievements road and the profile page.' },
@@ -94,7 +94,7 @@ export const projects = [
     kind: 'Entelect industry project · Full-stack',
     meta: '2026',
     description:
-      "Our industry project with Entelect, built in a team of six. It's a website for community organisations to create events, find volunteers and keep track of attendance and volunteer hours. I worked on both the code and the usability of the site.",
+      "Our industry project with Entelect, built in a team of six. It's a website for community organisations to create events, find volunteers and keep track of attendance and volunteer hours. I was the team's Scrum Master and worked on both the code and the usability of the site.",
     stack: ['Next.js', 'React', 'Tailwind CSS', 'shadcn/ui', 'Express.js', 'Prisma', 'Better Auth', 'Vitest', 'GitLab CI/CD'],
   },
   {
@@ -289,11 +289,11 @@ export const personalProjects = [
       "A website for Eva Kritzas, a makeup and hair artist based in Stellenbosch. It has pages for her bridal work, portfolio, services and FAQ, plus an enquiry form. I also built a dashboard that tracks all of the website's statistics: how many people visited, which pages they looked at, how they found her, where they are, whether they're on a phone or a computer, and how fast the site loads.",
     technical: [
       'A static Astro site with no database or CMS. The business details and copy live in one data file, so most updates need no page code.',
-      'The dashboard is its own Vercel project, written in plain TypeScript with Vite.',
+      'The dashboard is its own Cloudflare project, written in plain TypeScript with Vite.',
       'Serverless functions call the APIs and hold the secret keys, so nothing private reaches the browser.',
-      'The statistics come from the Vercel Web Analytics API and the speed score from Google PageSpeed Insights, reused for 30 minutes.',
+      'The statistics come from Cloudflare Web Analytics and the speed score from Google PageSpeed Insights, reused for 30 minutes.',
     ],
-    stack: ['Astro', 'TypeScript', 'Vite', 'Vercel', 'Vercel Web Analytics', 'PageSpeed Insights API'],
+    stack: ['Astro', 'TypeScript', 'Vite', 'Cloudflare', 'Cloudflare Web Analytics', 'PageSpeed Insights API'],
   },
   {
     title: 'Study Tracker',
