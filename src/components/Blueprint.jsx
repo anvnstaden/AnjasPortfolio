@@ -290,7 +290,7 @@ export default function Blueprint({ children, intro, onIntroEnd }) {
         <svg viewBox="0 0 20 20" aria-hidden="true">
           {inspecting ? <path d="M5 5l10 10M15 5L5 15" /> : <path d="M12.5 12.5L17 17M14 8.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0z" />}
         </svg>
-        {t.hero.inspect}
+        {t.hero.xray}
       </button>
       <button ref={handle} type="button" className="bp-handle" aria-label={t.hero.dragBlueprint}>
         <span aria-hidden="true">⇆</span>

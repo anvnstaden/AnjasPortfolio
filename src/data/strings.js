@@ -25,6 +25,7 @@ export const strings = {
       viewProjects: 'View Projects',
       getInTouch: 'Get In Touch',
       inspect: 'inspect',
+      xray: 'activate x-ray vision',
       dragBlueprint: 'Drag to see how this page is built',
     },
     badge: {
@@ -226,6 +227,7 @@ export const strings = {
       viewProjects: 'Projekte ansehen',
       getInTouch: 'Schreib mir',
       inspect: 'untersuchen',
+      xray: 'Röntgenblick aktivieren',
       dragBlueprint: 'Ziehen, um zu sehen, wie diese Seite aufgebaut ist',
     },
     badge: {
