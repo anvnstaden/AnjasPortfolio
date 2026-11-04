@@ -2600,23 +2600,11 @@ button.nav-link {
 }
 
 /* ---------- About ---------- */
-.about-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 290px;
-  gap: 56px;
-  align-items: start;
-  margin-bottom: 72px;
-}
-
 .statement {
   font-size: clamp(1.35rem, 2.6vw, 2.05rem);
   font-weight: 500;
   line-height: 1.4;
   margin: 0 0 32px;
-}
-
-.statement:nth-child(2) {
-  padding-left: clamp(0px, 6vw, 80px);
 }
 
 .sticky-note {
@@ -2646,7 +2634,7 @@ button.nav-link {
 }
 
 /* A hand reaches in, presses the note on by its tape, then lets go */
-.sticky-note.in {
+.in > .sticky-note {
   animation: note-press 2.4s ease 0.9s;
 }
 
@@ -2661,7 +2649,7 @@ button.nav-link {
   pointer-events: none;
 }
 
-.sticky-note.in .note-hand {
+.in > .sticky-note .note-hand {
   animation: hand-stick 2.4s cubic-bezier(0.4, 0, 0.3, 1) 0.9s both;
 }
 
@@ -2731,6 +2719,497 @@ button.nav-link {
   stroke: #000;
   stroke-width: 2.2;
   stroke-linecap: round;
+}
+
+/* The About Me notebook (Notebook.jsx). It starts closed in the middle and opens as you scroll: --open (0 to 1)
+   swings the cover around the spiral to become the left page, while the book slides over to centre the spread, and
+   --lift (peaking halfway) is the cover's shadow on the page below. The paper stays paper in dark mode, like the
+   sticky note. */
+.notebook {
+  --open: 0;
+  --lift: 0;
+  --lh: clamp(36px, 3vw, 46px);
+  --margin: clamp(56px, 5vw, 76px);
+  --nb-paper: #fbf8f1;
+  --marker: rgb(223 164 184 / 0.65);
+  max-width: 1240px;
+  margin: 8px auto 40px;
+  color: var(--ink);
+}
+
+.nb-book {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  perspective: 2600px;
+  translate: calc((1 - var(--open)) * -25%) 0;
+}
+
+.nb-page {
+  position: relative;
+  background-color: var(--nb-paper);
+}
+
+/* Pinned under the navbar (at --pin-top, set by Notebook.jsx) while you scroll through the runway below it, which
+   turns the cover. Only when the notebook fits on the screen; otherwise there's no runway. */
+.nb-scroll.pinned .nb-pin {
+  position: sticky;
+  top: var(--pin-top, 76px);
+}
+
+.nb-scroll.pinned .nb-runway {
+  height: 140vh;
+}
+
+/* The right page: blue rules every line, a red margin, and a soft shadow into the spine. Its edge shows a few
+   pages stacked underneath. */
+.nb-lined {
+  grid-column: 2;
+  isolation: isolate;
+  min-height: 560px;
+  padding: calc(var(--lh) * 1.5) clamp(26px, 3vw, 48px) calc(var(--lh) * 1.5) calc(var(--margin) + 18px);
+  border-radius: 0 12px 12px 0;
+  background-image: linear-gradient(90deg, rgb(0 10 26 / 0.13), transparent 34px),
+    linear-gradient(90deg, transparent var(--margin), rgb(222 56 49 / 0.5) 0, rgb(222 56 49 / 0.5) calc(var(--margin) + 2px), transparent 0),
+    linear-gradient(transparent calc(100% - 1.5px), rgb(14 71 152 / 0.2) 0);
+  background-size: 100% 100%, 100% 100%, 100% var(--lh);
+  background-position: 0 0, 0 0, 0 calc(var(--lh) * 0.27);
+  background-repeat: no-repeat, no-repeat, repeat-y;
+  box-shadow: 2px 2px 0 #ece6d8, 4px 4px 0 #e0d9c8, 6px 6px 0 #d4ccb9, 0 34px 50px -30px rgb(0 10 26 / 0.6);
+}
+
+.nb-lined::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgb(0 10 26 / 0.4), transparent 70%);
+  opacity: var(--lift);
+  pointer-events: none;
+}
+
+/* The left page is dotted, for doodling */
+.nb-dotted {
+  background-image: linear-gradient(-90deg, rgb(0 10 26 / 0.13), transparent 34px),
+    radial-gradient(circle, rgb(14 71 152 / 0.28) 1.3px, transparent 1.8px);
+  background-size: 100% 100%, 24px 24px;
+  background-position: 0 0, 12px 12px;
+  box-shadow: -2px 2px 0 #ece6d8, -4px 4px 0 #e0d9c8, -6px 6px 0 #d4ccb9, 0 34px 50px -30px rgb(0 10 26 / 0.6);
+}
+
+.notebook .statement {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(1.1rem, 1.8vw, 1.75rem);
+  line-height: var(--lh);
+  margin: 0 0 var(--lh);
+}
+
+.notebook .statement:last-child {
+  margin-bottom: 0;
+}
+
+/* The sentences are already on the page under the cover; their highlights and doodles wait for it to open, one
+   sentence after the other */
+.notebook .statement.reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.notebook:not(.opened) .hl {
+  background-size: 0% 100%;
+}
+
+.notebook:not(.opened) .draw path {
+  stroke-dashoffset: 1;
+}
+
+.notebook .statement:nth-child(2) .hl {
+  transition-delay: 1s;
+}
+
+.notebook .statement:nth-child(3) {
+  --d: 1.1s;
+}
+
+.notebook .statement:nth-child(3) .hl {
+  transition-delay: 1.7s;
+}
+
+/* The cover: a little bigger than the pages, hinged on the spiral. Its inside is the left page. */
+.nb-cover {
+  position: absolute;
+  inset: -6px -8px -6px 50%;
+  z-index: 2;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: rotateY(calc(var(--open) * -180deg));
+}
+
+.nb-cover-front,
+.nb-cover-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.nb-cover-back {
+  transform: rotateY(180deg);
+  border-radius: 12px 0 0 12px;
+}
+
+.nb-cover-front {
+  display: grid;
+  place-items: center;
+  border-radius: 6px 16px 16px 6px;
+  background: radial-gradient(circle at 30% 18%, rgb(255 255 255 / 0.14), transparent 55%),
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.035) 0 2px, transparent 2px 5px), var(--blue);
+  box-shadow: inset 8px 0 12px -8px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    0 34px 50px -30px rgb(0 10 26 / 0.7);
+}
+
+/* gets darker as it turns away from the light */
+.nb-cover-front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #000a1a;
+  opacity: calc(var(--open) * 1.2);
+  pointer-events: none;
+}
+
+.nb-label {
+  display: grid;
+  width: min(72%, 400px);
+  padding: 16px 24px 18px;
+  rotate: -2deg;
+  border-radius: 6px;
+  background: var(--nb-paper);
+  font-family: var(--pen);
+  text-align: center;
+  box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.5), inset 0 0 0 4px var(--nb-paper), inset 0 0 0 5.5px var(--pink);
+}
+
+.nb-label small {
+  font-size: 1.4rem;
+  line-height: 1.1;
+  color: var(--blue);
+}
+
+.nb-label b {
+  margin: 2px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid rgb(0 10 26 / 0.25);
+  font-weight: 400;
+  font-size: clamp(2rem, 2.8vw, 2.7rem);
+  line-height: 1.05;
+}
+
+.nb-sticker {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 5px;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 4px 8px -2px rgb(0 0 0 / 0.4);
+}
+
+.nb-sticker .flag {
+  width: clamp(40px, 4vw, 56px);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.nb-sticker-za {
+  top: 11%;
+  left: 12%;
+  rotate: -12deg;
+}
+
+.nb-sticker-nl {
+  top: 17%;
+  right: 20%;
+  rotate: 9deg;
+}
+
+.nb-sticker-de {
+  bottom: 24%;
+  right: 17%;
+  rotate: -7deg;
+}
+
+.nb-sticker-star {
+  bottom: 22%;
+  left: 15%;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--butter);
+  color: var(--ink);
+  font-size: 2rem;
+  line-height: 1;
+  rotate: 14deg;
+  box-shadow: 0 0 0 4px #fff, 0 5px 10px -2px rgb(0 0 0 / 0.45);
+}
+
+.nb-hint {
+  position: absolute;
+  bottom: 6%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--pen);
+  font-size: 1.6rem;
+  color: var(--ivory);
+  opacity: calc(1 - var(--open) * 5);
+}
+
+.nb-hint svg {
+  width: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: nb-bob 1.4s ease-in-out infinite;
+}
+
+.notebook.past .nb-hint {
+  opacity: 0;
+}
+
+@keyframes nb-bob {
+  50% {
+    translate: 0 5px;
+  }
+}
+
+/* the elastic band, wrapping round the cover at both ends */
+.nb-band {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  right: 9%;
+  width: 16px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.18), transparent 35%, rgb(255 255 255 / 0.25) 55%, rgb(0 0 0 / 0.15)),
+    var(--pink);
+  box-shadow: 2px 0 4px rgb(0 0 0 / 0.25);
+}
+
+/* The spiral down the spine: each ring loops up out of one page and over into the next */
+.nb-rings {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  bottom: 16px;
+  left: 50%;
+  width: 36px;
+  translate: -50% 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='30'%3E%3Cpath d='M6 19C6 6 30 6 30 19' fill='none' stroke='%23000a1a' stroke-opacity='.35' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M6 18C6 6 30 6 30 18' fill='none' stroke='%23b9bec6' stroke-width='3.5' stroke-linecap='round'/%3E%3Cpath d='M11 12c3-3 7-4 10-4' fill='none' stroke='%23fff' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E")
+    center top / 36px 30px repeat-y;
+  pointer-events: none;
+}
+
+/* The left page's doodles, scattered round the sticky note */
+.nb-inside {
+  position: absolute;
+  inset: 0;
+}
+
+.nb-doodle {
+  position: absolute;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nb-laptop {
+  top: 9%;
+  left: 11%;
+  width: clamp(92px, 9vw, 128px);
+  rotate: -7deg;
+}
+
+.nb-pretzel {
+  top: 8%;
+  right: 12%;
+  width: clamp(66px, 6.4vw, 90px);
+  rotate: 12deg;
+}
+
+.nb-pencil {
+  bottom: 21%;
+  right: 4%;
+  width: clamp(120px, 11vw, 158px);
+  rotate: -62deg;
+}
+
+.nb-note {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(62%, 320px);
+  translate: -50% -46%;
+}
+
+.nb-note .sticky-note {
+  margin: 0;
+}
+
+/* "hire me? [ ] yes [x] obviously", which goes to the contact section */
+.nb-hire {
+  position: absolute;
+  left: 9%;
+  bottom: 8%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  font-family: var(--pen);
+  font-size: clamp(1.7rem, 1.9vw, 2.2rem);
+  line-height: 1;
+  color: var(--ink);
+  text-decoration: none;
+  rotate: -3deg;
+  transition: rotate 0.25s, scale 0.25s;
+}
+
+.nb-hire:hover,
+.nb-hire:focus-visible {
+  rotate: 0deg;
+  scale: 1.05;
+}
+
+.nb-hire-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue);
+}
+
+.nb-box {
+  width: 1em;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nb-box .nb-tick {
+  stroke: var(--blue);
+  stroke-width: 3;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.notebook.opened .nb-tick {
+  stroke-dashoffset: 0;
+  transition-delay: 2.6s;
+}
+
+/* Phones and small tablets: a single page, with the sticky note and doodles under the sentences, and the cover
+   flipping away round the spiral on the left */
+@media (max-width: 1100px) {
+  .notebook {
+    --lh: 32px;
+    --margin: 34px;
+    max-width: 560px;
+  }
+
+  .nb-book {
+    display: block;
+    perspective: 1800px;
+    translate: none;
+  }
+
+  .nb-lined {
+    min-height: 0;
+    padding: calc(var(--lh) * 1.5) 18px var(--lh) calc(var(--margin) + 14px);
+    border-radius: 4px 12px 12px 4px;
+    background-image: none, linear-gradient(90deg, transparent var(--margin), rgb(222 56 49 / 0.5) 0, rgb(222 56 49 / 0.5) calc(var(--margin) + 2px), transparent 0),
+      linear-gradient(transparent calc(100% - 1.5px), rgb(14 71 152 / 0.2) 0);
+  }
+
+  .notebook .statement {
+    font-size: 1.1rem;
+  }
+
+  .nb-cover {
+    inset: -5px -5px -5px 0;
+  }
+
+  .nb-cover-front {
+    border-radius: 4px 14px 14px 4px;
+  }
+
+  .nb-rings {
+    left: 4px;
+    width: 26px;
+    background-size: 26px 24px;
+  }
+
+
+  .nb-inside {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 28px;
+    margin-top: calc(var(--lh) * 1.5);
+    padding-bottom: 76px;
+  }
+
+  .nb-doodle,
+  .nb-note,
+  .nb-hire {
+    position: relative;
+    inset: auto;
+    translate: none;
+  }
+
+  .nb-note {
+    width: min(100%, 290px);
+  }
+
+  .nb-laptop,
+  .nb-pretzel,
+  .nb-pencil {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+  }
+
+  .nb-laptop {
+    left: 0;
+    width: 84px;
+  }
+
+  .nb-pretzel {
+    right: 4px;
+    width: 60px;
+  }
+
+  .nb-pencil {
+    left: calc(50% - 50px);
+    bottom: 18px;
+    width: 100px;
+    rotate: 8deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-hint svg {
+    animation: none;
+  }
 }
 
 /* ---------- My Journey ---------- */
@@ -7953,19 +8432,6 @@ a:hover .nav-arrow.inline.out {
     justify-self: center;
     margin-top: clamp(48px, 9vh, 110px);
     width: min(92%, 460px);
-  }
-
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .statement:nth-child(2) {
-    padding-left: 0;
-  }
-
-  .sticky-note {
-    max-width: 320px;
-    justify-self: center;
   }
 
   .section {

@@ -51,6 +51,15 @@ export const strings = {
       title: 'About Me',
       currently: 'Currently...',
       now: ['finishing up my BSc Computer Science degree', 'practising my German Vokabeln'],
+      notebook: {
+        owner: 'property of',
+        subject: 'subject: me, mostly',
+        hint: 'scroll to open',
+        hire: 'hire me?',
+        yes: 'yes',
+        obviously: 'obviously',
+        hireLabel: 'Hire me? Obviously. Go to the contact section',
+      },
     },
     work: {
       title: 'My Projects',
@@ -254,6 +263,15 @@ export const strings = {
       title: 'Über mich',
       currently: 'Gerade...',
       now: ['schließe ich meinen BSc in Informatik ab', 'übe ich meine deutschen Vokabeln'],
+      notebook: {
+        owner: 'gehört',
+        subject: 'Fach: vor allem ich',
+        hint: 'zum Öffnen scrollen',
+        hire: 'mich einstellen?',
+        yes: 'ja',
+        obviously: 'na klar',
+        hireLabel: 'Mich einstellen? Na klar. Zum Kontaktbereich',
+      },
     },
     work: {
       title: 'Meine Projekte',

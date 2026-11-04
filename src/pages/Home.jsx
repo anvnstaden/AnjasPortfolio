@@ -7,6 +7,7 @@ import Journey from '../components/Journey.jsx'
 import FactsWallet from '../components/FactsWallet.jsx'
 import Blueprint from '../components/Blueprint.jsx'
 import Lanyard from '../components/Lanyard.jsx'
+import Notebook from '../components/Notebook.jsx'
 import { Circle, NavArrow, PointingHand, Underline } from '../components/Doodles.jsx'
 import { contact, skillProjects, skills } from '../data/content.js'
 import { useLang } from '../i18n.js'
@@ -1033,7 +1034,7 @@ function Statements() {
           Universität Stellenbosch und habe ein Faible für UI/UX, Produktdesign und Frontend.
         </p>
         <p className="statement reveal">
-          <span className="underlined">Stolze Südafrikanerin &amp; Niederländerin<Underline className="draw" /></span>,
+          <span className="underlined">Stolze Südafrikanerin &amp; Niederländerin,<Underline className="draw" /></span>{' '}
           ich lerne Deutsch und suche ab 2027 eine Stelle, <mark className="hl">egal wo in Deutschland</mark>.
         </p>
       </div>
@@ -1050,7 +1051,7 @@ function Statements() {
         Stellenbosch University, with a soft spot for UI/UX, product design and frontend.
       </p>
       <p className="statement reveal">
-        <span className="underlined">Proudly South African &amp; Dutch<Underline className="draw" /></span>,
+        <span className="underlined">Proudly South African &amp; Dutch,<Underline className="draw" /></span>{' '}
         learning German, and looking for roles <mark className="hl">anywhere in Germany</mark> from 2027.
       </p>
     </div>
@@ -1093,17 +1094,19 @@ export default function Home() {
       <Hero />
 
       <section id="about" className="section slide-section from-left">
-        <Title text={t.about.title} />
-        <div className="about-grid">
-          <Statements />
-          <aside className="sticky-note reveal pop" style={{ '--d': '200ms' }}>
-            <p>{t.about.currently}</p>
-            <ul>
-              {t.about.now.map((line) => <li key={line}><NavArrow inline pen />{line}</li>)}
-            </ul>
-            <PointingHand className="note-hand" />
-          </aside>
-        </div>
+        <Notebook
+          title={<Title text={t.about.title} />}
+          page={<Statements />}
+          note={
+            <aside className="sticky-note">
+              <p>{t.about.currently}</p>
+              <ul>
+                {t.about.now.map((line) => <li key={line}><NavArrow inline pen />{line}</li>)}
+              </ul>
+              <PointingHand className="note-hand" />
+            </aside>
+          }
+        />
       </section>
 
       <FactsWallet />
