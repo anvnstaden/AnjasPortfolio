@@ -3,6 +3,7 @@ import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Projects from './pages/Projects.jsx'
 import PenCursor from './components/PenCursor.jsx'
+import { Circle } from './components/Doodles.jsx'
 import { LANGUAGES, useLang } from './i18n.js'
 import './App.css'
 
@@ -232,6 +233,16 @@ function useMenu(header) {
   return [open, setOpen]
 }
 
+// A link's name, with a pen ring round it when it's the page you're on (shown in the phone menu)
+function NavLabel({ current, children }) {
+  return (
+    <span className="nav-label">
+      {children}
+      {current && <Circle className="nav-ring" />}
+    </span>
+  )
+}
+
 // Link, name, and the section it marks as current
 const PROJECT_SIGNS = [
   ['/projects', 'university', 'projects'],
@@ -271,7 +282,7 @@ function ProjectsMenu({ current }) {
         <div className="nav-sign">
           {PROJECT_SIGNS.map(([to, id, section]) => (
             <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
-              {t.nav[id]}
+              <NavLabel current={current === section}>{t.nav[id]}</NavLabel>
               <svg className="nav-plate-arrow" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" /></svg>
             </Link>
           ))}
@@ -303,10 +314,10 @@ function App() {
           <span className="charm-knob"><img src="/favicon.svg" alt="" /></span>
         </Link>
         <nav id="site-menu" onClick={(e) => e.target.closest('a') && setMenuOpen(false)}>
-          <Link to="/#about" className={link('about')}>{t.nav.about}</Link>
+          <Link to="/#about" className={link('about')}><NavLabel current={current === 'about'}>{t.nav.about}</NavLabel></Link>
           <ProjectsMenu current={current} />
-          <Link to="/#skills" className={link('skills')}>{t.nav.skills}</Link>
-          <Link to="/#contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}>{t.nav.contact}</Link>
+          <Link to="/#skills" className={link('skills')}><NavLabel current={current === 'skills'}>{t.nav.skills}</NavLabel></Link>
+          <Link to="/#contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}><NavLabel current={current === 'contact'}>{t.nav.contact}</NavLabel></Link>
         </nav>
         {/* Site settings hang here as .nav-charm buttons */}
         <div className="nav-prefs">

@@ -169,7 +169,7 @@ export default function Journey() {
                         </ul>
                         {stop.footnote && <p className="stop-footnote">{stop.footnote}</p>}
                         {stop.link && (
-                          <Link to={stop.link.to} className="text-link">{stop.link.label} <NavArrow inline /></Link>
+                          <Link to={stop.link.to} className="button primary tap stop-link">{stop.link.label} <NavArrow inline /></Link>
                         )}
                       </div>
                     </li>

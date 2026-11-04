@@ -290,8 +290,8 @@ export function Europe() {
       {/* A plane flying in, towing a banner */}
       <g className="fly">
         <line x1="150" y1="96" x2="186" y2="92" strokeWidth="1.5" />
-        <rect x="50" y="86" width="100" height="20" rx="3" fill={ivory} strokeWidth="2" />
-        <text x="100" y="101" textAnchor="middle" className="scene-pen" stroke="none" fill={blue}>hallo Deutschland!</text>
+        <rect x="36" y="86" width="114" height="20" rx="3" fill={ivory} strokeWidth="2" />
+        <text x="93" y="101" textAnchor="middle" className="scene-pen" stroke="none" fill={blue}>hallo Deutschland!</text>
         <path d="M186 84H222Q234 84 236 90Q234 96 222 96H192Z" fill={ivory} strokeWidth="2" />
         <path d="M188 84L184 72H192L198 84Z" fill={pink} strokeWidth="2" />
         <path d="M206 91H218L210 106H202Z" fill={pink} strokeWidth="2" />

@@ -916,6 +916,16 @@ button.nav-link {
   }
 }
 
+/* A link's name. In the phone menu the page you're on gets a ring drawn round it (.nav-ring, see below). */
+.nav-label {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-ring {
+  display: none;
+}
+
 /* Hamburger for phones: three bars that fold into a cross while the menu is open */
 .menu-toggle {
   --tab: var(--plum);
@@ -970,7 +980,9 @@ button.nav-link {
   rotate: -45deg;
 }
 
-/* On phones and small tablets the links fold away into a stack of index cards that drops down under the tabs */
+/* On phones and small tablets the links fold away into tags hanging on strings from the rail along the top: each tag
+   hangs from the one above it, they drop in one after another and swing until they settle, each a little crooked.
+   The two project links hang together as one road sign, two arrow plates pointing opposite ways. */
 @media (max-width: 900px) {
   .menu-toggle {
     display: grid;
@@ -980,69 +992,309 @@ button.nav-link {
     margin-left: auto;
   }
 
+  /* the page fades back behind the open menu, so the tags read clearly */
+  .nav::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in srgb, var(--cream) 74%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s, visibility 0s 0.25s;
+  }
+
+  .nav.open::after {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s;
+  }
+
   .nav nav {
     position: absolute;
-    top: 60px;
-    left: clamp(16px, 4vw, 72px);
-    right: clamp(16px, 4vw, 72px);
+    top: 0;
+    left: 0;
+    right: 0;
     flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
+    align-items: center;
+    /* the length of string between one tag and the next */
+    --string: 20px;
+    gap: var(--string);
     margin: 0;
+    padding-top: 84px;
     visibility: hidden;
     opacity: 0;
-    translate: 0 -8px;
-    transition: opacity 0.2s, translate 0.2s, visibility 0s 0.2s;
+    transition: opacity 0.2s, visibility 0s 0.2s;
   }
 
   .nav.open nav {
     visibility: visible;
     opacity: 1;
-    translate: 0;
-    transition: opacity 0.2s, translate 0.2s;
+    transition: opacity 0.1s;
   }
 
-  /* The stack has no dropdown inside it: the two project links are just rows in it */
-  .nav-drop,
-  .nav-drop-menu,
-  .nav-sign {
-    display: contents;
-    visibility: inherit;
-    opacity: 1;
+  /* A tag (or the sign), hanging from the string above it and turned a little about where that string is tied */
+  #site-menu > * {
+    --tip: 0deg;
+    position: relative;
+    width: min(var(--wide), 340px);
+    transform-origin: 50% calc(var(--string) * -1);
+    rotate: var(--tip);
+    pointer-events: auto;
   }
 
+  #site-menu > :nth-child(1) {
+    --wide: 60%;
+    --tip: -2deg;
+  }
+
+  #site-menu > :nth-child(2) {
+    --wide: 78%;
+    --tip: 1deg;
+  }
+
+  #site-menu > :nth-child(3) {
+    --wide: 54%;
+    --tip: 2.2deg;
+  }
+
+  #site-menu > :nth-child(4) {
+    --wide: 66%;
+    --tip: -1.4deg;
+  }
+
+  .nav.open #site-menu > * {
+    animation: tag-hang 1s linear var(--delay, 0ms) backwards;
+  }
+
+  @keyframes tag-hang {
+    0% {
+      translate: 0 -70px;
+      opacity: 0;
+      rotate: calc(var(--tip) - 9deg);
+      animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+    }
+    30% {
+      translate: 0 5px;
+      opacity: 1;
+      rotate: calc(var(--tip) + 6deg);
+      animation-timing-function: ease-out;
+    }
+    52% {
+      translate: 0 -1px;
+      rotate: calc(var(--tip) - 3.5deg);
+      animation-timing-function: ease-in-out;
+    }
+    72% {
+      translate: 0;
+      rotate: calc(var(--tip) + 1.6deg);
+      animation-timing-function: ease-in-out;
+    }
+    88% {
+      rotate: calc(var(--tip) - 0.6deg);
+    }
+    100% {
+      rotate: var(--tip);
+    }
+  }
+
+  /* the string, from the tag up to the one above it (the first one's runs all the way up to the rail) */
+  #site-menu > ::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 13px);
+    left: 50%;
+    width: 2px;
+    height: calc(var(--string) + 13px);
+    margin-left: -1px;
+    background: var(--plum);
+    pointer-events: none;
+  }
+
+  #site-menu > :first-child::before {
+    height: 97px;
+  }
+
+  #site-menu > :is(.nav-link, .nav-cta) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 20px 18px 14px;
+    border: 2px solid var(--plum);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    transition: none;
+  }
+
+  /* the eyelet the string is tied through */
+  #site-menu > :is(.nav-link, .nav-cta)::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    border: 2px solid var(--plum);
+    border-radius: 50%;
+    background: var(--cream);
+  }
+
+  /* The page you're on: a ring drawn round its name in pen, once its tag has dropped in */
+  .nav-ring {
+    display: block;
+    color: var(--ring, var(--blue));
+  }
+
+  .nav-ring path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+  }
+
+  .nav.open .nav-ring path {
+    animation: ring-draw 0.7s ease-out calc(var(--delay, 0ms) + 650ms) backwards;
+  }
+
+  @keyframes ring-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+
+  #site-menu > .nav-cta {
+    --ring: var(--pink);
+  }
+
+  .nav-drop-item {
+    --ring: var(--butter);
+  }
+
+  :root[data-theme='dark'] #site-menu > .nav-cta {
+    --ring: var(--blue);
+  }
+
+  /* The sign: no button to open it, just the two plates on one string */
   button.nav-link {
     display: none;
   }
 
-  .nav-link,
-  .nav nav a.nav-cta,
-  .nav-drop-item {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+  .nav-drop-menu {
+    position: static;
+    width: 100%;
+    visibility: inherit;
+    opacity: 1;
+    transition: none;
+  }
+
+  .nav-sign {
+    position: relative;
+    display: grid;
     gap: 12px;
-    padding: 12px 18px;
-    font-size: 1.1rem;
-    border-top: 2px solid var(--plum);
-    border-radius: 14px;
+  }
+
+  /* the string carries on down behind the first plate to the second */
+  .nav-sign::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 50%;
+    left: 50%;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--plum);
+  }
+
+  /* A plate: a rectangle with a pointed end. The point is a square turned on its corner, sitting on the plate's end
+     with its rounded tip sticking out, the same height as the plate from corner to corner. */
+  .nav-drop-item {
+    --lit: var(--blue);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    min-height: 0;
+    margin-right: 24px;
+    padding: 14px 8px 14px 18px;
+    border: 2px solid var(--plum);
+    border-right: 0;
+    border-radius: 10px 0 0 10px;
+    box-shadow: none;
+    color: var(--ivory);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: none;
     animation: none;
   }
 
-  .nav-link:hover,
-  .nav nav a.nav-cta:hover {
-    animation: tab-swing 0.7s ease;
+  .nav-drop-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    height: calc((100% + 4px) * 0.7071);
+    aspect-ratio: 1;
+    border: 2px solid var(--plum);
+    border-bottom: 0;
+    border-left: 0;
+    border-top-right-radius: 7px;
+    /* turned 45deg, so this runs top to bottom on the screen, matching the plate */
+    background: linear-gradient(135deg, var(--lit-top), var(--lit-bottom));
+    translate: -50% -50%;
+    rotate: 45deg;
   }
 
-  .nav-link.current,
-  .nav-drop-item.current,
-  .nav nav a.nav-cta.current {
-    text-decoration: underline;
-    text-underline-offset: 4px;
+  .nav-drop-item:active::before {
+    background: linear-gradient(-45deg, var(--lit-top), var(--lit-bottom));
+  }
+
+  .nav-drop-item > * {
+    position: relative;
+  }
+
+  /* the first plate points right, the second left, like the arms of a signpost */
+  .nav-drop-item:first-child {
+    rotate: -2deg;
+  }
+
+  .nav-drop-item:nth-child(2) {
+    flex-direction: row-reverse;
+    margin: 0 0 0 24px;
+    padding: 14px 18px 14px 8px;
+    border: 2px solid var(--plum);
+    border-left: 0;
+    border-radius: 0 10px 10px 0;
+    rotate: 2deg;
+  }
+
+  .nav-drop-item:nth-child(2)::before {
+    left: 0;
+    border: 2px solid var(--plum);
+    border-top: 0;
+    border-right: 0;
+    border-radius: 0 0 0 7px;
+  }
+
+  .nav-drop-item:nth-child(2) .nav-plate-arrow {
+    scale: -1 1;
   }
 
   .nav-plate-arrow {
-    display: none;
+    flex: none;
+    width: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 }
 
@@ -2812,9 +3064,14 @@ button.nav-link {
   color: var(--plum-soft);
 }
 
-.stop-card .text-link {
-  display: inline-block;
+/* The way on from a stop (e.g. to the projects built there): the one thing to do on the card */
+.stop-card .stop-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 20px;
+  padding: 12px 22px;
+  box-shadow: 4px 4px 0 var(--pink);
 }
 
 /* End of the road: "to be continued..." with bouncing dots, and a paper plane that takes off from it,
@@ -7285,6 +7542,29 @@ a:hover .nav-arrow.inline.out {
   z-index: 2;
   transform-origin: 0 0;
   will-change: translate, rotate, scale;
+}
+
+/* Narrow screens: no walk, just the open case at the bottom of the screen handing out one card at a time.
+   The stage uses the small viewport height so the case is never hidden behind a phone's browser bar. */
+.wallet-section.narrow .wallet-scroller {
+  height: 800vh;
+}
+
+.wallet-section.narrow .wallet-stage {
+  --cw: min(54vw, 32svh, 230px);
+  height: 100svh;
+}
+
+.wallet-section.narrow .wallet-part {
+  width: min(calc(100vw - 16px), 560px);
+}
+
+.wallet-section.narrow .note {
+  font-size: clamp(1.35rem, 6vw, 1.8rem);
+}
+
+.wallet-section.narrow .note-pen {
+  transition: opacity 0.2s;
 }
 
 /* The hand that wipes the cards away at the end of the scene */

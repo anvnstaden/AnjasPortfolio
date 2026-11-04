@@ -10,18 +10,22 @@ const languages = [
   { name: 'Nederlands', hello: 'Hoi!', level: 'understand' },
 ]
 
-// The wallet scene only runs on wide screens with motion allowed; otherwise the items are a plain row.
-const WIDE = '(min-width: 900px) and (prefers-reduced-motion: no-preference)'
+// The wallet scene only runs with motion allowed: the full walk on wide screens, one card at a time on narrow
+// ones. With reduced motion the items are a plain row.
+const WIDE = '(min-width: 900px)'
+const MOTION = '(prefers-reduced-motion: no-preference)'
 
-function useWide() {
-  const [wide, setWide] = useState(() => matchMedia(WIDE).matches)
+const sceneNow = () => (matchMedia(MOTION).matches ? (matchMedia(WIDE).matches ? 'wide' : 'narrow') : null)
+
+function useScene() {
+  const [scene, setScene] = useState(sceneNow)
   useEffect(() => {
-    const mq = matchMedia(WIDE)
-    const onChange = () => setWide(mq.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
+    const mqs = [matchMedia(WIDE), matchMedia(MOTION)]
+    const onChange = () => setScene(sceneNow())
+    mqs.forEach((mq) => mq.addEventListener('change', onChange))
+    return () => mqs.forEach((mq) => mq.removeEventListener('change', onChange))
   }, [])
-  return wide
+  return scene
 }
 
 const clamp01 = (n) => Math.min(1, Math.max(0, n))
@@ -83,6 +87,22 @@ const TILT_TIME = 0.14
 const LID_START = 0.46 // ...then pops open
 const LID_TIME = 0.16
 const LANDED_TILT = -12 // degrees it lies at where it lands
+
+// On narrow screens there is no room for the walk or a row of cards, so the cards come one at a time: the case
+// lies open at the bottom of the screen, each card rises out of it, the pen writes its note above it, and it is
+// flicked off to the side for the next. At the end the hand shoos the last card away and the case shuts. It comes in
+// closed at the top of the screen and slides down as it opens, so there is no empty screen as the scene scrolls in.
+const N_LID = [0.01, 0.07] // the case slides down to the bottom of the screen and the lid pops open
+const N_FIRST = 0.08 // the first card starts rising...
+const N_STEP = 0.14 // ...and each card gets this share of the scroll
+const N_WIPE = 0.78 // the hand comes in for the last card
+const N_SHUT = [0.9, 0.95] // the lid shuts again
+const N_TURN = [-4, 3, -3, 4, -2] // how far each card is turned while it is shown
+// Stages of each card's share of the scroll
+const N_RISE = 0.26 // rising out of the case
+const N_WRITE = [0.3, 0.56] // the pen writes the note
+const N_ARROW = [0.56, 0.68] // ...and draws the arrow
+const N_FLICK = 0.82 // flicked away (all but the last, which the hand sends)
 
 // Where the cartoon clouds hang in the sky (top as a share of the screen height, left of its width)
 const CLOUDS = [
@@ -366,11 +386,12 @@ function OpenCaseFront() {
 
 // Quick facts as things you'd find in a wallet: two passports, a work permit card, a boarding pass and a
 // phone. On wide screens a girl walks across the screen and drops a wallet as you scroll; the camera zooms
-// into it and it spits the items out.
+// into it and it spits the items out. On narrow screens the open case hands them out one at a time.
 export default function FactsWallet() {
   const { lang, t } = useLang()
   const w = t.wallet
-  const wide = useWide()
+  const scene = useScene()
+  const wide = scene === 'wide'
   const scroller = useRef(null)
   const stage = useRef(null)
   const wallet = useRef(null)
@@ -653,37 +674,216 @@ export default function FactsWallet() {
     // new wording changes the size of the cards and notes, so the scene is laid out again
   }, [wide, lang])
 
+  // On narrow screens: the open case lies at the bottom of the pinned screen and hands out one card at a time
+  useEffect(() => {
+    if (scene !== 'narrow') return
+    const wrap = scroller.current
+    const view = stage.current
+    const parts = [...view.querySelectorAll('.wallet-part')]
+    const items = [...view.querySelectorAll('.item')]
+    const notes = [...view.querySelectorAll('.note')]
+    const lines = [...view.querySelectorAll('.note-line')]
+    const heads = [...view.querySelectorAll('.note-head')]
+    const pen = view.querySelector('.note-pen')
+    const hand = view.querySelector('.wipe-hand')
+    const last = items.length - 1
+    let frame = 0
+
+    // Puts a card (turned about its top left corner) so that its centre is at (cx, cy)
+    const place = (el, cx, cy, w, h, s, deg) => {
+      const r = (deg * Math.PI) / 180
+      const x = cx - s * ((w / 2) * Math.cos(r) - (h / 2) * Math.sin(r))
+      const y = cy - s * ((w / 2) * Math.sin(r) + (h / 2) * Math.cos(r))
+      el.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`
+      el.style.rotate = `${deg.toFixed(2)}deg`
+      el.style.scale = s.toFixed(3)
+    }
+
+    const update = () => {
+      frame = 0
+      const vw = view.clientWidth
+      const vh = view.clientHeight
+      const range = wrap.offsetHeight - vh
+      const p = range > 0 ? clamp01(-wrap.getBoundingClientRect().top / range) : 0
+      const bw = parts[0].offsetWidth
+      const bh = parts[0].offsetHeight
+      const k = bw / 900
+      const bx = (vw - bw) / 2
+      const by = vh - bh - 8 // the case lies at the bottom of the screen, its handle just clear of the edge
+      const hinge = by + 300 * k
+
+      // --- the case: slides down from the top of the screen as the lid pops open, and at the end shuts again ---
+      const lt = clamp01((p - N_LID[0]) / (N_LID[1] - N_LID[0])) - clamp01((p - N_SHUT[0]) / (N_SHUT[1] - N_SHUT[0]))
+      const flip = easeInOut(lt) * (1 + 0.05 * Math.sin(lt * Math.PI))
+      const lidCover = flip < 0.5 ? Math.cos(flip * Math.PI) : 0
+      const lidInner = flip < 0.5 ? 0 : flip <= 1 ? -Math.cos(flip * Math.PI) : 1 + (flip - 1) * 0.3
+      // closed, just the body of the case shows (seen from above); it starts with its top just under the navbar
+      const opened = clamp01((p - N_LID[0]) / (N_LID[1] - N_LID[0]))
+      const lift = (80 - hinge) * (1 - easeInOut(opened))
+      for (const part of parts) {
+        part.style.left = `${bx}px`
+        part.style.top = `${by}px`
+        part.style.translate = `0 ${lift.toFixed(1)}px`
+        part.style.setProperty('--tilt', 1)
+        part.style.setProperty('--lid-cover', lidCover.toFixed(3))
+        part.style.setProperty('--lid-inner', lidInner.toFixed(3))
+      }
+
+      // --- the hand comes in from the top right and flicks the last card away ---
+      const wipe = clamp01((p - N_WIPE) / (N_SHUT[0] - N_WIPE))
+      const W = Math.min(vh * 0.6, vw * 0.8)
+      const inOut = easeOut(clamp01(wipe / 0.22)) * (1 - easeInOut(clamp01((wipe - 0.62) / 0.28)))
+      const windUp = easeInOut(clamp01((wipe - 0.24) / 0.14))
+      const flick = easeOut(clamp01((wipe - FLICK_AT) / 0.12))
+      const hx = vw - W * 0.7 + (1 - inOut) * W * 0.55 + windUp * (1 - flick) * W * 0.06 - flick * vw * 0.28
+      const hy = -W * 0.17 - (1 - inOut) * W * 0.5 - flick * W * 0.02
+      hand.style.width = `${W.toFixed(1)}px`
+      hand.style.opacity = wipe > 0 && wipe < 1 ? 1 : 0
+      hand.style.translate = `${hx.toFixed(1)}px ${hy.toFixed(1)}px`
+      hand.style.rotate = `${(-10 * windUp * (1 - flick) + 22 * flick).toFixed(2)}deg`
+
+      // --- the cards: each rises out of the case, gets its note, then is flicked off to the side ---
+      const unit = items[0].offsetWidth / 0.84 // the card width unit (--cw); a passport is 0.84 of it
+      const peek = (IN_CASE * k) / unit
+      let penAt = null
+      items.forEach((item, i) => {
+        const w = item.offsetWidth
+        const h = item.offsetHeight
+        const note = notes[i]
+        const tw = note.offsetWidth
+        const th = note.offsetHeight
+        const u = clamp01((p - N_FIRST - i * N_STEP) / N_STEP)
+
+        // shown in the middle of the screen, between its note (under the navbar) and the hinge of the case; the
+        // permit's lanyard loops up above the card, so it needs more room under its note
+        const reach = item.querySelector('.permit-lanyard') ? 56 : 0
+        const zoneTop = 80 + th + 40 + reach
+        const zoneBottom = Math.max(zoneTop + 160, hinge - 10)
+        const fin = Math.min(1, (vw * 0.86) / w, (zoneBottom - zoneTop) / h)
+        const cx = vw / 2
+        const cy = (zoneTop + zoneBottom) / 2
+        const cardTop = cy - (h * fin) / 2
+
+        // lying in the case where it was thrown, and rising out of it in an arc
+        const spot = THROWN[i]
+        const rise = easeInOut(clamp01(u / N_RISE))
+        let x = lerp(bx + spot.x * k, cx, rise)
+        let y = lerp(by + spot.y * k, cy, rise) - Math.sin(rise * Math.PI) * 50
+        let rot = lerp(spot.r, N_TURN[i], rise)
+        // flicked off to the side, alternately left and right (the last one by the hand, to the left)
+        const fly = easeIn(i === last ? clamp01((wipe - FLICK_AT) / 0.3) : clamp01((u - N_FLICK) / (1 - N_FLICK)))
+        const dir = i === last || i % 2 === 0 ? -1 : 1
+        const flyX = dir * fly * (vw / 2 + w * fin + 120)
+        x += flyX
+        y += -Math.sin(fly * Math.PI) * 40 + fly * 30
+        rot += dir * fly * (40 + i * 6)
+        place(item, x, y + lift * (1 - rise), w, h, lerp(peek, fin, rise), rot)
+        // under the keys and glasses in the case, in front of everything once it lifts out
+        item.style.zIndex = rise > 0.04 ? 5 : 2
+        item.style.opacity = 1
+        if (rise > 0.9) item.classList.add('in')
+
+        // the note above it, written left to right, then an arrow down to the card
+        const left = cx - tw / 2
+        const top = cardTop - 40 - th - reach
+        const written = easeInOut(clamp01((u - N_WRITE[0]) / (N_WRITE[1] - N_WRITE[0])))
+        const drawn = clamp01((u - N_ARROW[0]) / (N_ARROW[1] - N_ARROW[0]))
+        const fade = clamp01(1 - fly * 4).toFixed(2)
+        note.style.translate = `${(left + flyX).toFixed(1)}px ${top.toFixed(1)}px`
+        note.style.opacity = fade
+        note.style.setProperty('--w', `${(written * 100).toFixed(1)}%`)
+        const bend = i % 2 ? 1 : -1
+        const start = { x: cx + bend * Math.min(30, tw * 0.2) + flyX, y: top + th + 4 }
+        const end = { x: cx + bend * w * fin * 0.16 + flyX, y: cardTop - 8 }
+        const ctrl = { x: (start.x + end.x) / 2 + bend * 30, y: (start.y + end.y) / 2 }
+        const ang = Math.atan2(end.y - ctrl.y, end.x - ctrl.x)
+        const tip = (d) => `${(end.x - 13 * Math.cos(ang + d)).toFixed(1)} ${(end.y - 13 * Math.sin(ang + d)).toFixed(1)}`
+        lines[i].setAttribute('d', `M${start.x.toFixed(1)} ${start.y.toFixed(1)}Q${ctrl.x.toFixed(1)} ${ctrl.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)}`)
+        heads[i].setAttribute('d', `M${tip(-0.5)}L${end.x.toFixed(1)} ${end.y.toFixed(1)}L${tip(0.5)}`)
+        lines[i].style.strokeDashoffset = (1 - drawn).toFixed(3)
+        heads[i].style.strokeDashoffset = (1 - clamp01((drawn - 0.85) / 0.15)).toFixed(3)
+        lines[i].style.opacity = fade
+        heads[i].style.opacity = fade
+
+        // the pen follows the words as they are written, then the arrow
+        if (u > N_WRITE[0] - 0.02 && u < N_ARROW[1] + 0.04) {
+          if (u < N_ARROW[0]) penAt = { x: left + tw * written + 3, y: top + th * 0.8 }
+          else {
+            const pt = lines[i].getPointAtLength(lines[i].getTotalLength() * drawn)
+            penAt = { x: pt.x, y: pt.y }
+          }
+        }
+      })
+      if (penAt) pen.style.translate = `${penAt.x.toFixed(1)}px ${penAt.y.toFixed(1)}px`
+      pen.style.opacity = penAt ? 1 : 0
+    }
+
+    // Long notes are shrunk to fit on one line across the screen
+    const layout = () => {
+      const max = view.clientWidth - 32
+      for (const note of notes) {
+        note.style.fontSize = ''
+        const tw = note.offsetWidth
+        if (tw > max) note.style.fontSize = `${(parseFloat(getComputedStyle(note).fontSize) * max) / tw}px`
+      }
+      update()
+    }
+
+    const onScroll = () => {
+      frame ||= requestAnimationFrame(update)
+    }
+
+    layout()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', layout)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', layout)
+      for (const el of [...parts, ...items, ...notes]) {
+        el.style.translate = ''
+        el.style.rotate = ''
+        el.style.scale = ''
+        el.style.zIndex = ''
+        el.style.opacity = ''
+        el.style.fontSize = ''
+      }
+    }
+  }, [scene, lang])
+
   // In the wallet scene the scroll drives each item; otherwise they tilt and reveal like other cards.
   const item = (kind, delay) =>
-    wide
+    scene
       ? { className: `item ${kind}` }
       : { className: `item ${kind} tilt reveal`, style: { '--d': `${delay}ms` } }
 
   return (
-    <section id="facts" className={`section wallet-section${wide ? ' pinned' : ''}`} aria-label={w.label}>
+    <section id="facts" className={`section wallet-section${scene ? ` pinned ${scene}` : ''}`} aria-label={w.label}>
       <div className="wallet-scroller" ref={scroller}>
         <div className="wallet-stage" ref={stage}>
-          {wide && (
+          {scene && (
             <>
               {/* The world the girl walks through: sky, sun, clouds and grass. The camera zooms into it. */}
-              <div className="world" aria-hidden="true">
-                <span className="sky" />
-                <span className="cloud-bank" />
-                {["l5", "l4", "l3", "l2", "l1"].map((layer) => (
-                  <span key={layer} className={`cloud-bank ${layer}`} />
-                ))}
-                <span className="sun" />
-                <span className="moon" />
-                {STARS.map((st, i) => (
-                  <span key={i} className="star" style={{ left: `${st.left}vw`, top: `${st.top}vh`, width: `${st.size}px`, '--delay': `${st.delay}s` }} />
-                ))}
-                {CLOUDS.map((c, i) => (
-                  <span key={i} className="cloud" style={{ top: `${c.top}vh`, left: `${c.left}vw`, scale: c.scale, opacity: c.o ?? 1, '--delay': `${-i * 2.3}s` }} />
-                ))}
-                <span className="ground" />
-                <Girl />
-                <span className="grass-front" />
-              </div>
+              {wide && (
+                <div className="world" aria-hidden="true">
+                  <span className="sky" />
+                  <span className="cloud-bank" />
+                  {["l5", "l4", "l3", "l2", "l1"].map((layer) => (
+                    <span key={layer} className={`cloud-bank ${layer}`} />
+                  ))}
+                  <span className="sun" />
+                  <span className="moon" />
+                  {STARS.map((st, i) => (
+                    <span key={i} className="star" style={{ left: `${st.left}vw`, top: `${st.top}vh`, width: `${st.size}px`, '--delay': `${st.delay}s` }} />
+                  ))}
+                  {CLOUDS.map((c, i) => (
+                    <span key={i} className="cloud" style={{ top: `${c.top}vh`, left: `${c.left}vw`, scale: c.scale, opacity: c.o ?? 1, '--delay': `${-i * 2.3}s` }} />
+                  ))}
+                  <span className="ground" />
+                  <Girl />
+                  <span className="grass-front" />
+                </div>
+              )}
               {/* The briefcase: closed (front view) and open (from above), each with a back layer behind the cards
                   and a front layer in front of them */}
               <span className="wallet-part wallet-back" ref={wallet} aria-hidden="true">
@@ -824,7 +1024,7 @@ export default function FactsWallet() {
           </ul>
 
           {/* After the briefcase has gone, a pen writes a note beside each card and draws an arrow to it */}
-          {wide && (
+          {scene && (
             <div className="notes" aria-hidden="true">
               <svg className="notes-svg">
                 {w.notes.map((_, i) => (
@@ -850,7 +1050,7 @@ export default function FactsWallet() {
           )}
 
           {/* The hand that shoos everything away at the end (nudge_hand.svg), reaching in from the top right */}
-          {wide && <img className="wipe-hand" src="/nudge_hand.svg" alt="" aria-hidden="true" draggable="false" />}
+          {scene && <img className="wipe-hand" src="/nudge_hand.svg" alt="" aria-hidden="true" draggable="false" />}
         </div>
       </div>
     </section>
