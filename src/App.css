@@ -525,11 +525,68 @@ main,
   --cord: 8px;
 }
 
+/* The logo never quite sits still: the charm sways on its cord, and the logo inside rocks and does a spin every
+   few seconds (hovering swaps both for the quick swing and wiggle) */
+.nav-logo:not(:hover) {
+  animation:
+    tab-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) backwards,
+    charm-sway 3.4s ease-in-out infinite alternate;
+}
+
 .nav-logo img {
   display: block;
   height: 30px;
   width: auto;
   transition: rotate 0.3s, scale 0.3s;
+  animation: logo-idle 6s ease-in-out infinite;
+}
+
+@keyframes charm-sway {
+  from {
+    rotate: -4deg;
+  }
+  to {
+    rotate: 4deg;
+  }
+}
+
+@keyframes logo-idle {
+  0%,
+  100% {
+    rotate: 0deg;
+    scale: 1;
+  }
+  18% {
+    rotate: -9deg;
+  }
+  36% {
+    rotate: 9deg;
+  }
+  52% {
+    rotate: -4deg;
+  }
+  64% {
+    rotate: 0deg;
+    scale: 1;
+  }
+  74% {
+    rotate: 0deg;
+    scale: 1.15;
+  }
+  90% {
+    rotate: 360deg;
+    scale: 1;
+  }
+  99.99% {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-logo:not(:hover),
+  .nav-logo img {
+    animation: none;
+  }
 }
 
 .nav-prefs {
@@ -653,7 +710,7 @@ main,
   left: 3px;
   width: calc(50% - 3px);
   border-radius: 999px;
-  --lit: var(--blue);
+  --lit: var(--ink);
   translate: calc(var(--at) * 100%) 0;
   transition: translate 0.38s cubic-bezier(0.32, 1.28, 0.5, 1), scale 0.2s ease;
 }
@@ -839,8 +896,8 @@ button.nav-link {
     pointer-events: none;
   }
 
-  /* A plate: white with a dark outline (the other tabs already have the colours), and a round icon that fills
-     with the Projects blue for the page you're on and on hover */
+  /* A plate: white with a dark outline (the other tabs already have the colours), and a round black icon that
+     fills with the Projects blue for the page you're on and on hover */
   .nav-drop-item {
     --lit: var(--ivory);
     position: relative;
@@ -873,7 +930,7 @@ button.nav-link {
     border: 2px solid var(--ink);
     border-radius: 50%;
     background: var(--ivory);
-    color: var(--blue);
+    color: var(--ink);
     transition: background 0.2s, color 0.2s, rotate 0.3s cubic-bezier(0.3, 1.8, 0.5, 1);
   }
 
