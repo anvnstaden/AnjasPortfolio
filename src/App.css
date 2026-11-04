@@ -3735,9 +3735,9 @@ button.nav-link {
   }
 }
 
-/* On phones the sticker moves from beside the title to after the featured cards, smaller, with the pen line
-   pointing at it, so the first project shows straight away */
-.more-end {
+/* On phones the sticker beside the title gives way to the rest of the projects after the featured cards: a blue
+   button with the count, and three little project cards peeking out of its top that fan up on hover or press */
+.more-deck {
   display: none;
 }
 
@@ -3750,35 +3750,142 @@ button.nav-link {
     margin-bottom: 40px;
   }
 
-  /* (.more-link on its own lines things up to the left on smaller screens, further down) */
-  .more-link.more-end {
+  .more-deck {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
     margin-top: 44px;
+    color: inherit;
+    text-decoration: none;
   }
 
-  .more-end .pen {
+  .more-deck .pen {
+    margin-bottom: 46px;
+    font-size: 1.35rem;
+    color: var(--plum-soft);
+    text-align: center;
+    rotate: -3deg;
+  }
+
+  .deck {
+    position: relative;
+    isolation: isolate;
+    display: block;
+    transition: translate 0.35s cubic-bezier(0.3, 1.8, 0.5, 1), rotate 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
+    rotate: -2deg;
+  }
+
+  .deck-sheet {
+    position: absolute;
+    z-index: -1;
+    top: -20px;
+    width: 58px;
+    height: 46px;
+    border: 2px solid var(--plum);
+    border-radius: 8px;
+    background: var(--cream-deep);
+    transition: translate 0.4s cubic-bezier(0.3, 1.8, 0.5, 1), rotate 0.4s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+
+  /* a heading line and a picture block on each little card */
+  .deck-sheet::before {
+    content: '';
+    position: absolute;
+    inset: 6px 8px auto;
+    height: 14px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--plum) 22%, transparent);
+  }
+
+  .deck-sheet:nth-child(1) {
+    left: 16%;
+    background: var(--pink);
+    rotate: -12deg;
+  }
+
+  .deck-sheet:nth-child(2) {
+    left: calc(50% - 29px);
+    top: -26px;
+    background: var(--butter);
+    rotate: 3deg;
+  }
+
+  .deck-sheet:nth-child(3) {
+    right: 16%;
+    rotate: 14deg;
+  }
+
+  .more-deck:is(:hover, :active, :focus-visible) .deck {
+    translate: 0 -3px;
+    rotate: 1deg;
+  }
+
+  .more-deck:is(:hover, :active, :focus-visible) .deck-sheet:nth-child(1) {
+    translate: -10px -8px;
+    rotate: -22deg;
+  }
+
+  .more-deck:is(:hover, :active, :focus-visible) .deck-sheet:nth-child(2) {
+    translate: 0 -10px;
+    rotate: -2deg;
+  }
+
+  .more-deck:is(:hover, :active, :focus-visible) .deck-sheet:nth-child(3) {
+    translate: 10px -8px;
+    rotate: 24deg;
+  }
+
+  .deck-front {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 1.35rem;
-    /* a longer line (in German) wraps, staying up against its arrow */
-    min-width: 0;
-    text-align: right;
+    gap: 12px;
+    padding: 6px 6px 6px 8px;
+    border: 2.5px solid var(--plum);
+    border-radius: 999px;
+    background: var(--blue);
+    color: var(--ivory);
+    font-size: 1.1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 4px 4px 0 var(--plum);
   }
 
-  .more-end .pen .nav-arrow.inline {
-    width: 1.6rem;
-    height: 1.6rem;
+  .deck-count {
+    display: grid;
+    place-items: center;
+    min-width: 44px;
+    height: 44px;
+    padding-inline: 6px;
+    border: 2px solid var(--plum);
+    border-radius: 999px;
+    background: var(--butter);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-weight: 800;
   }
 
-  /* the same sticker, shrunk as a whole so everything in it keeps its proportions */
-  .more-end .more-stamp {
+  .deck-front .card-more-arrow {
     flex: none;
-    zoom: 0.64;
+    width: 44px;
+    height: 44px;
+    background: var(--pink);
+  }
+
+  .deck-front .card-more-arrow .nav-arrow.inline {
+    width: 28px;
+    height: 28px;
+  }
+
+  .more-deck:hover .card-more-arrow .nav-arrow {
+    animation: arrow-zip 0.6s cubic-bezier(0.5, 0, 0.3, 1);
+  }
+}
+
+@media (max-width: 700px) and (prefers-reduced-motion: reduce) {
+  .deck,
+  .deck-sheet {
+    transition: none;
   }
 }
 
@@ -4719,14 +4826,15 @@ button.nav-link {
   right: calc(var(--u) * 250px);
 }
 
-/* The phone's status bar and the tab bar's short names only show on phones (below) */
+/* The phone's status bar, the tab bar's short names and the hand holding the phone only show on phones (below) */
 .screen-phonebar,
-.side-short {
+.side-short,
+.hold-hand {
   display: none;
 }
 
-/* On phones the monitor is a phone standing in a stand, its tall screen matching the one it's seen on: a status
-   bar with the camera island along the top, the skills, and the groups as an app's tab bar along the bottom.
+/* On phones the monitor is a phone held up in a hand (no desk), its tall screen matching the one it's seen on: a
+   status bar with the camera island along the top, the skills, and the groups as an app's tab bar along the bottom.
    Tapping a skill slides up a card above the tab bar with where I used it. The phone is drawn no wider than the
    screen it's seen on, so zooming in on it only ever scales it down and the text stays sharp. */
 @media (max-width: 760px) {
@@ -4908,17 +5016,42 @@ button.nav-link {
     cursor: pointer;
   }
 
-  /* the stand: its back leg below the phone, and its base on the desk */
-  .monitor-neck {
-    width: 90px;
-    height: 30px;
-    clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%);
+  /* No desk or decorations: just the phone in the hand */
+  .desk-wall,
+  .desk-furniture,
+  .monitor-neck,
+  .monitor-foot {
+    display: none;
   }
 
-  .monitor-foot {
-    width: 230px;
-    height: 16px;
-    border-radius: 10px 10px 3px 3px;
+  .monitor {
+    transform-origin: 50% 100%;
+  }
+
+  .monitor-bezel {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* holding_hand.webp sits behind the phone, so only its curled fingertips (left), thumb (right) and palm and
+     wrist (below) show past the edges. It's placed by the middle of its palm (33%, 40% of the picture, --px/--py
+     from the phone's top left) and turned so the fingers point up */
+  .hold-hand {
+    --hw: 1150px;
+    --px: 170px;
+    --py: 720px;
+    position: absolute;
+    display: block;
+    z-index: 0;
+    top: calc(var(--py) - 0.4 * var(--hw));
+    left: calc(var(--px) - 0.3333 * var(--hw));
+    width: var(--hw);
+    max-width: none;
+    height: auto;
+    transform-origin: 33.33% 40%;
+    rotate: var(--hr, 35deg);
+    pointer-events: none;
+    user-select: none;
   }
 }
 

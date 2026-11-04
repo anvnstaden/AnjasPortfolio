@@ -26,7 +26,7 @@ const skillColors = [
   ['#9a7cf0', '#fff'],
 ]
 
-// On phones the monitor is drawn as a phone in a stand instead, with the groups as an app's tab bar along the
+// On phones the monitor is drawn as a phone held up in a hand instead, with the groups as an app's tab bar along the
 // bottom. A tap picks a skill and slides up a card with where I used it (and a link to those projects); tapping it
 // again opens them.
 const PHONE = '(max-width: 760px)'
@@ -40,6 +40,21 @@ function usePhone() {
     return () => mq.removeEventListener('change', onChange)
   }, [])
   return phone
+}
+
+// The phone's status bar clock: the visitor's own time, ticking over on the minute
+function PhoneClock() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    let timer
+    const tick = () => {
+      setNow(new Date())
+      timer = setTimeout(tick, 60000 - (Date.now() % 60000))
+    }
+    timer = setTimeout(tick, 60000 - (Date.now() % 60000))
+    return () => clearTimeout(timer)
+  }, [])
+  return <span>{now.getHours()}:{String(now.getMinutes()).padStart(2, '0')}</span>
 }
 
 // Scrolling through the section is a camera move: it starts on the whole desk, pushes in until the
@@ -65,6 +80,25 @@ function useDeskZoom() {
       const range = rect.height - area.offsetHeight
       const t = Math.min(1, Math.max(0, -rect.top / range))
       const k = still ? 1 : smooth(Math.min(1, t / ZOOM_IN)) * smooth(Math.min(1, (1 - t) / (1 - ZOOM_OUT)))
+      area.style.setProperty('--title', String(1 - Math.min(1, k * 2.2)))
+      // the screen's own animations only play once the camera has pushed all the way in
+      el.classList.toggle('zoomed', k > 0.95)
+      // On phones there's no desk: the hand brings the phone up from below the screen, tipping it upright as it
+      // comes, holds it while you use it, and lowers it again. The title stays up, with the phone fitted below it
+      if (matchMedia(PHONE).matches) {
+        area.style.setProperty('--title', '1')
+        const title = area.querySelector('.desk-title')
+        const top = title.offsetTop + title.firstElementChild.offsetTop + title.firstElementChild.offsetHeight + 28
+        const scale = Math.min((area.offsetWidth * 0.75) / box.offsetWidth, (area.offsetHeight - top - 20) / box.offsetHeight)
+        const fx = el.offsetWidth / 2
+        const x = area.offsetWidth * 0.5 - el.offsetLeft - scale * fx
+        const y = top - el.offsetTop - scale * box.offsetTop + (1 - k) * area.offsetHeight * 0.9
+        el.style.transformOrigin = '0 0'
+        el.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
+        box.style.rotate = `${((1 - k) * -14).toFixed(2)}deg`
+        return
+      }
+      box.style.rotate = ''
       // Scale that shows the whole desk, and the scale that fits the monitor in the view
       const out = Math.min((area.offsetWidth * 0.94) / el.offsetWidth, (area.offsetHeight * 0.86) / el.offsetHeight)
       const fit = Math.min((area.offsetWidth * 0.94) / box.offsetWidth, (area.offsetHeight * 0.78) / box.offsetHeight)
@@ -76,9 +110,6 @@ function useDeskZoom() {
       const y = area.offsetHeight / 2 + 32 * k - el.offsetTop - scale * fy
       el.style.transformOrigin = '0 0'
       el.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
-      area.style.setProperty('--title', String(1 - Math.min(1, k * 2.2)))
-      // the screen's own animations only play once the camera has pushed all the way in
-      el.classList.toggle('zoomed', k > 0.95)
     }
     const queue = () => {
       if (!frame) frame = requestAnimationFrame(update)
@@ -253,11 +284,13 @@ function SkillsDesk() {
       </div>
 
       <div className="monitor" ref={monitor}>
+        {/* On phones a hand holds the phone up from behind, its fingertips and thumb showing past the edges */}
+        <img className="hold-hand" src="/holding_hand.webp" alt="" aria-hidden="true" loading="lazy" draggable="false" />
         <div className="monitor-bezel">
           <div className="screen" style={{ '--c': skillColors[open % skillColors.length][0], '--on': skillColors[open % skillColors.length][1] }}>
             {/* the phone's status bar, with its camera island (phones only) */}
             <div className="screen-phonebar" aria-hidden="true">
-              <span>9:41</span>
+              <PhoneClock />
               <i />
               <span>5G ▮▮▮</span>
             </div>
@@ -1031,17 +1064,17 @@ export default function Home() {
   const envelope = useRef(null)
   const toggleEnvelope = useEnvelope(envelope)
 
-  // The "all projects" sticker. It sits beside the title, except on phones, where it comes after the featured
-  // cards (once you've seen three and want the rest) instead of pushing them down the screen.
-  const moreLink = (where) => (
-    <Link to="/projects" className={`more-link more-${where} reveal`} aria-label={t.work.seeAll(projects.length)}>
-      <span className="pen write" aria-hidden="true">{t.work.more}{where === 'end' && <NavArrow inline pen />}</span>
+  // The "all projects" sticker beside the title. On phones it's hidden, and the rest of the projects come after
+  // the featured cards instead, as a deck of cards (once you've seen three and want the rest).
+  const moreLink = (
+    <Link to="/projects" className="more-link more-top reveal" aria-label={t.work.seeAll(projects.length)}>
+      <span className="pen write" aria-hidden="true">{t.work.more}</span>
       {/* A round sticker: the text spins around the rim, the count and an arrow sit in the middle */}
       <span className="more-stamp" aria-hidden="true">
         <svg className="more-ring" viewBox="0 0 120 120">
-          <path id={`more-ring-path-${where}`} d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none" />
+          <path id="more-ring-path" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none" />
           <text>
-            <textPath href={`#more-ring-path-${where}`} textLength="282" lengthAdjust="spacing">
+            <textPath href="#more-ring-path" textLength="282" lengthAdjust="spacing">
               {t.work.ring}
             </textPath>
           </text>
@@ -1080,7 +1113,7 @@ export default function Home() {
       <section id="work" className="section slide-section from-left">
         <div className="section-head">
           <Title text={t.work.title} />
-          {moreLink('top')}
+          {moreLink}
         </div>
         <div className="featured">
           {featured.map((p, i) => (
@@ -1105,7 +1138,20 @@ export default function Home() {
             </Link>
           ))}
         </div>
-        {moreLink('end')}
+        {/* (phones only) a button with the rest of the projects as little cards peeking out of its top */}
+        <Link to="/projects" className="more-deck reveal" aria-label={t.work.seeAll(projects.length)}>
+          <span className="pen write" aria-hidden="true">{t.work.more}</span>
+          <span className="deck" aria-hidden="true">
+            <span className="deck-sheet" />
+            <span className="deck-sheet" />
+            <span className="deck-sheet" />
+            <span className="deck-front">
+              <b className="deck-count">+{projects.length - featured.length}</b>
+              {t.work.deck}
+              <span className="card-more-arrow"><NavArrow inline /></span>
+            </span>
+          </span>
+        </Link>
       </section>
 
       <section id="skills" className="skills-section">
