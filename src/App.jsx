@@ -310,7 +310,19 @@ function App() {
       <div className="progress" aria-hidden="true" />
       <PenCursor />
       <header ref={header} className={`nav${scrolled ? ' scrolled' : ''}${hidden && !menuOpen ? ' hidden' : ''}${menuOpen ? ' open' : ''}`}>
-        <Link to="/" className="nav-charm nav-logo" aria-label={t.nav.home}>
+        {/* Already on the home page, the link wouldn't change the address (so nothing would scroll): go to the top */}
+        <Link
+          to="/"
+          className="nav-charm nav-logo"
+          aria-label={t.nav.home}
+          onClick={(e) => {
+            setMenuOpen(false)
+            if (location.pathname === '/' && !location.hash) {
+              e.preventDefault()
+              window.scrollTo({ top: 0 })
+            }
+          }}
+        >
           <span className="charm-knob"><img src="/favicon.svg" alt="" /></span>
         </Link>
         <nav id="site-menu" onClick={(e) => e.target.closest('a') && setMenuOpen(false)}>
