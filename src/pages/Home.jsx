@@ -26,6 +26,22 @@ const skillColors = [
   ['#9a7cf0', '#fff'],
 ]
 
+// On phones the monitor is drawn as a phone in a stand instead, with the groups as an app's tab bar along the
+// bottom. A tap picks a skill and slides up a card with where I used it (and a link to those projects); tapping it
+// again opens them.
+const PHONE = '(max-width: 760px)'
+
+function usePhone() {
+  const [phone, setPhone] = useState(() => matchMedia(PHONE).matches)
+  useEffect(() => {
+    const mq = matchMedia(PHONE)
+    const onChange = () => setPhone(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return phone
+}
+
 // Scrolling through the section is a camera move: it starts on the whole desk, pushes in until the
 // monitor fills the screen (and holds there so the skills can be used), then pulls back out again.
 const ZOOM_IN = 0.28
@@ -179,6 +195,39 @@ function SkillsDesk() {
   const [active, setActive] = useState(null)
   const [group, items] = groups[open]
   const used = active && skillProjects[active]
+  const phone = usePhone()
+  // With a mouse or the keyboard, pointing at a skill shows where I used it; on a phone the first tap does
+  const point = (s) => (phone ? {} : {
+    onMouseEnter: () => setActive(s),
+    onMouseLeave: () => setActive(null),
+    onFocus: () => setActive(s),
+    onBlur: () => setActive(null),
+  })
+  const status = (
+    <p className={`screen-status${used ? ' on' : ''}`} aria-live="polite">
+      {used ? (
+        <>
+          <strong>{content.skillName(active)}</strong>{` ${t.skills.in} `}
+          {used.length === content.projects.length ? t.skills.all : listOf(used.map(projectTitle), t.skills.and)}
+          {phone && (
+            <>
+              <Link className="status-see" to={`/projects?skill=${encodeURIComponent(active)}`}>
+                {t.skills.see} <NavArrow inline />
+              </Link>
+              <button type="button" className="status-close" aria-label={t.skills.close} onClick={() => setActive(null)}>×</button>
+            </>
+          )}
+        </>
+      ) : phone ? (
+        t.skills.tap
+      ) : (
+        <>
+          <span className="hover-only">{t.skills.hover}</span>
+          <span className="touch-only">{t.skills.tap}</span>
+        </>
+      )}
+    </p>
+  )
   return (
     <div className="desk-pin" ref={pin}>
       <div className="desk-stage" ref={stage}>
@@ -206,6 +255,12 @@ function SkillsDesk() {
       <div className="monitor" ref={monitor}>
         <div className="monitor-bezel">
           <div className="screen" style={{ '--c': skillColors[open % skillColors.length][0], '--on': skillColors[open % skillColors.length][1] }}>
+            {/* the phone's status bar, with its camera island (phones only) */}
+            <div className="screen-phonebar" aria-hidden="true">
+              <span>9:41</span>
+              <i />
+              <span>5G ▮▮▮</span>
+            </div>
             <div className="screen-window">
             <div className="screen-bar">
               <span className="dots" aria-hidden="true"><i /><i /><i /></span>
@@ -227,6 +282,7 @@ function SkillsDesk() {
                   >
                     <span className="side-icon" aria-hidden="true">{skillIcons[k % skillIcons.length]}</span>
                     <span className="side-name">{content.groupName(name)}</span>
+                    <span className="side-short">{t.skills.short[k]}</span>
                   </button>
                 ))}
               </nav>
@@ -235,14 +291,21 @@ function SkillsDesk() {
                 <h3>{content.groupName(group)}</h3>
                 <ul>
                   {items.map((s, k) => (
-                    <li key={s} className={skillProjects[s] ? 'linked' : undefined} style={{ '--k': k }}>
+                    <li
+                      key={s}
+                      className={[skillProjects[s] && 'linked', phone && active === s && 'picked'].filter(Boolean).join(' ') || undefined}
+                      style={{ '--k': k }}
+                    >
                       {skillProjects[s] ? (
                         <Link
                           to={`/projects?skill=${encodeURIComponent(s)}`}
-                          onMouseEnter={() => setActive(s)}
-                          onMouseLeave={() => setActive(null)}
-                          onFocus={() => setActive(s)}
-                          onBlur={() => setActive(null)}
+                          {...point(s)}
+                          onClick={(e) => {
+                            if (phone && active !== s) {
+                              e.preventDefault()
+                              setActive(s)
+                            }
+                          }}
                         >
                           {content.skillName(s)}
                         </Link>
@@ -252,22 +315,11 @@ function SkillsDesk() {
                     </li>
                   ))}
                 </ul>
+                {phone && status}
               </div>
             </div>
             </div>
-            <p className={`screen-status${used ? ' on' : ''}`} aria-live="polite">
-              {used ? (
-                <>
-                  <strong>{content.skillName(active)}</strong>{` ${t.skills.in} `}
-                  {used.length === content.projects.length ? t.skills.all : listOf(used.map(projectTitle), t.skills.and)}
-                </>
-              ) : (
-                <>
-                  <span className="hover-only">{t.skills.hover}</span>
-                  <span className="touch-only">{t.skills.tap}</span>
-                </>
-              )}
-            </p>
+            {!phone && status}
           </div>
         </div>
         <div className="monitor-neck" aria-hidden="true" />
@@ -979,6 +1031,30 @@ export default function Home() {
   const envelope = useRef(null)
   const toggleEnvelope = useEnvelope(envelope)
 
+  // The "all projects" sticker. It sits beside the title, except on phones, where it comes after the featured
+  // cards (once you've seen three and want the rest) instead of pushing them down the screen.
+  const moreLink = (where) => (
+    <Link to="/projects" className={`more-link more-${where} reveal`} aria-label={t.work.seeAll(projects.length)}>
+      <span className="pen write" aria-hidden="true">{t.work.more}{where === 'end' && <NavArrow inline pen />}</span>
+      {/* A round sticker: the text spins around the rim, the count and an arrow sit in the middle */}
+      <span className="more-stamp" aria-hidden="true">
+        <svg className="more-ring" viewBox="0 0 120 120">
+          <path id={`more-ring-path-${where}`} d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none" />
+          <text>
+            <textPath href={`#more-ring-path-${where}`} textLength="282" lengthAdjust="spacing">
+              {t.work.ring}
+            </textPath>
+          </text>
+        </svg>
+        <span className="more-core">
+          <strong>{projects.length}</strong>
+          <small>{t.work.projects}</small>
+          <NavArrow inline />
+        </span>
+      </span>
+    </Link>
+  )
+
   return (
     <main>
       <Hero />
@@ -1004,25 +1080,7 @@ export default function Home() {
       <section id="work" className="section slide-section from-left">
         <div className="section-head">
           <Title text={t.work.title} />
-          <Link to="/projects" className="more-link reveal" aria-label={t.work.seeAll(projects.length)}>
-            <span className="pen write" aria-hidden="true">{t.work.more}</span>
-            {/* A round sticker: the text spins around the rim, the count and an arrow sit in the middle */}
-            <span className="more-stamp" aria-hidden="true">
-              <svg className="more-ring" viewBox="0 0 120 120">
-                <path id="more-ring-path" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none" />
-                <text>
-                  <textPath href="#more-ring-path" textLength="282" lengthAdjust="spacing">
-                    {t.work.ring}
-                  </textPath>
-                </text>
-              </svg>
-              <span className="more-core">
-                <strong>{projects.length}</strong>
-                <small>{t.work.projects}</small>
-                <NavArrow inline />
-              </span>
-            </span>
-          </Link>
+          {moreLink('top')}
         </div>
         <div className="featured">
           {featured.map((p, i) => (
@@ -1047,6 +1105,7 @@ export default function Home() {
             </Link>
           ))}
         </div>
+        {moreLink('end')}
       </section>
 
       <section id="skills" className="skills-section">

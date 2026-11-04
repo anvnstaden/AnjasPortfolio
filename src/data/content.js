@@ -413,9 +413,5 @@ export const journey = [
     title: 'Next stop: Germany',
     note: 'bis bald!',
     text: "Next up is Germany! I have Dutch citizenship, so I can work in the EU without a visa, and I'm learning German so I'm ready to start working there in 2027.",
-    stats: [
-      { value: '2027', label: 'ready to start' },
-      { value: 'EU', label: 'no visa needed' },
-    ],
   },
 ]

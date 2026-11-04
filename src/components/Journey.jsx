@@ -159,14 +159,16 @@ export default function Journey() {
                           {stop.note && <span className="pen stop-note write">{stop.note}</span>}
                         </h3>
                         <p className="stop-text">{stop.text}</p>
-                        <ul className="stop-stats">
-                          {stop.stats.map((s) => (
-                            <li key={s.label}>
-                              <strong lang={s.lang}>{s.value}</strong>
-                              <span>{s.label}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        {stop.stats && (
+                          <ul className="stop-stats">
+                            {stop.stats.map((s) => (
+                              <li key={s.label}>
+                                <strong lang={s.lang}>{s.value}</strong>
+                                <span>{s.label}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                         {stop.footnote && <p className="stop-footnote">{stop.footnote}</p>}
                         {stop.link && (
                           <Link to={stop.link.to} className="button primary tap stop-link">{stop.link.label} <NavArrow inline /></Link>

@@ -272,9 +272,5 @@ export const journeyDe = [
     place: 'Deutschland',
     title: 'Nächster Halt: Deutschland',
     text: 'Als Nächstes geht es nach Deutschland! Ich habe die niederländische Staatsbürgerschaft, kann also ohne Visum in der EU arbeiten, und ich lerne Deutsch, damit ich 2027 dort loslegen kann.',
-    stats: [
-      { value: '2027', label: 'bereit zum Start' },
-      { value: 'EU', label: 'kein Visum nötig' },
-    ],
   },
 ]

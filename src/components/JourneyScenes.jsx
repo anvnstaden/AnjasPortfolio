@@ -151,10 +151,10 @@ export function MosselBay() {
       <Sprout d={900}>
         <rect x="24" y="204" width="152" height="44" fill={ivory} />
         <rect x="20" y="198" width="160" height="7" fill={ink} />
-        <rect x="74" y="176" width="52" height="72" fill={butter} />
-        <rect x="70" y="171" width="60" height="6" fill={ink} />
+        <rect x="67" y="176" width="66" height="72" fill={butter} />
+        <rect x="63" y="171" width="74" height="6" fill={ink} />
         <text x="100" y="192" textAnchor="middle" className="scene-label" stroke="none" fill={ink}>POINT HIGH</text>
-        {[34, 50, 136, 152].map((x) => (
+        {[34, 50, 140, 156].map((x) => (
           <g key={x}>
             <rect x={x} y="212" width="10" height="11" fill={blue} strokeWidth="2" />
             <rect x={x} y="230" width="10" height="11" fill={blue} strokeWidth="2" />
@@ -280,7 +280,9 @@ export function Europe() {
         </linearGradient>
       </defs>
       <rect width="480" height="300" fill="url(#sky-eu)" stroke="none" />
-      <path d="M58 30A22 22 0 1 0 84 66A18 18 0 1 1 58 30Z" fill={butter} />
+      {/* a crescent moon with a soft glow: what's left of one circle with another bitten out of it */}
+      <circle cx="64" cy="46" r="31" fill={butter} opacity="0.18" stroke="none" />
+      <path d="M63 26A20 20 0 1 0 82.4 53.8A17 17 0 0 1 63 26Z" fill={butter} />
       <Sparkle x={140} y={30} />
       <Sparkle x={250} y={22} s={0.7} />
       <Sparkle x={330} y={56} s={0.9} />

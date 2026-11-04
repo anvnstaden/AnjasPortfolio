@@ -69,6 +69,10 @@ export const strings = {
       and: 'and',
       hover: 'hover a skill to see where I used it',
       tap: 'tap a skill to see where I used it',
+      // the skill groups' names in the phone's tab bar, in the same order as the groups
+      short: ['Design', 'Web', 'Code', 'Data', 'Tools'],
+      see: 'See the projects',
+      close: 'Close',
     },
     contact: {
       title: "Let's Talk",
@@ -265,6 +269,9 @@ export const strings = {
       and: 'und',
       hover: 'fahre über einen Skill, um zu sehen, wo ich ihn genutzt habe',
       tap: 'tippe auf einen Skill, um zu sehen, wo ich ihn genutzt habe',
+      short: ['Design', 'Web', 'Code', 'Daten', 'Tools'],
+      see: 'Projekte ansehen',
+      close: 'Schließen',
     },
     contact: {
       title: 'Lass uns reden',
