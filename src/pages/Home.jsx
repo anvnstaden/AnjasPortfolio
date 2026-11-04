@@ -772,7 +772,7 @@ function IdBadge() {
                 {photoMissing ? (
                   <span className="monogram">AvS</span>
                 ) : (
-                  <img src="/profile.jpeg" alt="Anja van Staden" draggable="false" onError={() => setPhotoMissing(true)} />
+                  <img src="/profile.webp" alt="Anja van Staden" draggable="false" onError={() => setPhotoMissing(true)} />
                 )}
               </div>
               <span className="badge-sticker" aria-hidden="true"><img src="/favicon.svg" alt="" /></span>

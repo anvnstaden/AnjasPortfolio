@@ -942,7 +942,7 @@ export default function FactsWallet() {
                   </span>
                 </span>
                 <span className="permit-body">
-                  <img className="permit-photo" src="/profile.jpeg" alt="" />
+                  <img className="permit-photo" src="/profile.webp" alt="" />
                   <span className="permit-fields">
                     <span><small>{w.permit.name}</small>Anja van Staden</span>
                     <span><small>{w.permit.nationality}</small>{w.permit.nationalityValue}</span>
