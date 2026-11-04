@@ -793,6 +793,11 @@ button.nav-link {
   transition: opacity 0.15s;
 }
 
+/* only the phone menu uses the fold (to open and shut the sign) */
+.nav-fold {
+  display: contents;
+}
+
 .nav-plate-icon svg {
   display: block;
   fill: none;
@@ -1119,12 +1124,13 @@ button.nav-link {
     transition: opacity 0.1s;
   }
 
-  /* A tag (or the sign), hanging from the string above it and turned a little about where that string is tied */
+  /* A tag (or the sign), hanging on the string by its eyelet and turned a little about it, so however it's turned or
+     swinging, the string always runs straight through the eyelet */
   #site-menu > * {
     --tip: 0deg;
     position: relative;
     width: min(var(--wide), 340px);
-    transform-origin: 50% calc(var(--string) * -1);
+    transform-origin: 50% 11px;
     rotate: var(--tip);
     pointer-events: auto;
   }
@@ -1136,7 +1142,6 @@ button.nav-link {
 
   #site-menu > :nth-child(2) {
     --wide: 78%;
-    --tip: 1deg;
   }
 
   #site-menu > :nth-child(3) {
@@ -1184,24 +1189,33 @@ button.nav-link {
     }
   }
 
-  /* the string, from the tag up to the one above it (the first one's runs all the way up to the rail) */
-  #site-menu > ::before {
+  /* The string: one line from the rail at the top, behind every tag and plate, down to the last tag (ending behind
+     it). It unrolls as the menu opens. */
+  #site-menu::before {
     content: '';
     position: absolute;
-    bottom: calc(100% - 13px);
+    top: 0;
+    bottom: 24px;
     left: 50%;
     width: 2px;
-    height: calc(var(--string) + 13px);
     margin-left: -1px;
     background: var(--plum);
+    transform-origin: top;
     pointer-events: none;
   }
 
-  #site-menu > :first-child::before {
-    height: 97px;
+  .nav.open #site-menu::before {
+    animation: string-unroll 0.5s ease-out backwards;
   }
 
-  #site-menu > :is(.nav-link, .nav-cta) {
+  @keyframes string-unroll {
+    from {
+      scale: 1 0;
+    }
+  }
+
+  #site-menu > :is(.nav-link, .nav-cta),
+  #site-menu > .nav-drop > .nav-link {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1214,7 +1228,8 @@ button.nav-link {
   }
 
   /* the eyelet the string is tied through */
-  #site-menu > :is(.nav-link, .nav-cta)::after {
+  #site-menu > :is(.nav-link, .nav-cta)::after,
+  #site-menu > .nav-drop > .nav-link::after {
     content: '';
     position: absolute;
     top: 6px;
@@ -1263,41 +1278,97 @@ button.nav-link {
     --ring: var(--blue);
   }
 
-  /* The sign: no button to open it, just the two plates on one string */
-  button.nav-link {
+  /* Projects is a tag like the others. Tapping it drops the sign down underneath it on its string: two plates, which
+     fall in one after the other, bounce and settle. */
+  #site-menu > .nav-drop {
+    flex-direction: column;
+  }
+
+  #site-menu > .nav-drop > .nav-link {
+    --ring: var(--butter);
+    --tip: 1deg;
+    transform-origin: 50% 11px;
+    rotate: var(--tip);
+    animation: none;
+  }
+
+  /* once the sign's down, the ring is on the plate for the page you're on instead */
+  .nav-drop.open > .nav-link .nav-ring {
     display: none;
   }
 
   .nav-drop-menu {
     position: static;
+    display: grid;
+    grid-template-rows: 0fr;
     width: 100%;
-    visibility: inherit;
+    visibility: hidden;
     opacity: 1;
-    transition: none;
+    transition: grid-template-rows 0.3s cubic-bezier(0.3, 0.8, 0.3, 1), visibility 0s 0.3s;
+  }
+
+  .nav-drop.open .nav-drop-menu {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    transition: grid-template-rows 0.4s cubic-bezier(0.3, 0.8, 0.3, 1);
+  }
+
+  /* clips the sign while it's folded away; the sign's own padding is inside it, so folded it takes no room at all */
+  .nav-fold {
+    display: block;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .nav-sign {
     position: relative;
     display: grid;
     gap: 12px;
+    /* room for the string down from the tag, and for the tilted plates' corners */
+    padding: 18px 4px 6px;
   }
 
-  /* the string carries on down behind the first plate to the second */
-  .nav-sign::before {
+  .nav-drop.open .nav-drop-item {
+    animation: plate-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+  }
+
+  .nav-drop.open .nav-drop-item:nth-child(2) {
+    animation-delay: 90ms;
+  }
+
+  @keyframes plate-drop {
+    from {
+      translate: 0 -46px;
+      opacity: 0;
+    }
+  }
+
+  /* the eyelet each plate hangs from, like the tags', on the string (the middle of the sign, not of the plate, which
+     leaves room for its point on one side) */
+  .nav-drop-item::after {
     content: '';
     position: absolute;
-    top: 0;
-    bottom: 50%;
-    left: 50%;
-    width: 2px;
-    margin-left: -1px;
-    background: var(--plum);
+    top: 5px;
+    left: calc(50% + 12px);
+    width: 9px;
+    height: 9px;
+    margin-left: -4.5px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--cream);
+  }
+
+  /* just the names and arrows on the plates here, no icons */
+  .nav-plate-icon {
+    display: none;
   }
 
   /* A plate: a rectangle with a pointed end. The point is a square turned on its corner, sitting on the plate's end
-     with its rounded tip sticking out, the same height as the plate from corner to corner. */
+     with its rounded tip sticking out, the same height as the plate from corner to corner. They're white with a dark
+     outline, like the desktop sign, so they don't look like more tags. */
   .nav-drop-item {
-    --lit: var(--blue);
+    --lit: var(--ivory);
+    --ring: var(--blue);
     position: relative;
     display: flex;
     align-items: center;
@@ -1305,12 +1376,12 @@ button.nav-link {
     gap: 20px;
     min-height: 0;
     margin-right: 24px;
-    padding: 14px 8px 14px 18px;
-    border: 2px solid var(--plum);
+    padding: 18px 8px 12px 18px;
+    border: 2px solid var(--ink);
     border-right: 0;
     border-radius: 10px 0 0 10px;
     box-shadow: none;
-    color: var(--ivory);
+    color: var(--ink);
     font-size: 1.05rem;
     font-weight: 700;
     text-decoration: none;
@@ -1325,7 +1396,7 @@ button.nav-link {
     left: 100%;
     height: calc((100% + 4px) * 0.7071);
     aspect-ratio: 1;
-    border: 2px solid var(--plum);
+    border: 2px solid var(--ink);
     border-bottom: 0;
     border-left: 0;
     border-top-right-radius: 7px;
@@ -1343,24 +1414,27 @@ button.nav-link {
     position: relative;
   }
 
-  /* the first plate points right, the second left, like the arms of a signpost */
-  .nav-drop-item:first-child {
-    rotate: -2deg;
+  /* the first plate points right, the second left, like the arms of a signpost, each turned a little about its eyelet */
+  .nav-drop-item {
+    --tip: -2deg;
+    transform-origin: calc(50% + 12px) 10px;
+    rotate: var(--tip);
   }
 
   .nav-drop-item:nth-child(2) {
     flex-direction: row-reverse;
     margin: 0 0 0 24px;
-    padding: 14px 18px 14px 8px;
-    border: 2px solid var(--plum);
+    padding: 18px 18px 12px 8px;
+    border: 2px solid var(--ink);
     border-left: 0;
     border-radius: 0 10px 10px 0;
-    rotate: 2deg;
+    --tip: 2deg;
+    transform-origin: calc(50% - 12px) 10px;
   }
 
   .nav-drop-item:nth-child(2)::before {
     left: 0;
-    border: 2px solid var(--plum);
+    border: 2px solid var(--ink);
     border-top: 0;
     border-right: 0;
     border-radius: 0 0 0 7px;
@@ -1368,6 +1442,63 @@ button.nav-link {
 
   .nav-drop-item:nth-child(2) .nav-plate-arrow {
     scale: -1 1;
+  }
+
+  .nav-drop-item:nth-child(2)::after {
+    left: calc(50% - 12px);
+  }
+
+  /* Hovering a tag or a plate gives it a little swing about its eyelet (tag-hang and plate-drop stay in the lists so
+     they aren't replayed when the hover ends), and a plate's arrow nudges the way it points */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .nav.open #site-menu > :is(.nav-link, .nav-cta):hover {
+      animation:
+        tag-hang 1s linear var(--delay, 0ms) backwards,
+        tag-swing-hover 0.8s ease;
+    }
+
+    #site-menu > .nav-drop > .nav-link:hover {
+      animation: tag-swing-hover 0.8s ease;
+    }
+
+    .nav-drop.open .nav-drop-item:hover {
+      animation:
+        plate-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) backwards,
+        tag-swing-hover 0.8s ease;
+    }
+
+    .nav-drop-item:hover .nav-plate-arrow {
+      animation: arrow-nudge 0.5s ease;
+    }
+
+    .nav-drop-item:nth-child(2):hover .nav-plate-arrow {
+      --nudge: -5px;
+    }
+  }
+
+  @keyframes tag-swing-hover {
+    20% {
+      rotate: calc(var(--tip) - 5deg);
+    }
+    45% {
+      rotate: calc(var(--tip) + 3.5deg);
+    }
+    70% {
+      rotate: calc(var(--tip) - 1.5deg);
+    }
+  }
+
+  @keyframes arrow-nudge {
+    40% {
+      translate: var(--nudge, 5px) 0;
+    }
+  }
+
+  /* pressed: pulled down a touch on its string */
+  #site-menu > :is(.nav-link, .nav-cta):active,
+  #site-menu > .nav-drop > .nav-link:active,
+  .nav-drop-item:active {
+    translate: 0 3px;
   }
 
   .nav-plate-arrow {

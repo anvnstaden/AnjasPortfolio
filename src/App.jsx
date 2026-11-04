@@ -263,11 +263,14 @@ const PROJECT_SIGNS = [
 ]
 
 // The Projects tab: opens its dropdown on hover with a mouse, on tap on a touch screen and on Enter from the keyboard.
+// In the phone menu it's a tag like the others, and tapping it drops the sign down underneath it (or folds it away).
+const WIDE = '(min-width: 901px)'
+
 function ProjectsMenu({ current }) {
   const { t } = useLang()
   const root = useRef(null)
   const [open, setOpen] = useMenu(root)
-  const onMouse = (value) => (e) => e.pointerType === 'mouse' && setOpen(value)
+  const onMouse = (value) => (e) => e.pointerType === 'mouse' && matchMedia(WIDE).matches && setOpen(value)
   const onCurrent = current === 'projects' || current === 'personal'
 
   return (
@@ -283,23 +286,26 @@ function ProjectsMenu({ current }) {
         className={`nav-link link-projects${onCurrent ? ' current' : ''}`}
         aria-expanded={open}
         aria-controls="projects-menu"
-        onClick={() => setOpen(matchMedia('(hover: hover)').matches || !open)}
+        onClick={() => setOpen(matchMedia(`${WIDE} and (hover: hover)`).matches || !open)}
       >
         <span className="nav-drop-label">
-          {t.nav.projects}
+          <NavLabel current={onCurrent}>{t.nav.projects}</NavLabel>
           <svg className="nav-caret" viewBox="0 0 12 8" aria-hidden="true"><path d="M1.5 1.5 6 6l4.5-4.5" /></svg>
         </span>
       </button>
       <div id="projects-menu" className="nav-drop-menu" onClick={() => setOpen(false)}>
-        {/* a road sign: two plates, one above the other on the same string */}
-        <div className="nav-sign">
-          {PROJECT_SIGNS.map(([to, id, section, icon]) => (
-            <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
-              <span className="nav-plate-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{icon}</svg></span>
-              <NavLabel current={current === section}>{t.nav[id]}</NavLabel>
-              <svg className="nav-plate-arrow" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" /></svg>
-            </Link>
-          ))}
+        {/* a road sign: two plates, one above the other on the same string (the fold is what the phone menu
+            opens and shuts) */}
+        <div className="nav-fold">
+          <div className="nav-sign">
+            {PROJECT_SIGNS.map(([to, id, section, icon]) => (
+              <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
+                <span className="nav-plate-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{icon}</svg></span>
+                <NavLabel current={current === section}>{t.nav[id]}</NavLabel>
+                <svg className="nav-plate-arrow" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" /></svg>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
