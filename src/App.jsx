@@ -243,10 +243,23 @@ function NavLabel({ current, children }) {
   )
 }
 
-// Link, name, and the section it marks as current
+// Link, name, the section it marks as current, and its little icon (a graduation cap, a heart)
 const PROJECT_SIGNS = [
-  ['/projects', 'university', 'projects'],
-  ['/projects/personal', 'personal', 'personal'],
+  [
+    '/projects',
+    'university',
+    'projects',
+    <>
+      <path d="M2 9.5 12 5l10 4.5-10 4.5z" />
+      <path d="M6.5 11.8V16c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-4.2M21 10v5" />
+    </>,
+  ],
+  [
+    '/projects/personal',
+    'personal',
+    'personal',
+    <path d="M12 19.5s-7.5-4.4-7.5-9.7A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.5 2.4c0 5.3-7.5 9.7-7.5 9.7z" />,
+  ],
 ]
 
 // The Projects tab: opens its dropdown on hover with a mouse, on tap on a touch screen and on Enter from the keyboard.
@@ -280,8 +293,9 @@ function ProjectsMenu({ current }) {
       <div id="projects-menu" className="nav-drop-menu" onClick={() => setOpen(false)}>
         {/* a road sign: two plates, one above the other on the same string */}
         <div className="nav-sign">
-          {PROJECT_SIGNS.map(([to, id, section]) => (
+          {PROJECT_SIGNS.map(([to, id, section, icon]) => (
             <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
+              <span className="nav-plate-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{icon}</svg></span>
               <NavLabel current={current === section}>{t.nav[id]}</NavLabel>
               <svg className="nav-plate-arrow" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" /></svg>
             </Link>
