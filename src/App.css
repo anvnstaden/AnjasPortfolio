@@ -6705,11 +6705,32 @@ button.nav-link {
   --marker: var(--pink);
 }
 
+.freelance-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 12px;
+}
+
+.freelance-site {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: underline wavy var(--pink);
+  text-underline-offset: 5px;
+}
+
+.freelance-site:hover {
+  color: var(--blue);
+}
+
 .freelance-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
   padding: 6px 16px;
   font-weight: 700;
   text-decoration: none;

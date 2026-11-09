@@ -274,19 +274,24 @@ export default function Projects({ page = 'university' }) {
               {lang === 'de' ? (
                 <p>
                   Ich habe aus einem Computerraum eine mittelalterliche Burg und aus einer Filesharing-App ein
-                  Piratenschiff gemacht, also stell dir vor, was ich mit deiner Website anstellen könnte. Ich arbeite
-                  auch als <mark className="hl">freiberufliche Webdesignerin und -entwicklerin</mark> und würde gern
-                  hören, wovon du träumst.
+                  Piratenschiff gemacht, also stell dir vor, was ich mit deiner Website anstellen könnte. Ich bin
+                  außerdem der Kopf hinter <mark className="hl">Alist Websites</mark>, einem Studio für individuelles
+                  Webdesign und Webentwicklung, und würde gern hören, wovon du träumst.
                 </p>
               ) : (
                 <p>
                   I&apos;ve turned a computer lab into a medieval castle and a file-sharing app into a pirate ship, so
-                  imagine what I could do with your website. I also work as a{' '}
-                  <mark className="hl">freelance web designer and developer</mark>, and I&apos;d love to hear what
-                  you&apos;re dreaming up.
+                  imagine what I could do with your website. I&apos;m also the brains behind{' '}
+                  <mark className="hl">Alist Websites</mark>, a custom web design and development studio, and I&apos;d
+                  love to hear what you&apos;re dreaming up.
                 </p>
               )}
-              <a href="#your-website" className="freelance-cta">{t.freelance.cta} <NavArrow inline /></a>
+              <div className="freelance-links">
+                <a href="#your-website" className="freelance-cta">{t.freelance.cta} <NavArrow inline /></a>
+                <a href="https://www.alistwebsites.co.za" className="freelance-site" target="_blank" rel="noreferrer">
+                  {t.freelance.site} <NavArrow inline out />
+                </a>
+              </div>
             </div>
             <Sparkle className="freelance-spark a" />
             <Sparkle className="freelance-spark b" />
