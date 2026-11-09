@@ -256,8 +256,10 @@ function Glasses({ x, y, r, size = 1 }) {
       <rect x="-56" y="-20" width="48" height="36" rx="16" fill="#cfe6f6" fillOpacity="0.45" strokeWidth="4" />
       <rect x="8" y="-20" width="48" height="36" rx="16" fill="#cfe6f6" fillOpacity="0.45" strokeWidth="4" />
       <path d="M-8 -6Q0 -14 8 -6" strokeWidth="4" />
-      <rect x="-62" y="-14" width="8" height="10" rx="2" fill="#2a2d33" strokeWidth="2" />
-      <rect x="54" y="-14" width="8" height="10" rx="2" fill="#2a2d33" strokeWidth="2" />
+      <g className="glasses-tips">
+        <rect x="-62" y="-14" width="8" height="10" rx="2" fill="#2a2d33" strokeWidth="2" />
+        <rect x="54" y="-14" width="8" height="10" rx="2" fill="#2a2d33" strokeWidth="2" />
+      </g>
       <path d="M-46 -12L-30 4M18 -12L34 4" stroke="#fff" strokeOpacity="0.7" strokeWidth="3" />
     </g>
   )
@@ -333,15 +335,15 @@ function OpenCaseBack() {
         <rect x="620" y="718" width="26" height="13" rx="6.5" fill="#dfa4b8" />
       </g>
 
-      {/* a lipstick, uncapped, with its cap beside it */}
-      <g transform="rotate(38 110 690)" stroke={INK} strokeWidth="2.2" strokeLinejoin="round">
-        <rect x="98" y="676" width="26" height="44" rx="3" fill="#1a1a1a" />
-        <rect x="100" y="665" width="22" height="13" rx="2" fill="#e0b556" />
-        <path d="M102 665V647L120 638V665Z" fill="#c2253f" />
+      {/* a lipstick, uncapped, with its cap beside it (left out on phones, where they're just two black blobs) */}
+      <g className="case-lipstick">
+        <g transform="rotate(38 110 690)" stroke={INK} strokeWidth="2.2" strokeLinejoin="round">
+          <rect x="98" y="676" width="26" height="44" rx="3" fill="#1a1a1a" />
+          <rect x="100" y="665" width="22" height="13" rx="2" fill="#e0b556" />
+          <path d="M102 665V647L120 638V665Z" fill="#c2253f" />
+        </g>
+        <rect x="150" y="700" width="24" height="42" rx="4" transform="rotate(-24 162 721)" fill="#1a1a1a" stroke={INK} strokeWidth="2.2" />
       </g>
-      <rect x="150" y="700" width="24" height="42" rx="4" transform="rotate(-24 162 721)" fill="#1a1a1a" stroke={INK} strokeWidth="2.2" />
-
-
     </svg>
   )
 }

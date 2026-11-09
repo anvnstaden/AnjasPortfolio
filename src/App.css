@@ -3337,6 +3337,50 @@ button.nav-link {
   }
 }
 
+/* Phones: the page is too narrow for everything, so it's just the sentences and "hire me?" at the bottom, which
+   keeps the notebook the shape of a real one instead of a long strip */
+@media (max-width: 600px) {
+  /* everything on the page is sized off its width (--u is 1/343 of it, the page on a 375px phone), so the
+     writing fills it the same way on any phone instead of leaving empty lines on wider ones */
+  .notebook {
+    --u: calc(min(100vw - 32px, 560px) / 343);
+    --lh: calc(var(--u) * 28);
+    --margin: calc(var(--u) * 28);
+  }
+
+  .nb-lined {
+    padding: calc(var(--lh) * 1.2) calc(var(--u) * 12) calc(var(--lh) * 0.8) calc(var(--margin) + var(--u) * 10);
+    /* the rules move up with the shallower top margin, so the writing still sits on them */
+    background-position: 0 0, 0 0, 0 calc(var(--lh) * -0.03);
+    /* never shorter than a real notebook page is for its width */
+    min-height: auto;
+    aspect-ratio: 1 / 1.3;
+  }
+
+  .notebook .statement {
+    font-size: calc(var(--u) * 18.25);
+  }
+
+  .nb-note,
+  .nb-doodle,
+  .nb-hint {
+    display: none;
+  }
+
+  .nb-inside {
+    display: block;
+    margin-top: calc(var(--lh) * 0.6);
+    padding-bottom: 0;
+  }
+
+  .nb-hire {
+    gap: 0 calc(var(--u) * 8);
+    font-size: calc(var(--u) * 20.8);
+    line-height: var(--lh);
+    white-space: nowrap;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nb-hint svg {
     animation: none;
@@ -9297,6 +9341,13 @@ a:hover .nav-arrow.inline.out {
 
 .wallet-section.narrow .note-pen {
   transition: opacity 0.2s;
+}
+
+/* too small to read as anything on a phone, so they'd just be black dots: the lipstick and its cap, and the
+   tips of the glasses' folded arms */
+.wallet-section.narrow .case-lipstick,
+.wallet-section.narrow .glasses-tips {
+  display: none;
 }
 
 /* The hand that wipes the cards away at the end of the scene */
