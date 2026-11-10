@@ -366,7 +366,7 @@ export const contact = {
   github: 'https://github.com/anvnstaden',
   linkedin: 'https://www.linkedin.com/in/anja-van-staden',
   // The CV the contact section offers for download (the PDF lives in public/)
-  cv: '/Anja-vanStaden-CV-Oct2026.pdf',
+  cv: '/Anja-vanStaden-CV-Nov2026.pdf',
 }
 
 // Shown on the back of the ID badge on the home page when it flips over.
