@@ -4,7 +4,10 @@
 
 export const projectsDe = {
   'hackathon-hosting-platform': {
-    title: 'Hackathon-Hosting-Plattform',
+    title: 'HALT: Hackathon-Plattform',
+    tagline: 'Eine Hackathon-Plattform, auf der Teams live gemeinsam programmieren und automatisch bewertet werden.',
+    role: 'UI/UX, visuelles Design & Frontend',
+    time: '4 Wochen',
     module: 'Webentwicklung & Datenbanken',
     description:
       'Eine Website zum Veranstalten von Studierenden-Hackathons, gebaut in einer Vierergruppe. Admins erstellen Gruppen, fügen Aufgaben mit versteckten Testfällen hinzu und starten den Hackathon. Teams schreiben gemeinsam Code in einem geteilten Editor, der sich live aktualisiert, und ihre Python-Abgaben werden automatisch bewertet und erscheinen auf einer Live-Rangliste. Wir haben sie HALT genannt, nach uns vieren (Hannah, Anja, Leo und Tiana), und weil HALT auch ein Assembler-Befehl ist. Externe Bibliotheken waren nicht erlaubt, also ist das gesamte Frontend mit reinem React gebaut.',
@@ -34,9 +37,23 @@ export const projectsDe = {
       'admin_group_members.webp': 'Admins sehen alle in der Gruppe und ihr jeweiliges Team, auch wer noch eines braucht.',
       'admin_teams.webp': 'Die Teamseite aus Admin-Sicht, mit jedem Team und seiner Leitung.',
     },
+    caseStudy: {
+      role: 'Ich habe die Start-, Anmelde- und Registrierungsseite mit den Chromhänden im Parallax-Effekt und dem Raster gestaltet und gebaut. Außerdem habe ich Teile der Gruppen- und Teamseiten gebaut, etwa die Ansicht für eine neue Teamleitung, Farben passend zu jeder Gruppe und einen „Start hackathon“-Button, der ausgegraut bleibt, bis man starten darf, dazu die Einstellung, wie viele Aufgaben zählen, und die Testdaten, mit denen wir gearbeitet haben.',
+      problem: 'Die Aufgabe unseres Dozenten: eine Plattform für Studierenden-Hackathons, von der Teambildung bis zum Bewerten und Ranken des Codes. Die Features waren vorgegeben, also war die Design-Herausforderung, etwas so Komplexes unter Zeitdruck verständlich und unterhaltsam benutzbar zu machen.',
+      user: 'Studierende, die in Teams antreten, unter Zeitdruck gemeinsam programmieren und sehen wollen, wo sie stehen. Teamleitungen, die ihr Team verwalten und als Einzige abgeben dürfen, und die Organisatoren, die die Aufgaben anlegen und das Event leiten.',
+      research: 'Wir haben die Aufgabenstellung in Features und Sonderfälle zerlegt, etwa was mit den Teams passiert, sobald ein Hackathon startet. Außerdem haben wir uns Programmierwettbewerb-Seiten wie LeetCode, Kattis und HackerRank angesehen, um zu sehen, wie dort üblicherweise Aufgaben, Abgaben und Ranglisten dargestellt werden.',
+      decisions: 'Ein Retro-Synthwave-Look mit Chromhänden und Parallax lässt es wie ein Event wirken und nicht wie ein Bewertungssystem. Die Admin-Ansicht einer Gruppe wird pink, damit man immer weiß, in welcher Rolle man gerade ist, und nur die Teamleitung darf abgeben. Das hält das Abgabelimit fair und verhindert, dass sich Teammitglieder gegenseitig überschreiben.',
+      outcome: 'Eine vollständige Plattform, die einen Hackathon von der Registrierung bis zur finalen Rangliste abbildet, wobei alles (sogar der geteilte Live-Editor) ohne externe Frontend-Bibliotheken gebaut ist. Wir haben 89 % bekommen.',
+      learned: 'Die Änderungen mehrerer Leute synchron zu halten, ohne dass etwas verloren geht, ist viel schwieriger, als es aussieht. Ohne Bibliotheken zu bauen hat mir gezeigt, was Komponentenbibliotheken einem normalerweise abnehmen, und durch das Design für Mitglieder, Teamleitungen und Admins habe ich gelernt, jeder Person nur das zu zeigen, was sie auch wirklich tun kann.',
+      reflection: 'Ich würde zuerst eine schlichte Version jedes Features zum Laufen bringen und das Theme und die Animationen erst danach hinzufügen.',
+    },
   },
   'community-event-volunteer-platform': {
-    title: 'Plattform für Community-Events & Ehrenamt',
+    title: 'Neighbourly: Ehrenamtsplattform',
+    label: 'Industrieprojekt',
+    tagline: 'Eine Live-Plattform, die Anwesenheitslisten auf Papier durch QR-Check-ins ersetzt und Freiwilligen eine Nachbarschaft gibt, die mitwächst.',
+    role: 'Scrum Master, UI/UX & Frontend',
+    time: '3 Monate',
     module: 'Software Engineering',
     description:
       'Unser Industrieprojekt mit Entelect, gebaut in einem Sechserteam. Es ist eine Website, auf der gemeinnützige Organisationen Events erstellen, Freiwillige finden und Anwesenheit und Einsatzstunden festhalten können. Ich war Scrum Master des Teams und habe sowohl am Code als auch an der Usability der Seite gearbeitet.',
@@ -59,9 +76,22 @@ export const projectsDe = {
       'organisation_create_event.webp': 'Beim Erstellen eines Events siehst du eine Live-Vorschau der Karte, die Freiwillige zu sehen bekommen.',
       'organisation_qr_code_scanner.webp': 'Beim Event scannen die Organisatoren die QR-Codes der Freiwilligen (mit der Kamera, einem hochgeladenen Bild oder durch Eintippen des Codes), und die Anwesenheit wird sofort aktualisiert.',
     },
+    caseStudy: {
+      role: 'Ich war Scrum Master. Außerdem habe ich den Look und die Abläufe gestaltet (auch die handgezeichnete Nachbarschaft und die Erfolge), Frontend-Seiten mit Next.js und Tailwind gebaut und die Seite nach Usability-Problemen durchsucht und sie behoben.',
+      problem: 'Gemeinnützige Organisationen haben ihre Freiwilligen mit Tabellen, WhatsApp-Gruppen und Anwesenheitslisten auf Papier verwaltet. Und wer helfen wollte, hatte keinen zentralen Ort, um Events zu finden, die zur eigenen Zeit und zu den Anliegen passen, die einem wichtig sind.',
+      user: 'Studierende und junge Leute, die etwas zurückgeben wollen und einen Nachweis über ihre Stunden brauchen, und die Koordinatoren bei NGOs und Gemeinschaftsgruppen, die Events planen und am Tag selbst die Leute einchecken. Entelect, unser Industriepartner, hat uns die Aufgabe gegeben und war unser Kunde.',
+      research: 'Wir haben uns regelmäßig mit unserem Kontakt bei Entelect getroffen, um die Aufgabe in User Stories zu übersetzen, und die Screens für Freiwillige und Organisationen als Prototyp entworfen, bevor wir Code geschrieben haben. Ich habe mir bestehende Ehrenamtsplattformen angesehen: Die meisten wirkten wie Firmensoftware und gaben Freiwilligen keinen Grund, wiederzukommen. Als die Seite lief, haben wir Leute sie ausprobieren lassen und die Stellen verbessert, an denen sie hängen blieben.',
+      decisions: 'Weil andere Plattformen Freiwilligen keinen Grund zum Wiederkommen gaben, wächst bei uns mit jedem Einsatz eine eigene kleine Nachbarschaft. Die Anwesenheit wird per QR-Code erfasst, sodass Organisatoren keine Papierlisten brauchen und die Stunden automatisch gezählt werden.',
+      outcome: 'Neighbourly ist live unter neighbourly.dpdns.org und wird automatisch über unsere Pipeline veröffentlicht, mit getestetem Backend und öffentlichem Coverage-Bericht. Entelect war mit der finalen Demo zufrieden, und wir haben 85,4 % bekommen.',
+      learned: 'Als Scrum Master habe ich gelernt, sechs Leute in dieselbe Richtung zu bewegen, und dass kleine Branches, Merge Requests und Code-Reviews in einem großen Team unverzichtbar sind. Freiwillige und Organisationen wollen ganz verschiedene Dinge von derselben App, also brauchten beide ihren eigenen Ablauf.',
+      reflection: 'Ich würde mich gleich zu Beginn auf gemeinsame Komponenten und Styles einigen, damit die Seiten von verschiedenen Leuten früher einheitlich aussehen.',
+    },
   },
   'honours-lab-management-app': {
     title: 'App zur Verwaltung des Honours-Labors',
+    tagline: 'Ein Sitzplan, der zeigt, wer im Raum wo sitzt, gestaltet als mittelalterliche Burg.',
+    role: 'UI/UX-Design & Code',
+    time: '6 Wochen',
     module: 'Webentwicklung & Datenbanken',
     description:
       'Eine Single-Page-App zur Verwaltung des Computerraums der Honours-Studierenden. Das Herzstück ist ein Sitzplan mit 7 × 10 Plätzen, der zeigt, wer wo sitzt. Dazu kommen Anmeldung, bearbeitbare Profile, ein Q&A-Bereich, nach Tags filterbare Ankündigungen und ein eigenes Farbschema, alles im Browser gespeichert. Externe Bibliotheken waren nicht erlaubt, also ist alles reines React.',
@@ -77,9 +107,21 @@ export const projectsDe = {
       'profile_photo_change.webp': 'Dein Profilbild wählst du aus mittelalterlichen „Sigils“, zum Beispiel einem Drachen, einem Zauberer, einem Ritter oder einem Narren.',
       'qa_section.webp': 'Der Q&A-Bereich „Spill Your Secrets, Scholar“, in dem du Fragen über dich beantwortest und deine Antworten auch wieder löschen kannst.',
     },
+    caseStudy: {
+      problem: 'Im Computerraum der Honours-Studierenden wusste niemand, wer wo sitzt oder welche Plätze frei sind. Die Aufgabe verlangte eine App zur Verwaltung des Raums, und meine Herausforderung war, ein praktisches Tool zu bauen, das man wirklich gern öffnet.',
+      user: 'Honours-Studierende, die sich jeden Tag den Raum teilen und einen Platz finden und sehen wollen, wer da ist.',
+      research: 'Ich habe die Aufgabenstellung in Features zerlegt, jeden Screen vor dem Bauen geplant und den 7 × 10-Sitzplan nach dem echten Grundriss des Raums aufgebaut. Für den Look und die Texte habe ich mir Fantasy-Spiele und mittelalterliche Illustrationen angesehen, daher kommen auch die „Sigil“-Profilbilder.',
+      decisions: 'Ein mittelalterliches Fantasy-Thema mit Thronen, Dekreten und Sigils macht aus einem langweiligen Verwaltungstool etwas, das man gern öffnet. Die Fehlermeldungen sind Witze im Stil des Themas, damit ein Fehler nicht frustriert, und alle können ihre eigenen Farben wählen, damit sich die App nach ihnen anfühlt.',
+      outcome: 'Es war meine erste komplette React-App, die ich allein gebaut habe, vom Design bis zum Code. Sie hat 100 % bekommen, und meinen Kommilitonen haben das Thema und die Witze gefallen, als ich sie ihnen gezeigt habe.',
+      learned: 'Ich habe gelernt, State über mehrere Seiten in reinem React zu verwalten und im localStorage zu speichern, und meine Zeit selbst einzuteilen, wenn niemand sonst draufschaut. Außerdem, dass Texte auch Design sind: Die mittelalterliche Sprache trägt das Thema genauso wie die Bilder, und kleine persönliche Details sorgen dafür, dass Leute ein Tool gern benutzen.',
+      reflection: 'Ich würde ein echtes Backend hinzufügen, weil man mit reinem Browserspeicher die Plätze der anderen auf einem anderen Computer nicht sieht. Außerdem würde ich den Sitzplan auch fürs Handy planen, weil Studierende auf dem Weg in den Raum nach einem freien Platz schauen würden.',
+    },
   },
   'peer-to-peer-file-sharing': {
     title: 'Peer-to-Peer-Dateifreigabe',
+    tagline: 'Anonyme, verschlüsselte Dateifreigabe, die auch ohne Netzwerkwissen funktioniert.',
+    role: 'UI/UX, Frontend, Grafik & Sound',
+    time: '2 Wochen',
     module: 'Rechnernetze',
     description:
       'Eine anonyme Filesharing-App, bei der Leute Dateien direkt voneinander herunterladen. Ein kleiner Server bearbeitet die Suchen und liefert exakte und ähnliche Treffer. Er bringt zwei Personen über verschlüsselte Schlüssel zusammen, und die Datei geht dann über Tailscale direkt von einer zur anderen, mit Pause, Fortsetzen und einem animierten Fortschrittsbalken. Das gesamte Frontend habe ich ausschließlich mit JavaFX gebaut.',
@@ -91,9 +133,20 @@ export const projectsDe = {
       'client_gui.webp': 'Der Client, in dem du Dateien suchst, die Ergebnisse sortierst und filterst, Downloads pausierst oder abbrichst und eigene Dateien teilst. Das Banner oben wechselt zwischen Piraten- und Dateiübertragungs-Zitaten wie „The code is more what you’d call guidelines than actual rules.“',
       'server_gui.webp': 'Das Server-Log, umgeben von Oktopussen. Verbindungen, Trennungen, Suchen und Downloads haben jeweils eine eigene Farbe.',
     },
+    caseStudy: {
+      role: 'Ich habe das komplette Frontend gestaltet und gebaut (das Client-, Anmelde- und Serverfenster) und alle eigenen Assets erstellt: Audio, Hintergründe, Schriften und Animationen. Außerdem habe ich das Makefile, die README und den Bericht geschrieben.',
+      problem: 'Dateien zu teilen heißt meistens, sie zuerst auf den Server einer Firma hochzuladen. Diese App schickt sie direkt von einer Person zur anderen, ohne dass jemand sieht, wer online ist oder was heruntergeladen wird. Die Herausforderung war, ein technisches Netzwerk-Tool einfach und unterhaltsam zu machen, für Leute, die nichts über Netzwerke wissen.',
+      user: 'Leute, die nichts über Netzwerke wissen und einfach wollen, dass Suchen, Herunterladen, Pausieren und Fortsetzen funktionieren, ohne verstehen zu müssen, was dahinter passiert.',
+      research: 'Unsere Experimente haben gezeigt, dass die Übertragungszeit mit der Dateigröße wächst, weil jeder Teil einzeln verschlüsselt und gesendet wird, und dass das Senden ohne Verschlüsselung viel schneller war: Die Sicherheit kostet also spürbar Geschwindigkeit. Außerdem habe ich mir angesehen, wie Torrent-Apps Suchen, Fortschritt und pausierte Downloads darstellen.',
+      decisions: 'Ein Piratenthema, in dem Dateien Schätze sind, macht eine abstrakte Idee leicht vorstellbar, und Münzgeräusche beim Tippen und Wassertropfen beim Klicken geben jeder Aktion eine Rückmeldung. Die Suche liefert ähnliche Treffer zusätzlich zu exakten, sodass man eine Datei auch mit Tippfehler oder halbem Namen findet, und das Server-Log gibt Verbindungen, Suchen und Downloads eigene Farben, damit man auf einen Blick folgen kann.',
+      outcome: 'Dateien wurden zwischen verschiedenen Computern über Tailscale übertragen, mit Pausieren und Fortsetzen, und das Thema und die Sounds haben unsere Demo herausstechen lassen. Wir haben 94 % bekommen.',
+      learned: 'Ich habe gelernt, wie weit man JavaFX mit CSS und Animationen treiben kann, wenn sich die Standardkomponenten nicht anpassen lassen, und wie ich eigene Sounds, Hintergründe, Schriften und Animationen erstelle, damit alles wie aus einem Guss wirkt.',
+      reflection: 'Ich würde eine Möglichkeit einbauen, Musik und Sounds auszuschalten, weil nicht jeder ständig Audio möchte. Und ich würde das Frontend früher mit dem Backend verbinden, damit Integrationsprobleme früher auffallen.',
+    },
   },
   'parallel-othello-ai': {
     title: 'Parallele Othello-KI',
+    kind: 'C · MPI · Paralleles Rechnen',
     module: 'Nebenläufigkeit',
     description:
       'Ein Othello-Spieler, der seine Züge mit Monte-Carlo-Baumsuche auswählt. Mit MPI habe ich die Suche auf mehrere Kerne verteilt, sodass er in derselben Zeit mehr Züge prüfen und besser spielen kann.',
@@ -102,9 +155,19 @@ export const projectsDe = {
       'Mit MPI über mehrere Kerne parallelisiert',
       'Spielt innerhalb eines festen Zeitlimits stärker',
     ],
+    caseStudy: {
+      problem: 'Eine Spiel-KI hat nur ein paar Sekunden pro Zug, also spielt sie umso besser, je mehr vom Spiel sie in dieser Zeit durchsuchen kann. Also habe ich einen Othello-Spieler gebaut und seine Suche mit MPI auf mehrere Kerne verteilt.',
+      decisions: 'Ich habe Monte-Carlo-Baumsuche statt fest programmierter Regeln verwendet, weil sie durch viele zufällig ausgespielte Partien herausfindet, welche Züge gut sind, und sich diese Arbeit auf mehrere Kerne aufteilen lässt.',
+      outcome: 'Die parallele Version konnte im selben Zeitlimit mehr Züge durchsuchen und hat bessere Entscheidungen getroffen. Ich habe 85 % bekommen.',
+      learned: 'Ich habe gelernt, Arbeit mit MPI auf Prozesse zu verteilen und ihre Ergebnisse zusammenzuführen, und dass mehr Kerne nicht im gleichen Maß schneller machen, weil die Kerne Zeit damit verbringen, sich gegenseitig ihre Ergebnisse zu schicken.',
+      reflection: 'Ich würde früher anfangen, weil das Debuggen von parallelem Code viel länger dauert als bei normalem Code.',
+    },
   },
   'voip-chat': {
     title: 'VoIP-Chat',
+    tagline: 'Anrufe, Chat und Sprachnachrichten in einer App, mit einer Persönlichkeit, an die man sich erinnert.',
+    role: 'UI/UX, Frontend, Grafik & Sound',
+    time: '3 Wochen',
     module: 'Rechnernetze',
     description:
       'Eine Voice-over-IP-App. Der Server behält den Überblick, wer online ist, und die Anrufe laufen über UDP direkt zwischen den Gesprächspartnern. Du kannst Einzel- und Gruppenanrufe führen, in Gruppenkanälen chatten, während eines Anrufs schreiben und Sprachnachrichten schicken. Das gesamte Frontend habe ich ausschließlich mit JavaFX gebaut.',
@@ -121,9 +184,20 @@ export const projectsDe = {
       'stemlearn_easter_egg.webp': '„STEMLearn“ öffnet eine falsche STEMLearn-Anmeldeseite (die Plattform, die Studierende in Stellenbosch für ihre Aufgaben nutzen), und man muss auf den Anmelde-Button drücken, um zurückzukommen.',
       'marks_easter_egg.webp': '„Marks“ spielt ein Dun-dun-dunnn ab und blendet die Meldung „marks are out“ ein. „Stellenbosch“ oder „Maties“ spielt „Dis Altyd Lente“, das Studierendenlied von Stellenbosch, und „annoying“ spielt Baby Shark in voller Lautstärke in Dauerschleife.',
     },
+    caseStudy: {
+      role: 'Ich habe das komplette Frontend gebaut (das Client-, Whisper-, Server- und Anmeldefenster), alle Sounds, Hintergründe und Easter Eggs gestaltet und den Bericht, die README und die Code-Dokumentation geschrieben.',
+      problem: 'Anrufe, Gruppenchat, private Nachrichten und Sprachnachrichten stecken meistens in verschiedenen Tools, und diese App bringt sie zusammen. Die Herausforderung war, einer technischen Audio-App eine Persönlichkeit zu geben, an die man sich erinnert.',
+      user: 'Kommilitonen auf demselben Server, die miteinander chatten, telefonieren und sich Sprachnachrichten schicken wollen, und wer den Server betreibt und sehen muss, wer verbunden ist und was passiert.',
+      research: 'Wir dachten, der Server würde mit mehr Leuten langsamer, aber er wurde schneller: Wie eine Nachricht weitergeleitet wird, war wichtiger als die Zahl der Leute online. Sprachnachrichten über TCP brauchten nur ein paar Millisekunden länger, wenn sie zehnmal so lang waren. Für das Layout habe ich mir angesehen, wie Discord und WhatsApp Anrufe, Kanäle und Sprachnachrichten darstellen.',
+      decisions: 'Ein rot-schwarzer Darknet-Hacker-Look lässt eine Chat-App fürs Studium geheim und lustig wirken, mit versteckten Easter Eggs, die Kommilitonen entdecken können. Whisper-Anrufe und -Nachrichten öffnen sich in einem eigenen Fenster, damit immer klar ist, was privat ist, und der Bildschirm blitzt, wenn jemand dazukommt, und bei einem Anruf läuft eine Titelmelodie, damit man nichts verpasst.',
+      outcome: 'Einzel- und Gruppenanrufe funktionierten zwischen verschiedenen Computern, zusammen mit dem Chat und den Sprachnachrichten, und die Easter Eggs kamen bei der Demo richtig gut an. Wir haben 88 % bekommen.',
+      learned: 'Ich habe gelernt, Animationen wie die fallenden Nullen und Einsen mit JavaFX-Timelines und etwas Mathe zu bauen, und dass Sound Teil der Oberfläche sein kann. Insider-Witze für ein bestimmtes Publikum machen ein Produkt unvergesslich, und als einzige Person im Frontend musste ich Screens entwerfen, die zu dem passten, was drei Backend-Teammitglieder gebaut haben.',
+      reflection: 'Ich würde das Blitzen und die lauten Sounds optional machen, mit einer Einstellung zum Stummschalten, weil sie zu viel sein können und Blitzen für manche Menschen ein Problem ist. Außerdem würde ich das Backend früher an die GUI anschließen, damit wir Integrationsfehler früher finden.',
+    },
   },
   'multicore-process-scheduler': {
     title: 'Multicore-Prozess-Scheduler',
+    kind: 'C · Betriebssysteme',
     module: 'Nebenläufigkeit',
     description:
       'Ein Programm in C, das simuliert, wie ein Betriebssystem Prozesse auf einem und auf mehreren Kernen plant. Es begleitet einen Prozess von Anfang bis Ende: Prozesskontrollblock und Speicher einrichten, ihn planen und ausführen und ihn beenden. Außerdem erkennt und behandelt es Deadlocks.',
@@ -133,9 +207,19 @@ export const projectsDe = {
       'Vollständiger Lebenszyklus von der Initialisierung bis zur Beendigung',
       'Erkennung und Behandlung von Deadlocks',
     ],
+    caseStudy: {
+      problem: 'Ein Betriebssystem muss entscheiden, welches Programm als Nächstes läuft und auf welchem Kern, ohne dass eines ewig wartet. Wenn Prozesse auf die Ressourcen der anderen warten, kann alles einfrieren, also muss der Scheduler auch Deadlocks erkennen und auflösen. Ich habe das auf einem und auf mehreren Kernen simuliert.',
+      decisions: 'Ich habe die Version für einen Kern erst komplett zum Laufen gebracht, bevor ich sie auf mehrere Kerne erweitert habe. Bei Deadlocks habe ich mich dafür entschieden, sie zu erkennen und aufzulösen, statt jeden möglichen Fall zu verhindern.',
+      outcome: 'Es hat die volle Punktzahl bekommen (100 %).',
+      learned: 'Jetzt verstehe ich, was ein Betriebssystem jedes Mal im Hintergrund tut, wenn ein Programm läuft, und dass gemeinsame Daten bei mehreren Kernen sorgfältig geschützt werden müssen, sonst tauchen Fehler nur manchmal auf.',
+      reflection: 'Ich würde vor dem Code kleine Testfälle schreiben, besonders für Deadlocks, und früher anfangen, weil man Fehlern in nebenläufigem Code lange hinterherjagt.',
+    },
   },
   'rbudp-tcp-file-transfer': {
     title: 'RBUDP- & TCP-Dateiübertragung',
+    tagline: 'Zwei Übertragungsprotokolle, die gegeneinander antreten, live dargestellt.',
+    role: 'UI/UX & Frontend',
+    time: '3 Wochen',
     module: 'Rechnernetze',
     description:
       'Unsere Version des Reliable-Blast-UDP-Protokolls zum Versenden von Dateien. Die Datei wird in nummerierten UDP-Paketen verschickt, und über TCP werden verlorene Pakete neu angefordert. Es gibt Sender- und Empfänger-GUIs mit Fortschrittsbalken, und wir haben in Experimenten die Geschwindigkeit mit TCP bei verschiedenen Paketgrößen, Senderaten und Verlustraten verglichen. Das gesamte Frontend habe ich ausschließlich mit JavaFX gebaut.',
@@ -146,9 +230,20 @@ export const projectsDe = {
       'send_files.webp': 'Der Sender: Du wählst Empfänger, Datei, TCP oder RBUDP und die Paketgröße und siehst dann den Fortschrittsbalken und Live-Werte wie Geschwindigkeit und erneute Übertragungen.',
       'receive_files.webp': 'Der Empfänger im Weltall: Du wählst den Speicherort, startest das Lauschen und siehst zu, wie die Datei ankommt.',
     },
+    caseStudy: {
+      role: 'Ich habe alle drei Screens gestaltet und gebaut (den Startbildschirm, den Sender und den Empfänger) und das Makefile und die JavaDoc geschrieben.',
+      problem: 'TCP ist zuverlässig, wartet aber auf die Bestätigung jedes Pakets. Wir haben sowohl TCP als auch Reliable Blast UDP gebaut, das alles auf einmal schickt und nur verlorene Pakete nachfordert, um herauszufinden: Kann RBUDP große Dateien schneller senden und trotzdem jedes Byte ankommen lassen?',
+      user: 'Studierende, die Netzwerke lernen und den Unterschied zwischen den beiden Protokollen live sehen können, und alle, die eine große Datei von einem Computer zum anderen schicken müssen.',
+      research: 'Auf einem einzelnen Rechner war TCP 2–3× schneller als unser RBUDP, weil das Betriebssystem TCP so gut optimiert, wenn es keine Verzögerung gibt. Eine höhere Senderate machte RBUDP immer schneller, mit überraschend wenig Paketverlust, und größere Pakete halfen bis zu einem gewissen Punkt, mit einem Einbruch bei etwa 16 KB.',
+      decisions: 'TCP ist eine Schnecke und RBUDP eine Rakete, damit der Unterschied sofort klar ist, und wechselnde Witze im Footer machen ein trockenes Thema unvergesslich. Geschwindigkeit, Pakete und erneute Übertragungen aktualisieren sich live, und „Start Transfer“ bleibt ausgegraut, bis jedes Feld ausgefüllt ist, damit man keine fehlerhafte Übertragung starten kann.',
+      outcome: 'Beide Protokolle senden Dateien korrekt, verlorene Pakete werden erkannt und erneut gesendet. Wir haben 100 % bekommen.',
+      learned: 'Das war mein erstes JavaFX-Frontend und der Anfang davon, die GUIs für alle unsere Netzwerkprojekte zu bauen. Es hat mir gezeigt, dass eine einfache Metapher eine technische Idee besser erklärt als ein Absatz, dass Live-Feedback einen unsichtbaren Vorgang verständlich macht und dass es besser ist, Fehler in der Oberfläche zu verhindern, als hinterher eine Fehlermeldung zu zeigen.',
+      reflection: 'Ich würde die Geschwindigkeit als Live-Diagramm zeigen, damit man Durchläufe nebeneinander vergleichen kann, und das Backend früher an die GUI anschließen, damit die Statistiken früher stimmen.',
+    },
   },
   'wistl-compiler': {
     title: 'WISTL-Compiler',
+    kind: 'C · Compilerbau',
     module: 'Rechnerarchitektur',
     description:
       'Ein in C geschriebener Compiler für WISTL, eine einfache Lehrsprache. Er erledigt jeden Schritt: Scannen, Parsen, Prüfen von Typen und Bedeutung und das Erzeugen von JVM-Bytecode mit Jasmin.',
@@ -158,9 +253,17 @@ export const projectsDe = {
       'Semantische Analyse und Typprüfung',
       'Codeerzeugung zu JVM-Bytecode über Jasmin',
     ],
+    caseStudy: {
+      problem: 'Computer können Code nicht so ausführen, wie Menschen ihn schreiben, also übersetzt ein Compiler ihn Schritt für Schritt in etwas, das die Maschine ausführen kann. Ich habe über das Semester hinweg in Etappen einen vollständigen Compiler für WISTL gebaut, eine kleine Lehrsprache.',
+      decisions: 'Ich habe jede Stufe (Scanner, Parser, Typprüfung und Codeerzeugung) gebaut und getestet, bevor ich mit der nächsten angefangen habe, und die gemeinsamen Testfälle der Studierenden auf jede Stufe angewendet, um Fehler früh zu finden.',
+      outcome: 'Ich habe 85,12 % bekommen.',
+      learned: 'Es war mein größtes C-Projekt und hat mir beigebracht, ein großes Programm zu strukturieren. Seit ich weiß, was zwischen dem Schreiben und dem Ausführen von Code passiert, programmiere ich in jeder Sprache besser.',
+      reflection: 'Ich würde mehr eigene Tests für Sonderfälle schreiben, statt mich auf die gemeinsamen zu verlassen, und jede Stufe früher anfangen, weil jeder Fehler in die nächste Stufe mitgeht.',
+    },
   },
   'quasi-palindromes-in-dna': {
     title: 'Quasi-Palindrome in der DNA',
+    kind: 'Java · Algorithmen · Bioinformatik',
     module: 'Datenstrukturen & Algorithmen',
     description:
       'Ein Projekt, das das ganze Semester lief und nach Geschwindigkeit bewertet wurde. Es findet Quasi-Palindrome in der DNA (Sequenzen, die fast Palindrome sind und mit genetischer Instabilität zusammenhängen), wenn Buchstaben nebeneinander oder weit voneinander entfernt vertauscht werden können, und es kann Zeichenketten mit einer vorgegebenen Anzahl davon erzeugen.',
@@ -170,9 +273,20 @@ export const projectsDe = {
       'Erzeugt Zeichenketten mit einer festgelegten Anzahl von Quasi-Palindromen',
       'Bewertet nach Geschwindigkeit und Korrektheit',
     ],
+    caseStudy: {
+      problem: 'Quasi-Palindrome in der DNA hängen mit genetischer Instabilität zusammen, also ist es wichtig, sie in langen Sequenzen schnell zu finden. Jede mögliche Vertauschung zu prüfen dauert viel zu lange, und das Projekt wurde nach Geschwindigkeit und Korrektheit bewertet.',
+      decisions: 'Statt jede Vertauschung auszuprobieren, habe ich die Buchstaben und ihre Positionen gezählt, was den Großteil der Arbeit eingespart hat, und Ergebnisse kürzerer Teilstrings wiederverwendet, statt jedes Mal von vorn anzufangen.',
+      outcome: 'Ich habe 74 % bekommen.',
+      learned: 'Der Unterschied zwischen einem langsamen und einem schnellen Algorithmus ist keine Theorie, sondern Sekunden gegen Stunden. Eine langsame, einfache Lösung war der beste Weg, eine schnelle zu testen, und Kleinigkeiten in Java, etwa wie Zeichenketten gebaut oder kopiert werden, machen einen großen Unterschied für die Geschwindigkeit.',
+      reflection: 'Ich würde mehr Sonderfälle testen, etwa sehr lange oder sich wiederholende Zeichenketten, und mehr Zeit mit der Mathematik auf Papier verbringen, bevor ich Code schreibe.',
+    },
   },
   'eva-website': {
-    title: 'Website für eine Make-up-Artistin',
+    title: 'Eva Kritzas: Marken- & Buchungs-Website',
+    label: 'Kundenprojekt',
+    tagline: 'Aus Evas DM-Postfach wurde eine Seite, auf der Bräute mit allen Details anfragen und Kundinnen für Augenbrauen ihre Termine selbst buchen.',
+    role: 'UI/UX-Design, Umsetzung & Launch',
+    time: '1 Monat, läuft weiter',
     note: 'mit eigenem Dashboard!',
     linkLabel: 'Website besuchen',
     description:
@@ -204,9 +318,21 @@ export const projectsDe = {
       'book_calendar.webp': 'Wählt man eine Behandlung, öffnet sich Evas Kalender direkt auf der Seite, in den Farben der Website.',
       'dashboard.webp': 'Das Dashboard, hier mit Beispielzahlen. Es fasst die Woche in einem Satz zusammen und zeigt darunter die Statistiken.',
     },
+    caseStudy: {
+      problem: 'Buchungen und Fragen kamen über Instagram-DMs und WhatsApp herein, sodass Details verloren gingen und Eva immer wieder dieselben Fragen beantwortete. Instagram war ihr einziger Auftritt im Netz, ohne einen professionellen Ort, an den sie eine Braut schicken konnte, und Kundinnen für Augenbrauen und Wimpern mussten hin und her schreiben, um einen Termin zu finden.',
+      user: 'Bräute, die Monate im Voraus planen und ihre Brautarbeiten und den Ablauf einer Buchung sehen wollen, bevor sie anfragen. Kundinnen für Matric Dances, Events und Shootings, die schnell ein Angebot möchten, und Kundinnen aus der Gegend, die am Handy einen Termin für Augenbrauen oder Wimpern buchen. Und Eva selbst, die keine Technikexpertin ist und eine Seite braucht, um die sie sich nicht kümmern muss.',
+      research: 'Ich habe mit Eva über ihre Kundinnen gesprochen, über die Fragen, die sie am häufigsten bekommt, und darüber, wie ein Hochzeitsmorgen abläuft. Ich bin ihr Instagram samt Statistiken durchgegangen, die gezeigt haben, dass die meisten ihrer Follower am Handy sind, habe mir die Websites anderer Make-up-Artists und Hochzeitsdienstleister angesehen, um zu sehen, was veraltet wirkt, und ein Moodboard für einen edlen, redaktionellen Look erstellt.',
+      decisions: 'Braut- und Make-up-Buchungen laufen nur über Anfragen, weil jede Hochzeit ein eigenes Angebot bekommt, während Augenbrauen und Wimpern online über Cal.com gebucht werden. Es ist eine statische Astro-Seite mit allen Texten in einer Datendatei, also schnell, günstig zu hosten und ohne Wartungsaufwand für Eva.',
+      outcome: 'Eva schickt jetzt einen Link, statt ihre Leistungen in jeder DM zu erklären, Kundinnen für Augenbrauen und Wimpern buchen ihre Termine selbst, und Brautanfragen kommen mit Datum, Ort und Personenzahl schon ausgefüllt an.',
+      learned: 'Ich habe gelernt, vages Kundenfeedback in konkrete Designänderungen zu übersetzen, zuerst fürs Handy zu gestalten und große Fotos und Videos schnell zu halten. Außerdem habe ich eine echte Seite live gebracht, mit eigener Domain, Hosting, Formularen und Statistiken.',
+      reflection: 'Ich würde vor dem Launch ein paar echten Kundinnen von Eva dabei zusehen, wie sie die Seite benutzen, statt zu raten, was sie brauchen. Außerdem würde ich zuerst alle Fotos und Texte sammeln, weil ich Seiten neu machen musste, die um Platzhalter herum gestaltet waren.',
+    },
   },
   'study-tracker': {
-    title: 'Lern-Tracker',
+    title: 'Dashboard für Lernen & Jobsuche',
+    tagline: 'Ein Dashboard für meine echte Lernzeit, meine Ziele und meine Jobsuche.',
+    role: 'UI/UX-Design & Code',
+    time: 'Laufend',
     description:
       'Ein Dashboard, das erfasst, was ich am Computer mache, und daraus etwas Nützliches macht. Mit ActivityWatch sieht es, welche Apps und Websites ich nutze, ermittelt, was davon als Lernen zählt, und zeigt meinen Fortschritt bei meinen Tageszielen. Außerdem hilft es bei meiner Jobsuche, indem es Stellen findet, bewertet, wie gut sie zu mir passen, und meine Bewerbungen festhält, und es enthält meine To-do-Liste, Gewohnheiten, meinen Kalender und Pausenerinnerungen. Es ist komplett auf mich zugeschnitten, jede Funktion ist also da, weil ich sie wirklich wollte.',
     technical: [
@@ -222,6 +348,15 @@ export const projectsDe = {
       'study.webp': 'Die Study-Seite: ein Kalender, wie nah ich meinem Ziel jeden Tag gekommen bin, wann ich meistens lerne und wo meine Woche geblieben ist.',
       'job_ideas.webp': 'Job-Ideen: Stellen aus Jobbörsen, jede anhand meiner Skills bewertet und markiert, wenn sie Deutsch verlangt.',
       'todo_habits.webp': 'Mein Kalender, meine To-do-Liste und Gewohnheiten, alles auf derselben Seite wie meine Lernzeit.',
+    },
+    caseStudy: {
+      problem: 'Ich habe mich den ganzen Tag beschäftigt gefühlt, hatte aber keine Ahnung, wie viel meiner Zeit am Computer wirklich Lernen war. Meine To-dos, Gewohnheiten, mein Kalender und meine Ziele waren über verschiedene Apps verteilt, ich saß stundenlang ohne Pause, und die Jobsuche in Deutschland hieß, viele Jobbörsen zu durchsuchen und den Überblick zu verlieren, wo ich mich schon beworben hatte.',
+      user: 'Ich selbst: im letzten Studienjahr, gleichzeitig am Lernen, auf Jobsuche und mitten in der Planung meines Umzugs nach Deutschland.',
+      research: 'Ich habe bestehende Fokus- und Zeiterfassungs-Apps ausprobiert, aber sie kosteten Geld, liefen in der Cloud oder wussten nicht, was für mich als Lernen zählt. Dann habe ich herausgefunden, dass die Arbeitsagentur, Arbeitnow und Remotive kostenlose APIs haben, sodass Stellenangebote automatisch hereinkommen können. Darüber hinaus habe ich jedes Feature dann hinzugefügt, wenn ich gemerkt habe, dass ich es brauche.',
+      decisions: 'Es ist eine einzige Python-Datei, die nur die Standardbibliothek nutzt, also muss man nichts installieren, und alles bleibt auf meinem eigenen Computer, weil Aktivitätsdaten privat sind. Regeln, die ich selbst bearbeiten kann, entscheiden, was als Lernen zählt, weil dieselbe Website (wie YouTube) Lernen oder Pause sein kann, und jedes Stellenangebot wird mit meinen Skills abgeglichen und markiert, wenn es Deutsch voraussetzt.',
+      outcome: 'Ich benutze es jeden Tag, und seit ich meine echten Stunden sehe, lerne ich regelmäßiger. Alle meine Bewerbungen sind an einem Ort, und es hat mehrere einzelne Apps ersetzt.',
+      learned: 'Für mich selbst zu bauen hat es leicht gemacht zu wissen, was wichtig ist, aber auch leicht, endlos neue Features hinzuzufügen. Ich habe gelernt, mehrere externe APIs in einer Ansicht zusammenzuführen, und dass rohe Aktivitätsdaten erst helfen, wenn etwas daraus wird, mit dem man arbeiten kann, wie „noch 40 Minuten bis zum heutigen Ziel“.',
+      reflection: 'Ich würde die Hauptseiten vorher planen, statt Features dort einzubauen, wo sie gerade passen, und die Einrichtung einfacher machen, damit auch Freunde es nutzen können.',
     },
   },
 }
@@ -249,6 +384,7 @@ export const skillsDe = {
   'Responsive design': 'Responsive Design',
   'x86 Assembly': 'x86-Assembler',
   Agile: 'Agil',
+  'Google Business Profile': 'Google Unternehmensprofil',
 }
 
 // In the same order as `journey` in content.js.

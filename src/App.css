@@ -4785,6 +4785,7 @@ button.nav-link {
 }
 
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   border-radius: 22px;
@@ -4797,6 +4798,25 @@ button.nav-link {
 
 .card:hover {
   box-shadow: 10px 10px 0 var(--pink);
+}
+
+/* "Client work" and the like, stamped on the corner of the screenshot */
+.card-label {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  padding: 5px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ivory);
+  background: var(--blue);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--ink);
+  rotate: -3deg;
 }
 
 .thumb {
@@ -7038,11 +7058,6 @@ button.nav-link {
   border-top: 1.5px solid var(--cream-deep);
 }
 
-.project-entry.flip {
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  grid-template-areas: 'visual info';
-}
-
 .project-info {
   grid-area: info;
   position: relative;
@@ -7900,20 +7915,6 @@ button.nav-link {
   pointer-events: none;
 }
 
-.flip .entry-bignum {
-  left: auto;
-  right: -0.04em;
-}
-
-.project-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
 .project-meta {
   font-size: 0.7rem;
   font-weight: 700;
@@ -7927,41 +7928,115 @@ button.nav-link {
 
 .project-badges {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  margin-bottom: 14px;
 }
 
-/* Final mark, styled like a stamped grade */
-.project-mark {
+/* "Client work" and the like, stamped next to the year */
+.project-label {
+  padding: 5px 12px;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 5px 12px;
-  border-radius: 999px;
-  color: var(--paper);
+  color: var(--ivory);
   background: var(--blue);
   border: 2px solid var(--ink);
+  border-radius: 999px;
   box-shadow: 2px 2px 0 var(--ink);
   rotate: -2deg;
 }
 
-.project-mark strong {
-  font-family: var(--display);
+/* The one-line summary under the title */
+.project-tagline {
+  margin: 16px 0 0;
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* Role, team and time in a row, split by dashed lines */
+.project-glance {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  margin: 22px 0 0;
+  padding: 14px 0;
+  border-block: 1.5px dashed color-mix(in srgb, var(--plum) 30%, transparent);
+}
+
+.project-glance > div {
+  padding-inline: 18px;
+  border-left: 1.5px dashed color-mix(in srgb, var(--plum) 30%, transparent);
+}
+
+.project-glance > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.project-glance > div:last-child {
+  padding-right: 0;
+}
+
+.project-glance dt {
+  margin-bottom: 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--plum-soft);
+}
+
+.project-glance dd {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+@media (max-width: 520px) {
+  .project-glance {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 12px;
+  }
+
+  .project-glance > div:first-child {
+    grid-column: 1 / -1;
+    padding: 0 0 12px;
+    border-bottom: 1.5px dashed color-mix(in srgb, var(--plum) 30%, transparent);
+  }
+
+  .project-glance > div:nth-child(2) {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+/* The mark and its German grade, small, after the tech stack */
+.project-grade {
+  margin: 0;
   font-size: 0.85rem;
-  letter-spacing: 0;
-  margin-left: 4px;
+  color: var(--plum-soft);
 }
 
-.project-mark.pending {
-  color: var(--ink);
-  background: var(--butter);
+.project-grade strong {
+  font-weight: 700;
+  color: var(--plum);
 }
 
-.project-mark.german {
-  color: var(--ink);
-  background: var(--pink);
-  rotate: 2deg;
+/* "View project" and the case study folder side by side */
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px 24px;
+  margin-top: 24px;
+}
+
+.project-actions .project-link {
+  margin-top: 0;
 }
 
 .project-module {
@@ -8023,6 +8098,521 @@ button.nav-link {
   margin-top: 6px;
 }
 
+/* The case study (Projects.jsx): a folder button with a page peeking out of it, which opens the story in a
+   pop-up over the blurred page, as a path from the problem to the reflection with each stop a doodle in a circle.
+   The pop-up rises in, then the stops drop in one by one. */
+.case-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 18px;
+}
+
+/* The folder: its back and tab are the button's ::before and ::after, then the page, then the front with the
+   label. Hovering pulls the page further out. */
+.case-toggle {
+  --folder: var(--butter);
+  --folder-back: color-mix(in srgb, var(--butter), #8a6a10 22%);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  padding: 22px 0 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  filter: drop-shadow(4px 4px 0 var(--pink));
+  transition: translate 0.25s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.case-toggle::before,
+.case-toggle::after {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  background: var(--folder-back);
+  border: 2px solid var(--ink);
+}
+
+.case-toggle::before {
+  inset: 12px 0 0;
+  border-radius: 4px 14px 12px 12px;
+}
+
+.case-toggle::after {
+  top: 2px;
+  left: 0;
+  width: 86px;
+  height: 14px;
+  border-bottom: 0;
+  border-radius: 8px 12px 0 0;
+}
+
+.case-toggle:hover {
+  translate: 0 -2px;
+}
+
+.case-toggle:active {
+  translate: 0 2px;
+}
+
+/* A lined page with a few scribbled lines on it */
+.case-page {
+  position: absolute;
+  z-index: -1;
+  top: 4px;
+  left: 18%;
+  right: 10%;
+  height: 46px;
+  background:
+    linear-gradient(var(--ink), var(--ink)) 12px 11px / 38% 2px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) 12px 19px / 55% 2px no-repeat,
+    linear-gradient(90deg, transparent 6px, var(--pink) 6px 7.5px, transparent 0),
+    repeating-linear-gradient(transparent 0 7px, #c9d6ee 7px 8px),
+    var(--ivory);
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  rotate: -3deg;
+  transition: translate 0.35s cubic-bezier(0.3, 1.8, 0.5, 1), rotate 0.35s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+.case-toggle:hover .case-page {
+  translate: 0 -9px;
+  rotate: 2deg;
+}
+
+.case-front {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px 12px 14px;
+  background: var(--folder);
+  border: 2px solid var(--ink);
+  border-radius: 4px 4px 12px 12px;
+}
+
+.case-toggle:focus-visible {
+  outline: none;
+}
+
+.case-toggle:focus-visible .case-front {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* A plus in a circle */
+.case-plus {
+  position: relative;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--ivory);
+}
+
+.case-plus::before,
+.case-plus::after {
+  content: '';
+  position: absolute;
+  inset: 50% 5px auto;
+  height: 2.5px;
+  margin-top: -1.25px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+.case-plus::after {
+  rotate: 90deg;
+}
+
+.case-hint {
+  margin-bottom: 12px;
+  font-size: 1.35rem;
+  rotate: -4deg;
+}
+
+/* The pop-up itself is the sheet: it scrolls inside, under a header that stays put */
+.case-modal {
+  width: min(960px, 100% - 32px);
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--cream);
+  color: var(--plum);
+  border: 2px solid var(--plum);
+  border-radius: 24px;
+  box-shadow: 8px 8px 0 var(--butter);
+  animation: case-rise 0.5s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+/* The page behind blurs and dims */
+.case-modal::backdrop {
+  background: rgb(0 10 26 / 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: case-fade 0.35s ease;
+}
+
+.case-modal.closing {
+  animation: case-sink 0.22s ease-in forwards;
+}
+
+.case-modal.closing::backdrop {
+  animation: case-fade 0.22s ease-in reverse forwards;
+}
+
+/* The page doesn't scroll behind it */
+html:has(.case-modal[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+@keyframes case-rise {
+  from {
+    opacity: 0;
+    translate: 0 60px;
+    scale: 0.94;
+  }
+}
+
+@keyframes case-sink {
+  to {
+    opacity: 0;
+    translate: 0 30px;
+    scale: 0.97;
+  }
+}
+
+@keyframes case-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.case-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 22px clamp(22px, 4vw, 44px) 18px;
+  background: var(--cream);
+  border-bottom: 1.5px dashed color-mix(in srgb, var(--plum) 30%, transparent);
+}
+
+.case-kicker {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.case-head h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* × in a butter circle */
+.case-x {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0 0 3px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--butter);
+  color: var(--ink);
+  font: 700 1.7rem/1 var(--body);
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: rotate 0.3s cubic-bezier(0.3, 1.8, 0.5, 1), translate 0.2s;
+}
+
+.case-x:hover {
+  rotate: 90deg;
+}
+
+.case-x:active {
+  translate: 2px 2px;
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.case-sheet {
+  padding: clamp(22px, 4vw, 40px) clamp(22px, 4vw, 44px) clamp(22px, 3vw, 32px);
+}
+
+/* My part in a group project, on a butter note above the path (dark ink in both themes) */
+.case-role {
+  margin: 0 0 30px;
+  padding: 14px 18px;
+  font-size: 0.95rem;
+  background: color-mix(in srgb, var(--butter) 45%, var(--ivory));
+  color: var(--ink);
+  border-radius: 14px;
+}
+
+.case-role .pen {
+  margin-right: 4px;
+  font-size: 1.35em;
+  color: var(--blue);
+}
+
+.case-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each stop on the path: its doodle on the left, joined to the next one by a dashed line, then its number, name
+   and question, and my answer under them. Each one has its own colour (--tint). */
+.case-list li {
+  --step: calc(var(--n) * 130ms + 250ms);
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-areas: 'icon label' 'icon text';
+  align-content: start;
+  gap: 10px 26px;
+  padding-bottom: 34px;
+  animation: case-fade 0.35s ease var(--step) both, case-drop 0.7s cubic-bezier(0.34, 1.7, 0.6, 1) var(--step) both;
+}
+
+.case-list li:last-child {
+  padding-bottom: 0;
+}
+
+.case-problem,
+.case-outcome {
+  --tint: #f8e1e9;
+}
+
+.case-user,
+.case-decisions {
+  --tint: #fbefc9;
+}
+
+.case-research,
+.case-reflection {
+  --tint: #e1e9f8;
+}
+
+.case-list li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 37px;
+  top: 76px;
+  bottom: 0;
+  border-left: 2.5px dashed color-mix(in srgb, var(--plum) 45%, transparent);
+  transform-origin: top;
+  animation: case-line 0.6s ease-in-out calc(var(--step) + 300ms) both;
+}
+
+.case-icon {
+  grid-area: icon;
+  width: 76px;
+  height: 76px;
+  padding: 14px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  background: var(--tint);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  animation: case-pop 0.6s cubic-bezier(0.34, 1.9, 0.6, 1) calc(var(--step) + 80ms) both;
+}
+
+.case-icon .fill {
+  fill: var(--ivory);
+}
+
+.case-label {
+  grid-area: label;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  padding-top: 14px;
+}
+
+.case-num {
+  font: 600 0.8rem/1 var(--display);
+  color: var(--accent);
+}
+
+.case-label h3 {
+  margin: 0;
+  font: 800 1.35rem/1.2 var(--display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* The question writes itself in, like the pen notes elsewhere */
+.case-label .pen {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.1;
+  color: var(--plum-soft);
+  animation: case-write 1s cubic-bezier(0.5, 0, 0.3, 1) calc(var(--step) + 250ms) both;
+}
+
+.case-text {
+  grid-area: text;
+}
+
+.case-text p {
+  margin: 0;
+  max-width: 68ch;
+}
+
+.case-text p + p {
+  margin-top: 12px;
+}
+
+/* The problem is the headline of the story */
+.case-problem .case-text p {
+  font: 600 1.25rem/1.45 var(--body);
+}
+
+/* Each stop drops in with a bounce, its doodle pops, the question writes in and the line draws down */
+@keyframes case-drop {
+  from {
+    translate: 0 -22px;
+  }
+}
+
+@keyframes case-pop {
+  from {
+    scale: 0.3;
+    rotate: -25deg;
+  }
+}
+
+@keyframes case-write {
+  from {
+    clip-path: inset(-40% 100% -40% -5%);
+  }
+
+  to {
+    clip-path: inset(-40% -5% -40% -5%);
+  }
+}
+
+@keyframes case-line {
+  from {
+    scale: 1 0;
+  }
+}
+
+.case-close {
+  display: block;
+  margin: 10px 0 0 auto;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.case-close:hover {
+  text-decoration-color: var(--pink);
+}
+
+@media (max-width: 699px) {
+  .case-modal {
+    width: calc(100% - 20px);
+    max-height: calc(100dvh - 20px);
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 var(--butter);
+  }
+
+  .case-head {
+    padding: 16px 16px 14px 18px;
+  }
+
+  .case-head h2 {
+    font-size: 1.25rem;
+  }
+
+  .case-x {
+    width: 40px;
+    height: 40px;
+  }
+
+  .case-sheet {
+    padding: 22px 18px;
+  }
+
+  .case-list li {
+    grid-template-columns: 50px minmax(0, 1fr);
+    column-gap: 14px;
+  }
+
+  .case-list li:not(:last-child)::before {
+    left: 24px;
+    top: 50px;
+  }
+
+  .case-icon {
+    width: 50px;
+    height: 50px;
+    padding: 9px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .case-label {
+    padding-top: 4px;
+  }
+
+  .case-label h3 {
+    font-size: 1.15rem;
+  }
+
+  .case-label .pen {
+    font-size: 1.2rem;
+  }
+
+  .case-problem .case-text p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-modal,
+  .case-modal::backdrop,
+  .case-list li,
+  .case-list li::before,
+  .case-icon,
+  .case-label .pen {
+    animation: none;
+  }
+
+  .case-plus,
+  .case-page,
+  .case-x {
+    transition: none;
+  }
+}
+
 .entry-title {
   font-size: clamp(1.8rem, 3.4vw, 2.6rem);
   font-weight: 800;
@@ -8051,10 +8641,6 @@ button.nav-link {
   transition: opacity 0.7s ease, translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.project-entry.flip .project-info {
-  translate: 70px 0;
-}
-
 .project-entry .visual {
   opacity: 0;
   translate: 90px 40px;
@@ -8062,11 +8648,6 @@ button.nav-link {
   scale: 0.9;
   transition: opacity 0.7s ease 0.1s, translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s,
     rotate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s, scale 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s;
-}
-
-.project-entry.flip .visual {
-  translate: -90px 40px;
-  rotate: -5deg;
 }
 
 .project-entry .entry-bignum {
@@ -8109,89 +8690,177 @@ button.nav-link {
   clip-path: inset(-40% -5% -40% -5%);
 }
 
-/* Terminal-style highlights for projects without a GUI */
-.terminal {
-  border-radius: 16px;
-  border: 2px solid var(--plum);
-  background: var(--ink);
-  color: var(--paper);
-  box-shadow: 8px 8px 0 var(--blue);
+/* The projects without a GUI, grouped at the end of the university page as compact cards */
+.eng-section {
+  padding-block: 120px 40px;
+  border-top: 1.5px solid var(--cream-deep);
 }
 
-.terminal .frame-bar {
-  border-radius: 14px 14px 0 0;
-  background: #1a2436;
+.eng-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 22px;
+  margin-bottom: clamp(32px, 4vw, 48px);
 }
 
-.terminal .frame-count {
-  color: var(--paper);
+.eng-heading {
+  margin: 0;
+  font-size: clamp(2rem, 4.2vw, 3.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
-.terminal-body {
-  min-height: 300px;
-  padding: 28px 28px 36px;
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 0.95rem;
-}
-
-.terminal-head {
-  margin: 0 0 18px;
-  color: var(--pink);
-}
-
-.terminal ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 14px;
-}
-
-.terminal li {
-  margin-bottom: 12px;
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.8s steps(28) calc(var(--t) * 300ms + 700ms);
-}
-
-.terminal li::before {
-  content: '> ';
-  color: var(--butter);
-}
-
-.project-entry.shown .terminal li {
-  clip-path: inset(0 0 0 0);
-}
-
-.cursor {
-  display: inline-block;
-  width: 0.6em;
-  height: 1.1em;
-  vertical-align: middle;
-  background: var(--butter);
-  animation: blink 1s steps(2, jump-none) infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
-.no-gui {
-  position: absolute;
-  right: -8px;
-  bottom: -26px;
+/* The "no GUI" sticker */
+.eng-note {
   padding: 4px 14px 2px;
-  font-size: 1.9rem;
+  font-size: 1.7rem;
   color: var(--ink);
   background: var(--butter);
   border: 2px solid var(--ink);
   border-radius: 8px;
   box-shadow: 3px 3px 0 var(--ink);
-  rotate: -6deg;
+  rotate: -5deg;
+}
+
+/* Always two side by side (one under the other on smaller screens), so the four cards make an even 2 × 2 */
+.eng-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 36px);
 }
 
 @media (max-width: 899px) {
-  .project-entry,
-  .project-entry.flip {
+  .eng-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.eng-card {
+  display: grid;
+  opacity: 0;
+  translate: 0 50px;
+  transition: opacity 0.7s ease, translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.eng-card:nth-child(even) {
+  transition-delay: 0.12s;
+}
+
+.eng-card.shown {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.eng-body {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(20px, 2.4vw, 30px);
+  background: var(--cream);
+  border: 2px solid var(--plum);
+  border-radius: 20px;
+  box-shadow: 6px 6px 0 var(--blue);
+}
+
+.eng-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.eng-num {
+  font-family: var(--display);
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--pink);
+}
+
+.eng-title {
+  margin: 12px 0 0;
+  font-size: clamp(1.3rem, 1.8vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.eng-body .project-module {
+  margin-top: 6px;
+}
+
+.eng-body > p {
+  margin: 14px 0 18px;
+}
+
+/* Its key points as command-line output, in a little terminal window (dark in both themes) */
+.eng-term {
+  margin-bottom: 18px;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--ivory);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+}
+
+:root[data-theme='dark'] .eng-term {
+  border-color: color-mix(in srgb, var(--ivory) 25%, transparent);
+}
+
+.eng-term .frame-bar {
+  padding: 8px 12px;
+  background: #1a2436;
+}
+
+.eng-term .frame-count {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--ivory) 75%, transparent);
+}
+
+.eng-lines {
+  margin: 0;
+  padding: 14px 16px 16px;
+  list-style: none;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.eng-lines li + li {
+  margin-top: 6px;
+}
+
+.eng-lines li::before {
+  content: '> ';
+  color: var(--butter);
+}
+
+.eng-body .stack-list {
+  margin-bottom: 16px;
+}
+
+/* The mark and the case study button sit at the bottom, level with the card next to it */
+.eng-body .project-grade {
+  margin-top: auto;
+}
+
+.eng-body .case-bar {
+  margin-top: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eng-card {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (max-width: 899px) {
+  .project-entry {
     grid-template-columns: 1fr;
     grid-template-areas: 'info' 'visual';
   }
@@ -8229,8 +8898,7 @@ button.nav-link {
     transform: none;
   }
 
-  .entry-note,
-  .terminal li {
+  .entry-note {
     clip-path: none;
   }
 
@@ -8508,6 +9176,47 @@ a:hover .nav-arrow.inline.out {
   width: 32px;
   background: var(--accent);
   border-color: var(--accent);
+}
+
+/* Opens every screen of the project in the lightbox, including the ones the carousel leaves out */
+.see-all {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 20px auto 0;
+  padding: 9px 18px;
+  border: 2px solid var(--plum);
+  border-radius: 999px;
+  background: none;
+  color: var(--plum);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: translate 0.2s cubic-bezier(0.3, 1.8, 0.5, 1), background 0.2s, color 0.2s;
+}
+
+.see-all:hover {
+  translate: 0 -2px;
+  background: var(--butter);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.see-all:active {
+  translate: 0 1px;
+}
+
+.see-all-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 7px);
+  gap: 2px;
+}
+
+.see-all-grid i {
+  height: 7px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
 }
 
 @media (max-width: 899px) {

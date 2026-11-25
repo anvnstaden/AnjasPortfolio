@@ -180,12 +180,14 @@ function useHiddenOnScrollDown(offset = 120, slack = 8) {
 }
 
 // Which nav link the visitor is "at": on the home page it follows the section in the middle of the
-// screen as you scroll (the journey counts as About); on a projects page it's that page's link.
+// screen as you scroll (the facts and the journey count as About); on a projects page it's that page's link.
+// Listed in page order, since the last one that has reached the middle wins.
 const SECTION_LINKS = [
   ['about', 'about'],
-  ['journey', 'about'],
   ['work', 'projects'],
   ['skills', 'skills'],
+  ['facts', 'about'],
+  ['journey', 'about'],
   ['contact', 'contact'],
 ]
 

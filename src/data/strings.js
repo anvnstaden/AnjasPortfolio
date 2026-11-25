@@ -154,7 +154,7 @@ export const strings = {
     projects: {
       university: {
         word: 'University',
-        intro: 'These are all my solo and group projects I have completed during University, spanning UI design, frontend, full-stack, networking and systems, newest first.',
+        intro: 'These are all my solo and group projects I have completed during University, spanning UI design, frontend, full-stack, networking and systems.',
       },
       personal: {
         word: 'Personal',
@@ -173,8 +173,6 @@ export const strings = {
       techStack: 'Tech stack',
       underTheHood: 'Under the hood',
       viewProject: 'View project',
-      commandLine: 'command line',
-      terminalHead: '// under the hood',
       noGuiNote: 'no GUI, all logic!',
       screenshots: (title) => `${title} screenshots`,
       screenshot: 'Screenshot',
@@ -185,6 +183,26 @@ export const strings = {
       previous: 'Previous screenshot',
       next: 'Next screenshot',
       close: 'Close',
+      seeAllScreens: (n) => `See all ${n} screens`,
+      // the at-a-glance line under each title
+      glance: { role: 'Role', team: 'Team', time: 'Time', solo: 'Solo', people: (n) => `${n} people` },
+      engineering: 'Engineering Projects',
+      // the case study pop-up behind each project; each section is [title, the question it answers]
+      caseStudy: {
+        title: 'Case study',
+        open: 'Read the case study',
+        close: 'Close the case study',
+        hint: 'the why behind it',
+        role: 'My part',
+        sections: {
+          problem: ['The Problem', 'What was I trying to solve?'],
+          user: ['The User', 'Who has this problem?'],
+          research: ['The Research', 'What did I discover?'],
+          decisions: ['The Decisions', 'Why this solution?'],
+          outcome: ['The Outcome', 'What changed, and what did I learn?'],
+          reflection: ['The Reflection', 'What would I do differently?'],
+        },
+      },
       ctaTitle: ['Like what you ', 'see', '?'],
       getInTouch: 'Get In Touch',
       quote: {
@@ -374,7 +392,7 @@ export const strings = {
     projects: {
       university: {
         word: 'Uni-',
-        intro: 'Hier sind alle Einzel- und Gruppenprojekte aus meinem Studium, von UI-Design über Frontend und Full-Stack bis zu Netzwerken und Systemen, die neuesten zuerst.',
+        intro: 'Hier sind alle Einzel- und Gruppenprojekte aus meinem Studium, von UI-Design über Frontend und Full-Stack bis zu Netzwerken und Systemen.',
       },
       personal: {
         word: 'Eigene',
@@ -393,8 +411,6 @@ export const strings = {
       techStack: 'Tech-Stack',
       underTheHood: 'Unter der Haube',
       viewProject: 'Projekt ansehen',
-      commandLine: 'Kommandozeile',
-      terminalHead: '// unter der Haube',
       noGuiNote: 'keine GUI, nur Logik!',
       screenshots: (title) => `Screenshots von ${title}`,
       screenshot: 'Screenshot',
@@ -405,6 +421,24 @@ export const strings = {
       previous: 'Vorheriger Screenshot',
       next: 'Nächster Screenshot',
       close: 'Schließen',
+      seeAllScreens: (n) => `Alle ${n} Screens ansehen`,
+      glance: { role: 'Rolle', team: 'Team', time: 'Dauer', solo: 'Solo', people: (n) => `${n} Personen` },
+      engineering: 'Engineering-Projekte',
+      caseStudy: {
+        title: 'Case Study',
+        open: 'Case Study lesen',
+        close: 'Case Study schließen',
+        hint: 'das Warum dahinter',
+        role: 'Mein Teil',
+        sections: {
+          problem: ['Das Problem', 'Was wollte ich lösen?'],
+          user: ['Die Nutzer', 'Wer hat dieses Problem?'],
+          research: ['Die Recherche', 'Was habe ich herausgefunden?'],
+          decisions: ['Die Entscheidungen', 'Warum diese Lösung?'],
+          outcome: ['Das Ergebnis', 'Was hat sich verändert, und was habe ich gelernt?'],
+          reflection: ['Die Reflexion', 'Was würde ich anders machen?'],
+        },
+      },
       ctaTitle: ['Gefällt dir, was du ', 'siehst', '?'],
       getInTouch: 'Schreib mir',
       quote: {

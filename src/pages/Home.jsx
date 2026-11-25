@@ -1061,7 +1061,12 @@ function Statements() {
 export default function Home() {
   const { t, content } = useLang()
   const projects = content.projects
-  const featured = projects.filter((p) => p.featured)
+  // The featured projects from both pages, in their `featured` order; personal ones link to the personal page
+  const featured = [...projects, ...content.personalProjects]
+    .filter((p) => p.featured)
+    .sort((a, b) => a.featured - b.featured)
+  const pageOf = (p) => (projects.includes(p) ? '/projects' : '/projects/personal')
+  const otherProjects = projects.length - featured.filter((p) => projects.includes(p)).length
   const envelope = useRef(null)
   const toggleEnvelope = useEnvelope(envelope)
 
@@ -1109,10 +1114,8 @@ export default function Home() {
         />
       </section>
 
-      <FactsWallet />
-
-      <Journey />
-
+      {/* The work comes straight after the intro, so it's in the first few screens; the facts and the journey
+          are for once someone's interested */}
       <section id="work" className="section slide-section from-left">
         <div className="section-head">
           <Title text={t.work.title} />
@@ -1121,15 +1124,16 @@ export default function Home() {
         <div className="featured">
           {featured.map((p, i) => (
             <Link
-              to={`/projects#${p.slug}`}
+              to={`${pageOf(p)}#${p.slug}`}
               key={p.slug}
               className="card tilt reveal pop"
               style={{ '--d': `${i * 120}ms`, '--r': `${(i - 1) * 4}deg` }}
             >
-              <ProjectThumb project={p} index={projects.indexOf(p)} />
+              <ProjectThumb project={p} index={i} />
+              {p.label && <span className="card-label">{p.label}</span>}
               <div className="card-body">
                 <h3>{p.title}</h3>
-                <p className="card-desc">{p.description}</p>
+                <p className="card-desc">{p.tagline ?? p.description}</p>
                 <span className="card-more">
                   <span className="card-more-text">
                     <span>{t.work.readMore}</span>
@@ -1149,7 +1153,7 @@ export default function Home() {
             <span className="deck-sheet" />
             <span className="deck-sheet" />
             <span className="deck-front">
-              <b className="deck-count">+{projects.length - featured.length}</b>
+              <b className="deck-count">+{otherProjects}</b>
               {t.work.deck}
               <span className="card-more-arrow"><NavArrow inline /></span>
             </span>
@@ -1160,6 +1164,10 @@ export default function Home() {
       <section id="skills" className="skills-section">
         <SkillsDesk />
       </section>
+
+      <FactsWallet />
+
+      <Journey />
 
       <section id="contact" className="contact slide-section from-left">
         <h2 className="contact-big zoom reveal">

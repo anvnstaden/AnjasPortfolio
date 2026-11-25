@@ -41,6 +41,14 @@ function Video({ src, alt, onReady, ...props }) {
 export default function Media({ src, alt = '', skeleton = false, ...props }) {
   const [loaded, setLoaded] = useState(false)
   const done = useCallback(() => setLoaded(true), [])
+  // A recording's poster is enough to show, so the placeholder goes as soon as that still has loaded rather than
+  // waiting for the video itself to download
+  useEffect(() => {
+    if (!skeleton || !isVideo(src)) return
+    const poster = new Image()
+    poster.onload = poster.onerror = done
+    poster.src = posterOf(src)
+  }, [skeleton, src, done])
   return (
     <>
       {isVideo(src) ? (

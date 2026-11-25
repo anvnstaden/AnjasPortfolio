@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import Split from '../components/Split.jsx'
 import Media from '../components/Media.jsx'
 import QuoteForm from '../components/QuoteForm.jsx'
@@ -23,11 +23,13 @@ function germanGrade(mark) {
 
 // Horizontal carousel of screenshots. Every slide keeps its screenshot's own proportions (nothing is
 // cropped), the active one sits in the middle and its neighbours fade out towards the page background.
+// Screens marked `more` stay out of it and only show in the lightbox, under "See all screens".
 function Carousel({ project, onOpen }) {
   const t = useLang().t.projects
   const [active, setActive] = useState(0)
   const swipe = useRef({ x: null, moved: false })
-  const images = project.images
+  const all = project.images
+  const images = all.filter((img) => !img.more)
   const slots = images.length ? images : Array(PLACEHOLDER_SLOTS).fill(null)
   const go = (i) => setActive(Math.min(slots.length - 1, Math.max(0, i)))
   const current = slots[active]
@@ -45,7 +47,7 @@ function Carousel({ project, onOpen }) {
   const onSlide = (img, i) => {
     if (swipe.current.moved) return
     if (i !== active) go(i)
-    else if (img) onOpen(images, i)
+    else if (img) onOpen(all, all.indexOf(img))
   }
 
   return (
@@ -107,31 +109,297 @@ function Carousel({ project, onOpen }) {
           ))}
         </div>
       )}
+      {all.length > images.length && (
+        <button type="button" className="see-all" onClick={() => onOpen(all, 0)}>
+          <span className="see-all-grid" aria-hidden="true"><i /><i /><i /><i /></span>
+          {t.seeAllScreens(all.length)}
+        </button>
+      )}
     </div>
   )
 }
 
-// For projects without a user interface: key points in a terminal-style window.
-function Highlights({ project }) {
-  const t = useLang().t.projects
-  const language = project.kind.split(' · ')[0]
+// The story behind a project (`caseStudy` in content.js): a folder button beside "View project" that opens the
+// story in a pop-up over the blurred page. The sections always come in this order, and any a project leaves out
+// are skipped.
+const CASE_SECTIONS = ['problem', 'user', 'research', 'decisions', 'outcome', 'reflection']
+
+// A hand-drawn doodle for each section: a warning sign, a person, a magnifying glass, a lightbulb, a star and a
+// looping arrow. The filled shape takes its colour from CSS (--fill), the strokes are ink.
+const CASE_ICONS = {
+  problem: ['M12 3.6c.4 0 .7.2.9.6l7.6 13.6c.4.8-.1 1.7-1 1.7H4.6c-.9 0-1.4-.9-1-1.7L11.1 4.2c.2-.4.5-.6.9-.6Z', 'M12 9.3c.1 1.6 0 3.1-.1 4.6M12 16.6v.1'],
+  user: ['M12 4.3a3.7 3.7 0 1 1 0 7.4 3.7 3.7 0 0 1 0-7.4ZM4.8 20c.6-3.9 3.4-6.1 7.2-6.1s6.6 2.2 7.2 6.1Z', ''],
+  research: ['M10.4 4.2a6.2 6.2 0 1 1 0 12.4 6.2 6.2 0 0 1 0-12.4Z', 'M15 15.1c1.9 1.7 3.6 3.4 5.2 5.2M7.6 9.3c.4-1.2 1.3-2 2.6-2.3'],
+  decisions: ['M12 3.2a6.1 6.1 0 0 0-3.6 11c.6.5 1 1.2 1 2h5.2c0-.8.4-1.5 1-2A6.1 6.1 0 0 0 12 3.2Z', 'M9.6 18.6h4.8M10.5 21h3'],
+  outcome: ['M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6L12 16.8l-5.3 2.9 1.1-6-4.4-4.2 6-.8Z', ''],
+  reflection: ['', 'M18.6 13.2a6.8 6.8 0 1 1-1.9-5.9M17.4 3.6l-.4 4.2-4.1-.3'],
+}
+
+function CaseIcon({ name }) {
+  const [shape, strokes] = CASE_ICONS[name]
   return (
-    <div className="visual terminal">
-      <div className="frame-bar">
-        <span className="dots" aria-hidden="true"><i /><i /><i /></span>
-        <span className="frame-count">{language} · {t.commandLine}</span>
-      </div>
-      <div className="terminal-body">
-        <p className="terminal-head">{t.terminalHead}</p>
-        <ul>
-          {project.highlights.map((h, i) => (
-            <li key={h} style={{ '--t': i }}>{h}</li>
-          ))}
-        </ul>
-        <span className="cursor" aria-hidden="true" />
-      </div>
-      <span className="pen no-gui">{t.noGuiNote}</span>
+    <svg className="case-icon" viewBox="0 0 24 24" aria-hidden="true">
+      {shape && <path className="fill" d={shape} />}
+      {strokes && <path d={strokes} />}
+    </svg>
+  )
+}
+
+// Whether a project's case study is open, shared by its button and its pop-up
+function useCaseStudy(project) {
+  const [open, setOpen] = useState(false)
+  const id = `${project.slug}-case-study`
+
+  // A link straight to the case study (/projects#<slug>-case-study) opens it; App.jsx scrolls to its button
+  const { hash } = useLocation()
+  const [seenHash, setSeenHash] = useState(null)
+  if (hash !== seenHash) {
+    setSeenHash(hash)
+    if (hash === `#${id}`) setOpen(true)
+  }
+
+  return { id, open, setOpen }
+}
+
+function CaseToggle({ study }) {
+  const t = useLang().t.projects.caseStudy
+  return (
+    <div className="case-bar" id={study.id}>
+      <button type="button" className="case-toggle" aria-haspopup="dialog" onClick={() => study.setOpen(true)}>
+        <span className="case-page" aria-hidden="true" />
+        <span className="case-front">
+          <span className="case-plus" aria-hidden="true" />
+          {t.open}
+        </span>
+      </button>
+      <span className="pen case-hint" aria-hidden="true">{t.hint}</span>
     </div>
+  )
+}
+
+// The case study as a pop-up: the project's name in a header that stays put while the story scrolls under it,
+// and the path from the problem to the reflection. Closing (×, Escape, or a click on the blurred page around it)
+// fades it out first.
+function CaseModal({ project, study }) {
+  const t = useLang().t.projects.caseStudy
+  const dialog = useRef(null)
+  const [closing, setClosing] = useState(false)
+  const { id, open, setOpen } = study
+  const story = project.caseStudy
+  const sections = CASE_SECTIONS.filter((key) => story[key])
+
+  useEffect(() => {
+    if (open) dialog.current.showModal()
+  }, [open])
+
+  const close = () => {
+    if (closing) return
+    setClosing(true)
+    const fade = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220
+    // Escape can close it straight away instead (browsers don't always let the fade hold it open), and then
+    // there's nothing left to close, only the fade to reset
+    setTimeout(() => (dialog.current?.open ? dialog.current.close() : setClosing(false)), fade)
+  }
+
+  return (
+    <dialog
+      ref={dialog}
+      className={`case-modal${closing ? ' closing' : ''}`}
+      aria-labelledby={`${id}-title`}
+      onCancel={(e) => {
+        e.preventDefault()
+        close()
+      }}
+      onClose={() => {
+        setClosing(false)
+        setOpen(false)
+      }}
+      onClick={(e) => e.target === dialog.current && close()}
+    >
+      {open && (
+        <>
+          <header className="case-head">
+            <div>
+              <p className="case-kicker">{t.title}</p>
+              <h2 id={`${id}-title`}>{project.title}</h2>
+            </div>
+            <button type="button" className="case-x" onClick={close} aria-label={t.close}>×</button>
+          </header>
+          <div className="case-sheet">
+            {story.role && (
+              <p className="case-role">
+                <span className="pen">{t.role}</span> {story.role}
+              </p>
+            )}
+            <ol className="case-list">
+              {sections.map((key, i) => (
+                <li key={key} className={`case-${key}`} style={{ '--n': i }}>
+                  <CaseIcon name={key} />
+                  <div className="case-label">
+                    <span className="case-num">{pad(i + 1)}</span>
+                    <h3>{t.sections[key][0]}</h3>
+                    <p className="pen">{t.sections[key][1]}</p>
+                  </div>
+                  <div className="case-text">
+                    <p>{story[key]}</p>
+                    {key === 'outcome' && story.learned && <p>{story.learned}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <button type="button" className="case-close" onClick={close}>
+              {t.close}
+            </button>
+          </div>
+        </>
+      )}
+    </dialog>
+  )
+}
+
+// The year, and a badge like "Client work" for projects that aren't coursework
+function Badges({ project }) {
+  if (!project.meta && !project.label) return null
+  return (
+    <div className="project-badges">
+      {project.label && <span className="project-label">{project.label}</span>}
+      {project.meta && <span className="project-meta">{project.meta}</span>}
+    </div>
+  )
+}
+
+// Role, team size and how long it took, at a glance under the title
+function Glance({ project }) {
+  const t = useLang().t.projects.glance
+  if (!project.role) return null
+  return (
+    <dl className="project-glance">
+      <div>
+        <dt>{t.role}</dt>
+        <dd>{project.role}</dd>
+      </div>
+      <div>
+        <dt>{t.team}</dt>
+        <dd>{project.team > 1 ? t.people(project.team) : t.solo}</dd>
+      </div>
+      <div>
+        <dt>{t.time}</dt>
+        <dd>{project.time}</dd>
+      </div>
+    </dl>
+  )
+}
+
+// The final mark and its German grade, as one small line under the tech stack
+function Grade({ mark }) {
+  const { t: { projects: t }, content } = useLang()
+  if (!mark) return null
+  const grade = germanGrade(mark)
+  return (
+    <p className="project-grade">
+      {t.mark} <strong>{mark === 'TBA' ? t.tba : content.mark(mark)}</strong>
+      {grade && (
+        <>
+          <span aria-hidden="true"> · </span>
+          {t.germanGrade} <strong>≈ {grade}</strong>
+        </>
+      )}
+    </p>
+  )
+}
+
+function Stack({ project }) {
+  const t = useLang().t.projects
+  return (
+    <div className="project-tech">
+      <h3>{t.techStack}</h3>
+      <ul className="stack-list">
+        {project.stack.map((tech) => <li key={tech}>{tech}</li>)}
+      </ul>
+      {project.technical && (
+        <>
+          <h3>{t.underTheHood}</h3>
+          <ul className="tech-notes">
+            {project.technical.map((note) => <li key={note}>{note}</li>)}
+          </ul>
+        </>
+      )}
+    </div>
+  )
+}
+
+// A project with screens: its title, one-liner and summary on the left, the details on the right, and then the
+// carousel
+function ProjectEntry({ project: p, num, onOpen }) {
+  const t = useLang().t.projects
+  const study = useCaseStudy(p)
+  return (
+    <article id={p.slug} className="project-entry wide">
+      <span className="entry-bignum" aria-hidden="true">{num}</span>
+      <div className="project-info">
+        <div className="project-head">
+          <Badges project={p} />
+          <h2 className="entry-title">
+            <Split text={p.title} />
+            {p.note && <span className="pen entry-note">{p.note}</span>}
+          </h2>
+          {p.tagline && <p className="project-tagline">{p.tagline}</p>}
+          <Glance project={p} />
+          {p.module && <p className="project-module">{t.module} <strong>{p.module}</strong></p>}
+        </div>
+        <div className="project-body">
+          <p>{p.description}</p>
+          {p.theme && <p className="project-theme">{p.theme}</p>}
+          <Stack project={p} />
+          <Grade mark={p.mark} />
+          {(p.link || p.caseStudy) && (
+            <div className="project-actions">
+              {p.link && (
+                <a href={p.link} className="project-link" target="_blank" rel="noreferrer">{p.linkLabel ?? t.viewProject} <NavArrow inline out /></a>
+              )}
+              {p.caseStudy && <CaseToggle study={study} />}
+            </div>
+          )}
+        </div>
+      </div>
+      <Carousel project={p} onOpen={onOpen} />
+      {p.caseStudy && <CaseModal project={p} study={study} />}
+    </article>
+  )
+}
+
+// A project without a GUI, as a compact card in the engineering section: its summary and its key points as
+// command-line output in a little terminal
+function EngineeringCard({ project: p, num }) {
+  const t = useLang().t.projects
+  const study = useCaseStudy(p)
+  return (
+    <article id={p.slug} className="eng-card">
+      <div className="eng-body">
+        <div className="eng-top">
+          <span className="eng-num" aria-hidden="true">{num}</span>
+          {p.meta && <span className="project-meta">{p.meta}</span>}
+        </div>
+        <h3 className="eng-title">{p.title}</h3>
+        {p.module && <p className="project-module">{t.module} <strong>{p.module}</strong></p>}
+        <p>{p.description}</p>
+        <div className="eng-term">
+          <div className="frame-bar">
+            <span className="dots" aria-hidden="true"><i /><i /><i /></span>
+            <span className="frame-count">{p.kind}</span>
+          </div>
+          <ul className="eng-lines">
+            {p.highlights.map((h) => <li key={h}>{h}</li>)}
+          </ul>
+        </div>
+        <ul className="stack-list">
+          {p.stack.map((tech) => <li key={tech}>{tech}</li>)}
+        </ul>
+        <Grade mark={p.mark} />
+        {p.caseStudy && <CaseToggle study={study} />}
+      </div>
+      {p.caseStudy && <CaseModal project={p} study={study} />}
+    </article>
   )
 }
 
@@ -224,8 +492,11 @@ export default function Projects({ page = 'university' }) {
   const skill = params.get('skill')
   const only = page === 'university' && skill && skillProjects[skill]
   const shown = only ? list.filter((p) => only.includes(p.slug)) : list
+  // The projects without a GUI are grouped at the end as compact engineering cards
+  const engineering = shown.filter((p) => p.gui === false)
   const num = (p) => pad(list.indexOf(p) + 1)
-  useInOutView('.project-entry', skill)
+  const open = (images, index) => setZoomed({ images, index })
+  useInOutView('.project-entry, .eng-card', skill)
 
   return (
     <main className="projects-page">
@@ -326,65 +597,21 @@ export default function Projects({ page = 'university' }) {
         )}
       </header>
 
-      {shown.map((p, i) => (
-        <article
-          id={p.slug}
-          key={p.slug}
-          className={`project-entry${p.gui === false ? (i % 2 ? ' flip' : '') : ' wide'}`}
-        >
-          <span className="entry-bignum" aria-hidden="true">{num(p)}</span>
-          <div className="project-info">
-            <div className="project-head">
-              <div className="project-top">
-                <div className="project-badges">
-                  {p.mark && (
-                    <span className={`project-mark${p.mark === 'TBA' ? ' pending' : ''}`}>
-                      {t.mark} <strong>{p.mark === 'TBA' ? t.tba : content.mark(p.mark)}</strong>
-                    </span>
-                  )}
-                  {germanGrade(p.mark) && (
-                    <span className="project-mark german">
-                      {t.germanGrade} <strong>≈ {germanGrade(p.mark)}</strong>
-                    </span>
-                  )}
-                  {p.meta && <span className="project-meta">{p.meta}</span>}
-                </div>
-              </div>
-              <h2 className="entry-title">
-                <Split text={p.title} />
-                {p.note && <span className="pen entry-note">{p.note}</span>}
-              </h2>
-              {p.module && <p className="project-module">{t.module} <strong>{p.module}</strong></p>}
-            </div>
-            <div className="project-body">
-              <p>{p.description}</p>
-              {p.theme && <p className="project-theme">{p.theme}</p>}
-              <div className="project-tech">
-                <h3>{t.techStack}</h3>
-                <ul className="stack-list">
-                  {p.stack.map((tech) => <li key={tech}>{tech}</li>)}
-                </ul>
-                {p.technical && (
-                  <>
-                    <h3>{t.underTheHood}</h3>
-                    <ul className="tech-notes">
-                      {p.technical.map((note) => <li key={note}>{note}</li>)}
-                    </ul>
-                  </>
-                )}
-              </div>
-              {p.link && (
-                <a href={p.link} className="project-link" target="_blank" rel="noreferrer">{p.linkLabel ?? t.viewProject} <NavArrow inline out /></a>
-              )}
-            </div>
-          </div>
-          {p.gui === false ? (
-            <Highlights project={p} />
-          ) : (
-            <Carousel project={p} onOpen={(images, index) => setZoomed({ images, index })} />
-          )}
-        </article>
+      {shown.filter((p) => p.gui !== false).map((p) => (
+        <ProjectEntry key={p.slug} project={p} num={num(p)} onOpen={open} />
       ))}
+
+      {engineering.length > 0 && (
+        <section className="eng-section" aria-labelledby="engineering">
+          <div className="eng-head">
+            <h2 id="engineering" className="eng-heading reveal">{t.engineering}</h2>
+            <span className="pen eng-note reveal">{t.noGuiNote}</span>
+          </div>
+          <div className="eng-grid">
+            {engineering.map((p) => <EngineeringCard key={p.slug} project={p} num={num(p)} />)}
+          </div>
+        </section>
+      )}
 
       {page === 'personal' && <QuoteForm number={list.length + 1} />}
 
