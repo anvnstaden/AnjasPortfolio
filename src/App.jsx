@@ -1,21 +1,30 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Projects from './pages/Projects.jsx'
 import PenCursor from './components/PenCursor.jsx'
+import NavTrip from './components/NavTrip.jsx'
 import { Circle } from './components/Doodles.jsx'
 import { LANGUAGES, useLang } from './i18n.js'
 import './App.css'
 
-// Scrolls to the top on page change, or to #section when the link has one.
+// Scrolls to #section when the address has one, or else to the top
+function scrollToPlace(hash, behavior) {
+  if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior })
+  else window.scrollTo({ top: 0, behavior })
+}
+
+// Scrolls to the top on page change, or to #section when the link has one. Returns a function that makes the next one
+// go straight there instead of scrolling, for under a nav link's trip (see useNavTrip).
 function useScrollOnNavigate(location) {
+  const straight = useRef(false)
   useEffect(() => {
-    if (location.hash) {
-      document.getElementById(location.hash.slice(1))?.scrollIntoView()
-    } else {
-      window.scrollTo(0, 0)
-    }
+    scrollToPlace(location.hash, straight.current ? 'instant' : 'auto')
+    straight.current = false
   }, [location.pathname, location.hash])
+  return () => {
+    straight.current = true
+  }
 }
 
 // Adds .in to animated elements (.reveal, pen .write text, .draw strokes and sliding sections) as they
@@ -299,7 +308,7 @@ function ProjectsMenu({ current }) {
         <div className="nav-fold">
           <div className="nav-sign">
             {PROJECT_SIGNS.map(([to, id, section, icon]) => (
-              <Link key={id} to={to} className={`nav-drop-item${current === section ? ' current' : ''}`}>
+              <Link key={id} to={to} data-trip={id} className={`nav-drop-item${current === section ? ' current' : ''}`}>
                 <span className="nav-plate-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{icon}</svg></span>
                 <NavLabel current={current === section}>{t.nav[id]}</NavLabel>
                 <svg className="nav-plate-arrow" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" /></svg>
@@ -312,10 +321,59 @@ function ProjectsMenu({ current }) {
   )
 }
 
+// True when a link goes to the part of the page you're already looking at, so there's nowhere to take you
+function alreadyAt(location, to) {
+  const { pathname, hash } = new URL(to, window.location.href)
+  if (pathname !== location.pathname) return false
+  const el = hash && document.getElementById(hash.slice(1))
+  if (!el) return window.scrollY < 1
+  const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0
+  const end = document.documentElement.scrollHeight - window.innerHeight
+  return Math.abs(Math.min(window.scrollY + el.getBoundingClientRect().top - pad, end) - window.scrollY) < 2
+}
+
+// Links marked data-trip (the nav's, and the hero's buttons) take you where they go on a trip: rather than scroll all
+// the way there, past every section in between, a sheet of paper covers the page while it jumps there (see NavTrip.jsx).
+// The value names the note written on it. Returns the trip under way ({ key, to, note }) or null, the jump and the end
+// of the trip.
+function useNavTrip(location, goStraight) {
+  const navigate = useNavigate()
+  const [trip, setTrip] = useState(null)
+
+  const jump = (to) => {
+    const { pathname, hash } = new URL(to, window.location.href)
+    if (pathname === location.pathname && hash === location.hash) {
+      scrollToPlace(hash, 'instant')
+    } else {
+      goStraight()
+      navigate(to)
+    }
+  }
+
+  const onClick = useEffectEvent((e) => {
+    const link = e.target.closest?.('a[data-trip]')
+    const to = link?.getAttribute('href')
+    // opening it in a new tab or window is left to the browser, and so is a link to where you already are
+    if (!to || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || alreadyAt(location, to)) return
+    e.preventDefault()
+    if (trip) return
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) jump(to)
+    else setTrip({ key: Date.now(), to, note: link.dataset.trip })
+  })
+  // Listening on the whole document as the click comes down, it's in before the link's own navigation
+  useEffect(() => {
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
+  }, [])
+
+  return [trip, jump, () => setTrip(null)]
+}
+
 function App() {
   const { t } = useLang()
   const location = useLocation()
-  useScrollOnNavigate(location)
+  const goStraight = useScrollOnNavigate(location)
+  const [trip, jump, endTrip] = useNavTrip(location, goStraight)
   useReveal(location.pathname)
   useTilt()
   const scrolled = useScrolled()
@@ -329,27 +387,16 @@ function App() {
     <>
       <div className="progress" aria-hidden="true" />
       <PenCursor />
+      {trip && <NavTrip key={trip.key} to={trip.to} note={t.nav.trips[trip.note]} onCovered={() => jump(trip.to)} onDone={endTrip} />}
       <header ref={header} className={`nav${scrolled ? ' scrolled' : ''}${hidden && !menuOpen ? ' hidden' : ''}${menuOpen ? ' open' : ''}`}>
-        {/* Already on the home page, the link wouldn't change the address (so nothing would scroll): go to the top */}
-        <Link
-          to="/"
-          className="nav-charm nav-logo"
-          aria-label={t.nav.home}
-          onClick={(e) => {
-            setMenuOpen(false)
-            if (location.pathname === '/' && !location.hash) {
-              e.preventDefault()
-              window.scrollTo({ top: 0 })
-            }
-          }}
-        >
+        <Link to="/" data-trip="home" className="nav-charm nav-logo" aria-label={t.nav.home} onClick={() => setMenuOpen(false)}>
           <span className="charm-knob"><img src="/favicon.svg" alt="" /></span>
         </Link>
         <nav id="site-menu" onClick={(e) => e.target.closest('a') && setMenuOpen(false)}>
-          <Link to="/#about" className={link('about')}><NavLabel current={current === 'about'}>{t.nav.about}</NavLabel></Link>
+          <Link to="/#about" data-trip="about" className={link('about')}><NavLabel current={current === 'about'}>{t.nav.about}</NavLabel></Link>
           <ProjectsMenu current={current} />
-          <Link to="/#skills" className={link('skills')}><NavLabel current={current === 'skills'}>{t.nav.skills}</NavLabel></Link>
-          <Link to="/#contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}><NavLabel current={current === 'contact'}>{t.nav.contact}</NavLabel></Link>
+          <Link to="/#skills" data-trip="skills" className={link('skills')}><NavLabel current={current === 'skills'}>{t.nav.skills}</NavLabel></Link>
+          <Link to="/#contact" data-trip="contact" className={`nav-cta${current === 'contact' ? ' current' : ''}`}><NavLabel current={current === 'contact'}>{t.nav.contact}</NavLabel></Link>
         </nav>
         {/* Site settings hang here as .nav-charm buttons */}
         <div className="nav-prefs">

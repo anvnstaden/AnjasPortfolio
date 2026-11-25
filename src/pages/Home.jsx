@@ -871,7 +871,7 @@ function HopLabel({ text }) {
 function FolderButton({ copy, label, ...rest }) {
   const Tag = copy ? 'span' : Link
   return (
-    <Tag className="fun-btn folder-btn" aria-label={label} {...(!copy && { to: '/projects' })} {...rest}>
+    <Tag className="fun-btn folder-btn" aria-label={label} {...(!copy && { to: '/projects', 'data-trip': 'university' })} {...rest}>
       <span className="fun-peek" aria-hidden="true"><i /><i /><i /></span>
       <span className="fun-face">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -888,7 +888,7 @@ function FolderButton({ copy, label, ...rest }) {
 function EnvelopeButton({ copy, label }) {
   const Tag = copy ? 'span' : Link
   return (
-    <Tag className="fun-btn mail-btn" aria-label={label} {...(!copy && { to: '/#contact' })}>
+    <Tag className="fun-btn mail-btn" aria-label={label} {...(!copy && { to: '/#contact', 'data-trip': 'contact' })}>
       <span className="fun-peek" aria-hidden="true">
         <i>♥</i>
         <b>♥</b>

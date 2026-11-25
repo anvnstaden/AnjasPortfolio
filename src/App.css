@@ -243,6 +243,148 @@ main,
   }
 }
 
+/* ---------- The trip a nav link or hero button takes you on (see NavTrip.jsx) ----------
+   A sheet of lined notebook paper, torn out along its top edge, sweeps up over the page with the logo drawing itself
+   on in pen and a note of where you're going, then carries on up and away to show the link's place on the page. */
+.nav-trip {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+}
+
+.nav-trip.leaving {
+  pointer-events: none;
+}
+
+.nav-trip-sheet {
+  --rule: rgb(14 71 152 / 0.13);
+  position: absolute;
+  /* a little bigger than the screen, so its edges stay out of sight while it sits still */
+  inset: -48px -32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  isolation: isolate;
+  box-shadow: 0 0 56px rgb(0 10 26 / 0.28);
+  animation: trip-in 0.42s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+
+.nav-trip.leaving .nav-trip-sheet {
+  animation: trip-out 0.5s cubic-bezier(0.55, 0, 0.75, 0.3) both;
+}
+
+/* the paper: blue rules, a pink margin line, and a row of little bites where it came off the spiral */
+.nav-trip-sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, transparent calc(32px + 9vw), var(--pink) 0 calc(34px + 9vw), transparent 0),
+    repeating-linear-gradient(transparent 0 35px, var(--rule) 0 36px) 0 12px,
+    var(--cream);
+  -webkit-mask:
+    radial-gradient(circle at 50% 0, transparent 6px, #000 6.5px) 0 0 / 26px 14px repeat-x,
+    linear-gradient(#000 0 0) 0 14px / 100% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 50% 0, transparent 6px, #000 6.5px) 0 0 / 26px 14px repeat-x,
+    linear-gradient(#000 0 0) 0 14px / 100% 100% no-repeat;
+}
+
+:root[data-theme='dark'] .nav-trip-sheet {
+  --rule: rgb(143 176 230 / 0.12);
+  box-shadow: 0 0 56px rgb(0 0 0 / 0.6);
+}
+
+@keyframes trip-in {
+  from {
+    translate: 0 105%;
+    rotate: 2.5deg;
+  }
+}
+
+@keyframes trip-out {
+  to {
+    translate: 0 -105%;
+    rotate: -2deg;
+  }
+}
+
+/* The logo, outlined in pen letter by letter, then inked in, and the pink dot pressed on last */
+.nav-trip-logo {
+  width: clamp(120px, 22vw, 190px);
+  overflow: visible;
+}
+
+.nav-trip-logo path {
+  fill: var(--plum);
+  fill-opacity: 0;
+  stroke: var(--plum);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation:
+    trip-ink 0.5s cubic-bezier(0.5, 0, 0.3, 1) calc(var(--d, 0ms) + 80ms) forwards,
+    trip-fill 0.25s ease calc(var(--d, 0ms) + 430ms) forwards;
+}
+
+.nav-trip-logo .nav-trip-dot {
+  fill: var(--pink);
+  fill-opacity: 1;
+  stroke: none;
+  scale: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: trip-dot 0.3s cubic-bezier(0.3, 1.8, 0.5, 1) 0.62s forwards;
+}
+
+@keyframes trip-ink {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes trip-fill {
+  to {
+    fill-opacity: 1;
+  }
+}
+
+@keyframes trip-dot {
+  to {
+    scale: 1;
+  }
+}
+
+/* written in underneath as the logo goes on, then underlined */
+.nav-trip-note {
+  position: relative;
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  clip-path: inset(-40% 100% -40% -5%);
+  animation: trip-write 0.5s cubic-bezier(0.5, 0, 0.3, 1) 0.3s forwards;
+}
+
+.nav-trip-note .doodle-underline path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: trip-ink 0.3s ease 0.7s forwards;
+}
+
+@keyframes trip-write {
+  to {
+    clip-path: inset(-40% -5% -40% -5%);
+  }
+}
+
 /* ---------- Scroll animations (classes toggled by useReveal) ---------- */
 .reveal {
   opacity: 0;
