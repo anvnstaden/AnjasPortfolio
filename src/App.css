@@ -2071,20 +2071,26 @@ button.nav-link {
   visibility: hidden;
 }
 
+/* The strap's metal crimp (see LanyardClip in Lanyard.jsx), a little wider than the strap going into it. Its tongue
+   hangs out of the box down to the middle of the slot, and casts a shadow on the card. */
 .badge-clip {
   position: absolute;
   z-index: 2;
   left: 50%;
   top: 6cqi;
-  width: 18cqi;
-  height: 11cqi;
+  width: 14cqi;
+  height: calc(14cqi * 32 / 60);
   translate: -50% 0;
-  border: 3px solid var(--ink);
-  border-radius: 6px 6px 12px 12px;
-  background: linear-gradient(#f3f3f8, #c8c8d2 45%, #8f8f9e);
-  box-shadow: inset 0 1px 1px #fff, 0 2px 3px rgb(0 10 26 / 0.4);
   /* just in front of the card, whichever way round it is */
   transform: translateZ(calc(1.3cqi + 3px));
+}
+
+.badge-clip svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0.3cqi 0.6cqi 0.5cqi rgb(0 10 26 / 0.45));
 }
 
 .badge-card {

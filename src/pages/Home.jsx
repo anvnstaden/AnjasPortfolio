@@ -6,7 +6,7 @@ import ProjectThumb from '../components/ProjectThumb.jsx'
 import Journey from '../components/Journey.jsx'
 import FactsWallet from '../components/FactsWallet.jsx'
 import Blueprint from '../components/Blueprint.jsx'
-import Lanyard from '../components/Lanyard.jsx'
+import Lanyard, { LanyardClip } from '../components/Lanyard.jsx'
 import Notebook from '../components/Notebook.jsx'
 import { Circle, NavArrow, PointingHand, Underline } from '../components/Doodles.jsx'
 import { contact, skillProjects, skills } from '../data/content.js'
@@ -796,7 +796,7 @@ function IdBadge() {
         <span className="badge-shadow" aria-hidden="true" />
         {/* a solid card: it tilts as one piece, the clip in front, and its thickness is a stack of layers */}
         <div className="badge-tilt">
-        <span className="badge-clip" aria-hidden="true" />
+        <span className="badge-clip" aria-hidden="true"><LanyardClip /></span>
         <div className="badge-card">
           {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <i className="badge-edge" style={{ '--i': i }} aria-hidden="true" key={i} />)}
           <div className="badge-face badge-front" aria-hidden={flipped}>

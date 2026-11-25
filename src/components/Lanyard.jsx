@@ -58,10 +58,12 @@ export default function Lanyard() {
       })
     }
 
+    // Sized to the canvas as it's shown, which leaves out the scrollbar: sized to the whole window instead, the drawing
+    // gets squeezed into the narrower space and the strap ends up beside the clip rather than in the middle of it
     const fit = () => {
       const scale = window.devicePixelRatio || 1
-      el.width = Math.round(innerWidth * scale)
-      el.height = Math.round(innerHeight * scale)
+      el.width = Math.round(el.clientWidth * scale)
+      el.height = Math.round(el.clientHeight * scale)
       ctx.setTransform(scale, 0, 0, scale, 0, 0)
     }
 
@@ -206,7 +208,7 @@ export default function Lanyard() {
     }
 
     const draw = () => {
-      ctx.clearRect(0, 0, innerWidth, innerHeight)
+      ctx.clearRect(0, 0, el.clientWidth, el.clientHeight)
       const tension = parseFloat(visual.style.getPropertyValue('--tension')) || 0
       const half = (badge.offsetWidth * 0.11 * (1 - tension * 0.3)) / 2
       const step = naturalLength() / SEGMENTS / SMOOTHING
@@ -264,13 +266,36 @@ export default function Lanyard() {
         ctx.lineTo(b.rx, b.ry)
         ctx.stroke()
       }
+
+      // Woven, like the real thing: its thickness shades it a little towards the edges, it has a soft satin sheen down
+      // the middle and fine threads run along it. Each is a band from one fraction of the way across to another, so it
+      // narrows and turns with the strap.
+      const at = (s, t) => [s.lx + (s.rx - s.lx) * t, s.ly + (s.ry - s.ly) * t]
+      const weave = (from, to, color) => {
+        ctx.fillStyle = color
+        ctx.beginPath()
+        line.forEach((s) => ctx.lineTo(...at(s, from)))
+        for (let i = line.length - 1; i >= 0; i--) ctx.lineTo(...at(line[i], to))
+        ctx.fill()
+      }
+      for (const [from, to] of [[0, 0.22], [0.78, 1]]) weave(from, to, 'rgb(110 70 0 / 0.07)')
+      for (const [from, to] of [[0, 0.1], [0.9, 1]]) weave(from, to, 'rgb(110 70 0 / 0.08)')
+      weave(0.3, 0.54, 'rgb(255 255 255 / 0.16)')
+      weave(0.36, 0.46, 'rgb(255 255 255 / 0.14)')
+      ctx.strokeStyle = 'rgb(90 60 0 / 0.08)'
+      ctx.lineWidth = 0.6
+      for (let t = 0.14; t < 0.9; t += 0.12) {
+        ctx.beginPath()
+        line.forEach((s) => ctx.lineTo(...at(s, t)))
+        ctx.stroke()
+      }
     }
 
     const tick = (now) => {
       const ripped = badge.classList.contains('ripped')
       if (ripped && !rippedAt) rippedAt = now
       if (ripped && now - rippedAt > RIP_FADE) {
-        ctx.clearRect(0, 0, innerWidth, innerHeight)
+        ctx.clearRect(0, 0, el.clientWidth, el.clientHeight)
         frame = 0
         return
       }
@@ -320,8 +345,10 @@ export default function Lanyard() {
       start()
     })
 
+    // (watched on the canvas itself, so the scrollbar coming or going counts as well as the window resizing)
+    const resized = new ResizeObserver(onResize)
     fit()
-    window.addEventListener('resize', onResize)
+    resized.observe(el)
     straighten(top(), bottom())
     if (still) {
       drawStill()
@@ -333,10 +360,84 @@ export default function Lanyard() {
     return () => {
       cancelAnimationFrame(frame)
       classes.disconnect()
-      window.removeEventListener('resize', onResize)
+      resized.disconnect()
       window.removeEventListener('scroll', drawStill)
     }
   }, [])
 
   return <canvas ref={canvas} className="lanyard" aria-hidden="true" />
+}
+
+// The metal end of the strap, which the strap's canvas lines up with (Lanyard measures .badge-clip). The strap goes
+// into a chrome crimp, pressed shut in two ridges, and riveted to it is a metal tongue that runs down over the card
+// and bends back through the slot, so the card really hangs off it. The box is the crimp; the tongue hangs out below.
+const GROOVES = [12.5, 18.5]
+
+export function LanyardClip() {
+  const edge = { stroke: '#232a36', strokeWidth: 1.8, strokeLinejoin: 'round' }
+  const tongue = 'M21 22H39V59.5Q39 63.5 35 63.5H25Q21 63.5 21 59.5Z'
+  const crimp = 'M3.5 1H56.5Q59.5 1 59.4 4L58.5 23Q58 30.5 50.5 31H9.5Q2 30.5 1.5 23L.6 4Q.5 1 3.5 1Z'
+  return (
+    <svg viewBox="0 0 60 32" aria-hidden="true">
+      <defs>
+        {/* polished metal: bright and dark bands of reflection across its curve, lit from above */}
+        <linearGradient id="clip-chrome">
+          <stop offset="0" stopColor="#5d636d" />
+          <stop offset=".1" stopColor="#a9afb8" />
+          <stop offset=".26" stopColor="#f7f9fc" />
+          <stop offset=".4" stopColor="#c4c9d1" />
+          <stop offset=".56" stopColor="#7a808a" />
+          <stop offset=".74" stopColor="#dadee4" />
+          <stop offset=".9" stopColor="#a1a7b0" />
+          <stop offset="1" stopColor="#575d67" />
+        </linearGradient>
+        <linearGradient id="clip-light" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity=".5" />
+          <stop offset=".4" stopColor="#fff" stopOpacity="0" />
+          <stop offset=".7" stopColor="#000" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity=".3" />
+        </linearGradient>
+        <linearGradient id="clip-lip" x2="0" y2="1">
+          <stop offset="0" stopColor="#868c96" />
+          <stop offset=".4" stopColor="#fff" />
+          <stop offset="1" stopColor="#7d838d" />
+        </linearGradient>
+        {/* a flat strip of steel: one even sheen, with its pressed edges catching the light on one side */}
+        <linearGradient id="clip-tongue">
+          <stop offset="0" stopColor="#80868f" />
+          <stop offset=".1" stopColor="#e4e7eb" />
+          <stop offset=".22" stopColor="#c6cbd2" />
+          <stop offset=".55" stopColor="#d4d8de" />
+          <stop offset=".82" stopColor="#aab0b8" />
+          <stop offset=".92" stopColor="#868c95" />
+          <stop offset="1" stopColor="#5f656e" />
+        </linearGradient>
+        {/* where it bends back through the slot, it turns away from the light */}
+        <linearGradient id="clip-dip" x2="0" y2="1">
+          <stop offset=".7" stopColor="#0a0f18" stopOpacity="0" />
+          <stop offset="1" stopColor="#0a0f18" stopOpacity=".85" />
+        </linearGradient>
+        <radialGradient id="clip-rivet" cx=".35" cy=".3" r=".75">
+          <stop offset="0" stopColor="#fff" />
+          <stop offset=".45" stopColor="#b7bdc6" />
+          <stop offset="1" stopColor="#4d535d" />
+        </radialGradient>
+      </defs>
+      <path d={tongue} fill="url(#clip-tongue)" {...edge} />
+      <path d={tongue} fill="url(#clip-dip)" />
+      <path d="M28 33V50" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity=".3" />
+      <path d="M22.5 54H37.5" stroke="#fff" strokeWidth=".9" strokeLinecap="round" opacity=".45" />
+
+      <path d={crimp} fill="url(#clip-chrome)" {...edge} />
+      <path d={crimp} fill="url(#clip-light)" />
+      {GROOVES.map((y) => (
+        <g key={y} strokeLinecap="round">
+          <path d={`M4 ${y}H56`} stroke="#3b414b" strokeWidth="1.6" opacity=".55" />
+          <path d={`M4 ${y + 1.5}H56`} stroke="#fff" strokeWidth="1" opacity=".7" />
+        </g>
+      ))}
+      <rect x=".5" y=".5" width="59" height="6" rx="2.5" fill="url(#clip-lip)" {...edge} />
+      <circle cx="30" cy="26.5" r="3.2" fill="url(#clip-rivet)" stroke="#2b313b" strokeWidth=".8" />
+    </svg>
+  )
 }
