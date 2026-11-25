@@ -415,6 +415,17 @@ export default function FactsWallet() {
     const pen = view.querySelector('.note-pen')
     const hand = view.querySelector('.wipe-hand')
     const girl = view.querySelector('.girl')
+    // How far right of its top left corner (which it turns about) a card reaches, unscaled, once turned by deg: a
+    // tall card turned to the left swings its bottom out to the right. The permit's lanyard (drawn in pixels from
+    // the clip at the top middle) loops out past its card, so it counts too.
+    const straps = items.map((item) => item.querySelector('.permit-lanyard')?.getBBox())
+    const reach = (i, w, h, deg) => {
+      const r = (deg * Math.PI) / 180
+      const pts = [[0, 0], [w, 0], [0, h], [w, h]]
+      const b = straps[i]
+      if (b) for (const x of [b.x, b.x + b.width]) for (const y of [b.y, b.y + b.height]) pts.push([w / 2 + x, 6 + y])
+      return Math.max(...pts.map(([x, y]) => x * Math.cos(r) - y * Math.sin(r)))
+    }
     let frame = 0
 
     const update = () => {
@@ -542,12 +553,14 @@ export default function FactsWallet() {
         let x = lerp(lerp(x0, fallX, u), endX, v)
         let y = lerp(y0 + (fallY - y0) * u * u - 420 * u * (1 - u), endY, v)
         let rot = lerp(TUMBLE[i] * Math.sin(u * Math.PI * 0.5) + (1 - u) * (spot.r + wrot), rest.r, v)
-        // Shooed away: flies off to the left in an arc, spinning, once the flick sends it
+        // Shooed away: flies off to the left in an arc, spinning, once the flick sends it, far enough that all of
+        // it is off the screen at the angle it ends up at
         const fly = easeIn(clamp01((wipe - FLICK_AT - (1 - rest.x) * 0.1) / 0.32))
-        const flyX = -fly * (endX + w * fin + 160)
+        const spin = 34 + i * 8
+        const flyX = -fly * (endX + reach(i, w, h, rest.r - spin) * fin + 160)
         x += flyX
         y += -Math.sin(fly * Math.PI) * 36 + fly * 30
-        rot -= fly * (34 + i * 8)
+        rot -= fly * spin
         flown[i] = flyX
         const scale = lerp(peek * ws, fin, easeInOut(clamp01(t / 0.7)))
         item.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`
