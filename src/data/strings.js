@@ -93,6 +93,8 @@ export const strings = {
       short: ['Design', 'Web', 'Code', 'Data', 'Tools'],
       see: 'See the projects',
       close: 'Close',
+      // what a skill used for this portfolio itself says it's "in"
+      thisSite: 'this website',
     },
     contact: {
       title: "Let's Talk",
@@ -331,6 +333,7 @@ export const strings = {
       short: ['Design', 'Web', 'Code', 'Daten', 'Tools'],
       see: 'Projekte ansehen',
       close: 'Schließen',
+      thisSite: 'dieser Website',
     },
     contact: {
       title: 'Lass uns reden',

@@ -5328,10 +5328,13 @@ button.nav-link {
   --lit: var(--c);
 }
 
-.screen-main li.linked a {
+.screen-main li.linked :is(a, button) {
   display: block;
   padding: 12px 20px;
+  border: 0;
+  background: none;
   color: inherit;
+  font: inherit;
   text-decoration: none;
 }
 
@@ -5851,7 +5854,7 @@ button.nav-link {
   }
 
   .screen-main li,
-  .screen-main li.linked a {
+  .screen-main li.linked :is(a, button) {
     padding: 10px 16px;
     font-size: 1em;
   }

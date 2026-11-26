@@ -487,10 +487,11 @@ export default function Projects({ page = 'university' }) {
   const list = page === 'personal' ? content.personalProjects : content.projects
   const { word, intro } = t[page]
   const [zoomed, setZoomed] = useState(null)
-  // Coming from a skill on the home page (?skill=Java) shows only the projects that use it
+  // Coming from a skill on the home page (?skill=Java) shows only the projects on this page that use it
   const [params, setParams] = useSearchParams()
   const skill = params.get('skill')
-  const only = page === 'university' && skill && skillProjects[skill]
+  const used = skill && skillProjects[skill]?.filter((slug) => list.some((p) => p.slug === slug))
+  const only = used?.length ? used : null
   const shown = only ? list.filter((p) => only.includes(p.slug)) : list
   // The projects without a GUI are grouped at the end as compact engineering cards
   const engineering = shown.filter((p) => p.gui === false)

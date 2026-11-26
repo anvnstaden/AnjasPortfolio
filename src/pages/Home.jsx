@@ -220,7 +220,16 @@ function WallClock() {
 
 function SkillsDesk() {
   const { t, content } = useLang()
-  const projectTitle = (slug) => content.projects.find((p) => p.slug === slug).title
+  const allProjects = [...content.projects, ...content.personalProjects]
+  const projectTitle = (slug) => (slug === 'this-site' ? t.skills.thisSite : allProjects.find((p) => p.slug === slug).title)
+  // Where clicking a skill goes: the projects page showing only the projects that use it (the university page if
+  // any of them are there), or nowhere when it's only used for this site
+  const skillLink = (s) => {
+    const slugs = skillProjects[s].filter((slug) => slug !== 'this-site')
+    if (!slugs.length) return null
+    const page = slugs.some((slug) => content.projects.some((p) => p.slug === slug)) ? '/projects' : '/projects/personal'
+    return `${page}?skill=${encodeURIComponent(s)}`
+  }
   const { pin, stage, desk, monitor } = useDeskZoom()
   const groups = Object.entries(skills)
   const [open, setOpen] = useState(0)
@@ -243,9 +252,11 @@ function SkillsDesk() {
           {used.length === content.projects.length ? t.skills.all : listOf(used.map(projectTitle), t.skills.and)}
           {phone && (
             <>
-              <Link className="status-see" to={`/projects?skill=${encodeURIComponent(active)}`}>
-                {t.skills.see} <NavArrow inline />
-              </Link>
+              {skillLink(active) && (
+                <Link className="status-see" to={skillLink(active)}>
+                  {t.skills.see} <NavArrow inline />
+                </Link>
+              )}
               <button type="button" className="status-close" aria-label={t.skills.close} onClick={() => setActive(null)}>×</button>
             </>
           )}
@@ -330,9 +341,9 @@ function SkillsDesk() {
                       className={[skillProjects[s] && 'linked', phone && active === s && 'picked'].filter(Boolean).join(' ') || undefined}
                       style={{ '--k': k }}
                     >
-                      {skillProjects[s] ? (
+                      {skillProjects[s] && skillLink(s) ? (
                         <Link
-                          to={`/projects?skill=${encodeURIComponent(s)}`}
+                          to={skillLink(s)}
                           {...point(s)}
                           onClick={(e) => {
                             if (phone && active !== s) {
@@ -343,6 +354,11 @@ function SkillsDesk() {
                         >
                           {content.skillName(s)}
                         </Link>
+                      ) : skillProjects[s] ? (
+                        // Used for this site, so there's no project to go to: it just shows that
+                        <button type="button" {...point(s)} onClick={() => setActive(s)}>
+                          {content.skillName(s)}
+                        </button>
                       ) : (
                         content.skillName(s)
                       )}

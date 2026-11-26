@@ -482,7 +482,8 @@ export const skills = {
 }
 
 // Which projects (by slug) use each skill. Hovering a skill on the home page shows these, and clicking it
-// opens the projects page showing only them. Skills that aren't listed just aren't linked to a project.
+// opens the projects page showing only them (the personal page when they're all personal projects). 'this-site'
+// is this portfolio itself, which has no entry of its own. Skills that aren't listed just aren't linked to a project.
 const everyProject = projects.map((p) => p.slug)
 const projectsWithGui = projects.filter((p) => p.gui !== false).map((p) => p.slug)
 
@@ -500,6 +501,8 @@ export const skillProjects = {
   React: ['community-event-volunteer-platform', 'hackathon-hosting-platform', 'honours-lab-management-app'],
   Vite: ['honours-lab-management-app', 'hackathon-hosting-platform'],
   'Express.js': ['hackathon-hosting-platform'],
+  Vercel: ['this-site'],
+  Cloudflare: ['eva-website'],
   Java: ['peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer', 'quasi-palindromes-in-dna'],
   JavaFX: ['peer-to-peer-file-sharing', 'voip-chat', 'rbudp-tcp-file-transfer'],
   C: ['parallel-othello-ai', 'multicore-process-scheduler', 'wistl-compiler'],
