@@ -44,8 +44,6 @@ export const strings = {
     },
     badge: {
       label: 'ID badge for Anja van Staden. Click to flip it over.',
-      flipMe: 'flip me!',
-      dragMe: 'drag me!',
       role: 'UI/UX Designer & Software Engineer',
       basedIn: 'Based in',
       basedInValue: 'Stellenbosch, ZA',
@@ -287,8 +285,6 @@ export const strings = {
     },
     badge: {
       label: 'Ausweis von Anja van Staden. Zum Umdrehen klicken.',
-      flipMe: 'dreh mich um!',
-      dragMe: 'zieh mich!',
       role: 'UI/UX-Designerin & Softwareentwicklerin',
       basedIn: 'Wohnort',
       basedInValue: 'Stellenbosch, ZA',

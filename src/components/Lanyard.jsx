@@ -36,9 +36,27 @@ export default function Lanyard() {
     let rippedAt = 0
     let time = 0
 
+    // The navbar's tabs and buttons hang from the top of the browser too, with gaps far narrower than the strap. Where
+    // the strap would come up under the edge of one or squeeze between two, it's tied a little further in behind the
+    // nearest one, just clear of its edge, so it looks like it hangs from behind it rather than catching on a corner.
+    // It moves no further than that, so it still hangs almost straight down past the name.
+    const hangers = [...document.querySelectorAll('.nav #site-menu > *, .nav .nav-charm, .nav .menu-toggle')]
     const top = () => {
       const r = visual.getBoundingClientRect()
-      return { x: r.left + r.width / 2, y: -6 }
+      const x = r.left + r.width / 2
+      const reach = (badge.offsetWidth * 0.11) / 2 + 16
+      let tie = x
+      let shift = Infinity
+      for (const hanger of hangers) {
+        const h = hanger.getBoundingClientRect()
+        if (!h.width || h.bottom > 100 || h.right < x - reach || h.left > x + reach) continue
+        const inside = h.width < reach * 2 ? h.left + h.width / 2 : Math.min(Math.max(x, h.left + reach), h.right - reach)
+        if (Math.abs(inside - x) < shift) {
+          shift = Math.abs(inside - x)
+          tie = inside
+        }
+      }
+      return { x: tie, y: -6 }
     }
     const bottom = () => {
       const r = clip.getBoundingClientRect()

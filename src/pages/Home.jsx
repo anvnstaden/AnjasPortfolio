@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Split from '../components/Split.jsx'
 import Title from '../components/Title.jsx'
@@ -468,7 +468,7 @@ const TUG_EVERY = 5000
 const TUGS = 6
 const softLimit = (value, limit) => limit * Math.tanh(value / limit)
 
-function useBadgeSwing(badge, flipped, onFirstDrag) {
+function useBadgeSwing(badge, flipped) {
   const dragged = useRef(false)
   const applyFlipped = useRef(null)
 
@@ -612,10 +612,7 @@ function useBadgeSwing(badge, flipped, onFirstDrag) {
       if (grab.id !== e.pointerId) return
       if (!dragged.current && Math.hypot(e.clientX - grab.x, e.clientY - grab.y) < 3) return
       dragged.current = true
-      if (!everDragged) {
-        everDragged = true
-        onFirstDrag()
-      }
+      everDragged = true
       grab.target = aim(e.clientX - grab.offsetX, e.clientY - grab.offsetY)
     }
     const onRelease = (e) => {
@@ -669,7 +666,7 @@ function useBadgeSwing(badge, flipped, onFirstDrag) {
       el.style.removeProperty('--pitch')
       el.style.removeProperty('--sheen')
     }
-  }, [badge, onFirstDrag])
+  }, [badge])
 
   useEffect(() => {
     applyFlipped.current?.(flipped)
@@ -754,41 +751,17 @@ function BadgeSignature() {
 }
 
 // Hanging ID badge with the profile photo. It flips over when you click or tap it, and can be dragged around the
-// screen on its strap (see useBadgeSwing). Handwritten notes point out each of those until they've been tried.
+// screen on its strap (see useBadgeSwing).
 function IdBadge() {
   const { t, dest } = useLang()
   const [photoMissing, setPhotoMissing] = useState(false)
   const [flipped, setFlipped] = useState(false)
-  const [flipHint, setFlipHint] = useState(true)
-  const [dragHint, setDragHint] = useState(true)
-  const hideDragHint = useCallback(() => setDragHint(false), [])
-  const flip = () => {
-    setFlipped((f) => !f)
-    setFlipHint(false)
-  }
+  const flip = () => setFlipped((f) => !f)
   const badge = useRef(null)
   const rip = useRipOffNavbar(badge)
-  const dragged = useBadgeSwing(badge, flipped, hideDragHint)
+  const dragged = useBadgeSwing(badge, flipped)
 
   return (
-    <>
-    {dragHint && !flipped && !rip && (
-      <span className="badge-hint drag" aria-hidden="true">
-        <span className="pen">{t.badge.dragMe}</span>
-        <svg viewBox="0 0 60 20">
-          <path d="M4 10H56M13 3L4 10L13 17M47 3L56 10L47 17" />
-        </svg>
-      </span>
-    )}
-    {flipHint && !rip && (
-      <span className="badge-hint flip" aria-hidden="true">
-        <span className="pen">{t.badge.flipMe}</span>
-        <svg viewBox="0 0 60 40">
-          <path d="M4 8C20 2 40 8 50 28" />
-          <path d="M38 24L51 30L54 16" />
-        </svg>
-      </span>
-    )}
     <div
       ref={badge}
       className={`badge${flipped ? ' flipped' : ''}${rip}`}
@@ -866,7 +839,6 @@ function IdBadge() {
         </div>
       </div>
     </div>
-    </>
   )
 }
 

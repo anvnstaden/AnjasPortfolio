@@ -1660,7 +1660,8 @@ button.nav-link {
 
 /* ---------- Hero ---------- */
 /* The name is the whole width of the page (or as big as the height allows, --name). The badge hangs in front of
-   it, scaled and placed off the same size, so its card always just covers the feet of the letters. */
+   it, scaled and placed off the same size, so its card always just covers the feet of the letters and its strap
+   crosses the round of the "d" in "Staden", clear of the stem, so every letter still reads. */
 .hero {
   --name: min(calc((min(100vw, 1680px) - 2 * clamp(16px, 4vw, 72px)) / 7), 22.5svh);
   position: relative;
@@ -1760,7 +1761,8 @@ button.nav-link {
 
 
 /* Stamped on once the page has loaded: the right to work in the EU, in the same ink as the "no visa" stamp on the
-   work permit in the wallet. On phones it sits under the note; on wider screens it's out of the way, beside "Anja". */
+   work permit in the wallet. On phones it sits under the note; on wider screens it's out of the way, top right, to
+   the right of the badge's strap. */
 .hero-stamp {
   display: grid;
   justify-items: center;
@@ -1813,7 +1815,8 @@ button.nav-link {
   }
 }
 
-/* in the empty space to the right of "Anja", sized with the name so it always fits before the badge's strap */
+/* in the empty space to the right of the badge's strap, above "Staden", with its right edge in line with the end of
+   the name. Sized with the name, so it always fits between the two in four lines. */
 @media (min-width: 901px) {
   .hero-text {
     position: relative;
@@ -1821,9 +1824,9 @@ button.nav-link {
 
   .hero-stamp {
     position: absolute;
-    left: calc(var(--name) * 2.95);
-    top: calc(var(--name) * 0.62);
-    max-width: calc(var(--name) * 2.05);
+    right: calc(100% - var(--name) * 6.86);
+    top: calc(var(--name) * 0.3);
+    max-width: calc(var(--name) * 1.5);
     margin: 0;
     font-size: max(11px, calc(var(--name) * 0.072));
     text-wrap: balance;
@@ -1852,10 +1855,13 @@ button.nav-link {
   margin-top: 40px;
 }
 
-/* Centred under the role and the note, in the space to the left of the badge */
+/* In line with the name, the role and the note, in the space to the left of the badge, and lower down, level with
+   the bottom half of the card */
 @media (min-width: 901px) {
   .hero-actions {
+    justify-content: flex-start;
     max-width: calc(var(--name) * 3.4);
+    margin-top: calc(var(--name) * 0.55);
   }
 }
 
@@ -2108,9 +2114,9 @@ button.nav-link {
 
 .hero-visual {
   position: absolute;
-  left: calc(var(--name) * 4.225);
-  top: calc(28px + var(--name) * 1.565);
-  width: calc(var(--name) * 2.35);
+  left: calc(var(--name) * 4.08);
+  top: calc(28px + var(--name) * 1.82);
+  width: calc(var(--name) * 2);
   aspect-ratio: 1;
 }
 
@@ -2324,97 +2330,6 @@ button.nav-link {
 
 .badge.flipped .badge-card {
   transform: rotateY(180deg);
-}
-
-/* The notes pointing out that the card flips and drags, written beside it once it has dropped in.
-   They wave twice to catch the eye and then keep still. */
-.badge-hint {
-  position: absolute;
-  z-index: 3;
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  color: var(--plum);
-  font-size: min(1.7rem, calc(var(--name) * 0.16));
-  line-height: 1;
-  white-space: nowrap;
-  rotate: -5deg;
-  pointer-events: none;
-  animation: hint-in 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 2s backwards, hint-nudge 2.4s ease-in-out 3s 2;
-}
-
-.badge-hint svg {
-  width: 1.9em;
-  margin-bottom: -0.2em;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.badge-hint.flip {
-  top: 62%;
-  right: 89%;
-}
-
-.badge-hint.drag {
-  top: 36%;
-  left: 91%;
-  flex-direction: column;
-  align-items: center;
-  rotate: 5deg;
-  animation-name: hint-in, hint-sway;
-}
-
-.badge-hint.drag svg {
-  margin: 0.1em 0 0;
-}
-
-@keyframes hint-sway {
-  25% {
-    translate: -6px 0;
-  }
-  75% {
-    translate: 6px 0;
-  }
-}
-
-@keyframes hint-in {
-  from {
-    scale: 0.4;
-    opacity: 0;
-  }
-}
-
-@keyframes hint-nudge {
-  50% {
-    translate: 6px 0;
-  }
-}
-
-/* No room beside the card on a phone, so it sits above it, to the left of the strap */
-@media (max-width: 900px) {
-  .badge-hint {
-    font-size: 1.1rem;
-  }
-
-  .badge-hint.flip {
-    top: -11%;
-    right: 58%;
-  }
-
-  .badge-hint.drag {
-    top: -24%;
-    left: auto;
-    right: 58%;
-    flex-direction: row;
-    gap: 0.4em;
-  }
-
-  .badge-hint.flip svg {
-    rotate: 30deg;
-  }
 }
 
 .badge-face {
