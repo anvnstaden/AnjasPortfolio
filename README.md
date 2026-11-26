@@ -10,7 +10,7 @@
 
 <em>Final-year Computer Science &amp; Operations Research student at Stellenbosch University</em>
 <br />
-<em>Proudly South African &amp; Dutch · open to work in Germany from 2027</em>
+<em>Proudly South African &amp; Dutch · open to work anywhere in the EU from January 2027, no visa needed</em>
 
 <br />
 <br />
@@ -31,6 +31,28 @@ npm run dev
 
 Then open **http://localhost:5173** 
 
+## Tailored links
+
+Without anything extra the site is about the whole EU. Add `?to=` to a link to point it at one country or city,
+so each application gets its own link:
+
+```
+https://www.anjavanstaden.co.za/?to=amsterdam
+https://www.anjavanstaden.co.za/?to=munich&lang=de
+```
+
+The hero stamp, the badge, the boarding pass, the About Me text and the last stop of the journey then name that
+place, its postcard gets the country's flag and a greeting in the local language, and the letter is signed off in
+it too. `&lang=de` opens the site in German. A link pointed at Germany (or the German version) also shows each
+mark's German grade.
+
+- **Countries:** `de` `at` `nl` `be` `ie` `fr` `es` `pt` `it` `dk` `se` `fi` `pl` `cz` `ee`
+- **Cities:** `berlin` `munich` `hamburg` `frankfurt` `cologne` `dusseldorf` `stuttgart` `vienna` `amsterdam`
+  `rotterdam` `utrecht` `the-hague` `eindhoven` `brussels` `antwerp` `dublin` `paris` `barcelona` `madrid`
+  `lisbon` `porto` `milan` `copenhagen` `stockholm` `helsinki` `warsaw` `krakow` `prague` `tallinn`
+
+Add more in `src/data/destinations.js`.
+
 
 ---
 
@@ -42,6 +64,7 @@ Then open **http://localhost:5173**
 │   └── profile.jpeg         hero photo
 ├── src/
 │   ├── data/content.js      all site content
+│   ├── data/destinations.js the countries and cities a tailored link can point at
 │   ├── pages/
 │   │   ├── Home.jsx         hero, about, featured work, skills, contact
 │   │   └── Projects.jsx     university and personal projects, galleries and lightbox

@@ -1,9 +1,13 @@
 // The site's own wording (buttons, labels, headings) in each language. Project and journey text lives in
 // content.js, with its German in content.de.js. Sentences with highlights in them are written out in the page
-// that shows them, because they contain markup.
+// that shows them, because they contain markup. Wording that names a place is a function of `d`, where the site
+// is pointed (see destinations.js), and `start` is when I can start (also in destinations.js).
+
+import { start } from './destinations.js'
 
 export const strings = {
   en: {
+    start: start.en.long,
     nav: {
       about: 'About Me',
       projects: 'Projects',
@@ -27,15 +31,16 @@ export const strings = {
       theme: (next) => `Switch to ${next === 'dark' ? 'dark' : 'light'} mode`,
     },
     footer: 'Stellenbosch, South Africa',
-    description: 'Portfolio of Anja van Staden, UI/UX designer and software engineer studying Computer Science and Operations Research at Stellenbosch University.',
+    description: `Portfolio of Anja van Staden, UI/UX designer and software engineer studying Computer Science and Operations Research at Stellenbosch University. EU citizen, open to roles across the EU from ${start.en.long}.`,
     hero: {
       role: ['UI/UX Designer', 'Software Engineer'],
       note: 'designer at heart, software engineer by degree',
       viewProjects: 'View Projects',
       getInTouch: 'Get In Touch',
-      inspect: 'inspect',
-      xray: 'activate x-ray vision',
-      dragBlueprint: 'Drag to see how this page is built',
+      // the stamp under the buttons
+      stamp: 'No visa needed',
+      rights: (d) => `EU citizen, open to roles ${d.in}`,
+      available: `available from ${start.en.long}`,
     },
     badge: {
       label: 'ID badge for Anja van Staden. Click to flip it over.',
@@ -45,8 +50,8 @@ export const strings = {
       basedIn: 'Based in',
       basedInValue: 'Stellenbosch, ZA',
       movingTo: 'Moving to',
-      movingToValue: 'Germany',
       validFrom: 'Valid from',
+      validFromValue: start.en.long,
       signHere: 'sign here',
       yourSignature: 'Your signature',
       signed: 'Thanks for signing!',
@@ -54,7 +59,7 @@ export const strings = {
       email: 'Email Me',
       linkedin: 'My LinkedIn',
       cv: 'Download my CV',
-      smallPrint: 'If found, please return to Germany (from 2027)',
+      smallPrint: (d) => `If found, please return to ${d.to} (from ${start.en.long})`,
     },
     about: {
       title: 'About Me',
@@ -100,7 +105,7 @@ export const strings = {
       title: "Let's Talk",
       envelope: 'Open or close the envelope',
       writeTo: 'Write to me at',
-      signOff: 'bis bald, Anja x',
+      signOff: (d) => `${d.hello}, Anja x`,
       clickMe: 'click me!',
       cv: 'Download my CV',
     },
@@ -109,17 +114,19 @@ export const strings = {
       keepScrolling: 'keep scrolling',
       toBeContinued: 'to be continued',
       firstGreeting: 'Greetings from Mossel Bay!',
+      // on the banner the plane tows across the last postcard
+      banner: (d) => `hello ${d.label}!`,
       yourTeam: ['your team', 'here?'],
     },
     wallet: {
       label: 'Quick facts',
       passportZa: 'South African passport',
       passportNl: 'Dutch passport',
-      notes: [
+      notes: (d) => [
         'proudly South African',
         '...and Dutch!',
         'EU work rights, no visa needed',
-        "I'm looking for jobs in Germany in 2027",
+        `I'm looking for jobs ${d.in}`,
         '4 languages & counting',
       ],
       permit: {
@@ -137,13 +144,12 @@ export const strings = {
       ticket: {
         title: 'Boarding pass',
         cabin: 'Economy',
-        destination: 'Germany',
         passenger: 'Passenger',
         flight: 'Flight',
         gate: 'Gate',
         seat: 'Seat',
-        note: 'Looking for roles anywhere in Germany from 2027',
-        departs: 'Departs 2027',
+        note: (d) => `Looking for roles ${d.in} from ${start.en.long}`,
+        departs: `Departs ${start.en.short}`,
         seatNumber: 'Seat 1A',
       },
       phone: {
@@ -246,6 +252,7 @@ export const strings = {
   },
 
   de: {
+    start: start.de.long,
     nav: {
       about: 'Über mich',
       projects: 'Projekte',
@@ -268,15 +275,15 @@ export const strings = {
       theme: (next) => (next === 'dark' ? 'Zum dunklen Modus wechseln' : 'Zum hellen Modus wechseln'),
     },
     footer: 'Stellenbosch, Südafrika',
-    description: 'Portfolio von Anja van Staden, UI/UX-Designerin und Softwareentwicklerin, die an der Universität Stellenbosch Informatik und Operations Research studiert.',
+    description: `Portfolio von Anja van Staden, UI/UX-Designerin und Softwareentwicklerin, die an der Universität Stellenbosch Informatik und Operations Research studiert. EU-Bürgerin, ab ${start.de.long} offen für Stellen in der ganzen EU.`,
     hero: {
       role: ['UI/UX-Designerin', 'Softwareentwicklerin'],
       note: 'Designerin im Herzen, Entwicklerin vom Fach',
       viewProjects: 'Projekte ansehen',
       getInTouch: 'Schreib mir',
-      inspect: 'untersuchen',
-      xray: 'Röntgenblick aktivieren',
-      dragBlueprint: 'Ziehen, um zu sehen, wie diese Seite aufgebaut ist',
+      stamp: 'Kein Visum nötig',
+      rights: (d) => `EU-Bürgerin, offen für Stellen ${d.in}`,
+      available: `verfügbar ab ${start.de.long}`,
     },
     badge: {
       label: 'Ausweis von Anja van Staden. Zum Umdrehen klicken.',
@@ -285,9 +292,9 @@ export const strings = {
       role: 'UI/UX-Designerin & Softwareentwicklerin',
       basedIn: 'Wohnort',
       basedInValue: 'Stellenbosch, ZA',
-      movingTo: 'Zieht nach',
-      movingToValue: 'Deutschland',
+      movingTo: 'Ziel',
       validFrom: 'Gültig ab',
+      validFromValue: start.de.long,
       signHere: 'hier unterschreiben',
       yourSignature: 'Deine Unterschrift',
       signed: 'Danke fürs Unterschreiben!',
@@ -295,7 +302,7 @@ export const strings = {
       email: 'Schreib mir',
       linkedin: 'Mein LinkedIn',
       cv: 'Meinen CV herunterladen',
-      smallPrint: 'Falls gefunden, bitte nach Deutschland bringen (ab 2027)',
+      smallPrint: (d) => `Falls gefunden, bitte ${d.to} bringen (ab ${start.de.long})`,
     },
     about: {
       title: 'Über mich',
@@ -339,7 +346,7 @@ export const strings = {
       title: 'Lass uns reden',
       envelope: 'Umschlag öffnen oder schließen',
       writeTo: 'Schreib mir an',
-      signOff: 'bis bald, Anja x',
+      signOff: (d) => `${d.hello}, Anja x`,
       clickMe: 'klick mich!',
       cv: 'Lebenslauf herunterladen',
     },
@@ -348,17 +355,18 @@ export const strings = {
       keepScrolling: 'weiterscrollen',
       toBeContinued: 'Fortsetzung folgt',
       firstGreeting: 'Grüße aus Mossel Bay!',
+      banner: (d) => `hallo ${d.label}!`,
       yourTeam: ['dein Team', 'hier?'],
     },
     wallet: {
       label: 'Kurz und knapp',
       passportZa: 'Südafrikanischer Reisepass',
       passportNl: 'Niederländischer Reisepass',
-      notes: [
+      notes: (d) => [
         'stolze Südafrikanerin',
         '...und Niederländerin!',
         'EU-Arbeitsrecht, kein Visum nötig',
-        'Ich suche 2027 einen Job in Deutschland',
+        `Ich suche einen Job ${d.in}`,
         '4 Sprachen & es werden mehr',
       ],
       permit: {
@@ -376,13 +384,12 @@ export const strings = {
       ticket: {
         title: 'Bordkarte',
         cabin: 'Economy',
-        destination: 'Deutschland',
         passenger: 'Passagier',
         flight: 'Flug',
         gate: 'Gate',
         seat: 'Sitz',
-        note: 'Ab 2027 auf Jobsuche in ganz Deutschland',
-        departs: 'Abflug 2027',
+        note: (d) => `Ab ${start.de.long} auf Jobsuche ${d.in}`,
+        departs: `Abflug ${start.de.short}`,
         seatNumber: 'Sitz 1A',
       },
       phone: {

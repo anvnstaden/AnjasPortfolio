@@ -2,10 +2,15 @@ import { useEffect, useState } from 'react'
 import { LanguageContext, LANGUAGES } from '../i18n.js'
 import { strings } from '../data/strings.js'
 
+// A link can choose the language with ?lang=de (handy for tailored links, see destinations.js); otherwise it's
+// the one chosen last time.
 function savedLanguage() {
+  const known = (code) => LANGUAGES.some((l) => l.code === code)
+  const fromLink = new URLSearchParams(window.location.search).get('lang')
+  if (known(fromLink)) return fromLink
   try {
     const saved = localStorage.getItem('lang')
-    return LANGUAGES.some((l) => l.code === saved) ? saved : 'en'
+    return known(saved) ? saved : 'en'
   } catch {
     return 'en'
   }

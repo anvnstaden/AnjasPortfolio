@@ -390,8 +390,9 @@ function OpenCaseFront() {
 // phone. On wide screens a girl walks across the screen and drops a wallet as you scroll; the camera zooms
 // into it and it spits the items out. On narrow screens the open case hands them out one at a time.
 export default function FactsWallet() {
-  const { lang, t } = useLang()
+  const { lang, t, dest } = useLang()
   const w = t.wallet
+  const notes = w.notes(dest)
   const scene = useScene()
   const wide = scene === 'wide'
   const scroller = useRef(null)
@@ -973,7 +974,7 @@ export default function FactsWallet() {
               </span>
             </li>
 
-            {/* Looking for: a boarding pass from Stellenbosch to Germany */}
+            {/* Looking for: a boarding pass from Stellenbosch to wherever the site is pointed (see destinations.js) */}
             <li {...item('ticket', 240)}>
               <span className="bp-main">
                 <span className="bp-head">
@@ -987,23 +988,23 @@ export default function FactsWallet() {
                   </span>
                   <Plane />
                   <span className="bp-stop">
-                    <strong>DE</strong>
-                    <small>{w.ticket.destination}</small>
+                    <strong>{dest.code}</strong>
+                    <small>{dest.label}</small>
                   </span>
                 </span>
                 <span className="bp-grid" aria-hidden="true">
                   <span><small>{w.ticket.passenger}</small>A. VAN STADEN</span>
                   <span><small>{w.ticket.flight}</small>AVS 2027</span>
-                  <span><small>{w.ticket.gate}</small>DE</span>
+                  <span><small>{w.ticket.gate}</small>{dest.gate}</span>
                   <span><small>{w.ticket.seat}</small>1A</span>
                 </span>
-                <span className="bp-note">{w.ticket.note}</span>
+                <span className="bp-note">{w.ticket.note(dest)}</span>
               </span>
               {/* the tear-off stub, along a perforated line with a notch at each end */}
               <span className="bp-stub" aria-hidden="true">
                 <span className="bp-notch top" />
                 <span className="bp-notch bottom" />
-                <strong>ZA → DE</strong>
+                <strong>ZA → {dest.code}</strong>
                 <span>{w.ticket.departs}</span>
                 <span>{w.ticket.seatNumber}</span>
                 <span className="bp-barcode" />
@@ -1042,14 +1043,14 @@ export default function FactsWallet() {
           {scene && (
             <div className="notes" aria-hidden="true">
               <svg className="notes-svg">
-                {w.notes.map((_, i) => (
+                {notes.map((_, i) => (
                   <g key={i}>
                     <path className="note-line" pathLength="1" />
                     <path className="note-head" pathLength="1" />
                   </g>
                 ))}
               </svg>
-              {w.notes.map((text, i) => (
+              {notes.map((text, i) => (
                 <span key={i} className="note">{text}</span>
               ))}
               <svg className="note-pen" viewBox="0 0 10 10">

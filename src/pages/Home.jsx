@@ -5,7 +5,6 @@ import Title from '../components/Title.jsx'
 import ProjectThumb from '../components/ProjectThumb.jsx'
 import Journey from '../components/Journey.jsx'
 import FactsWallet from '../components/FactsWallet.jsx'
-import Blueprint from '../components/Blueprint.jsx'
 import Lanyard, { LanyardClip } from '../components/Lanyard.jsx'
 import Notebook from '../components/Notebook.jsx'
 import { Circle, NavArrow, PointingHand, Underline } from '../components/Doodles.jsx'
@@ -757,7 +756,7 @@ function BadgeSignature() {
 // Hanging ID badge with the profile photo. It flips over when you click or tap it, and can be dragged around the
 // screen on its strap (see useBadgeSwing). Handwritten notes point out each of those until they've been tried.
 function IdBadge() {
-  const { t } = useLang()
+  const { t, dest } = useLang()
   const [photoMissing, setPhotoMissing] = useState(false)
   const [flipped, setFlipped] = useState(false)
   const [flipHint, setFlipHint] = useState(true)
@@ -842,8 +841,8 @@ function IdBadge() {
               <span className="badge-seal"><img src="/favicon.svg" alt="" /></span>
               <ul className="badge-back-info">
                 <li><small>{t.badge.basedIn}</small>{t.badge.basedInValue}</li>
-                <li><small>{t.badge.movingTo}</small>{t.badge.movingToValue}</li>
-                <li><small>{t.badge.validFrom}</small>2027</li>
+                <li><small>{t.badge.movingTo}</small>{dest.badge}</li>
+                <li><small>{t.badge.validFrom}</small>{t.badge.validFromValue}</li>
               </ul>
             </div>
             <div className="badge-contact">
@@ -861,7 +860,7 @@ function IdBadge() {
               </a>
             </div>
             <BadgeSignature />
-            <p className="badge-small-print">{t.badge.smallPrint}</p>
+            <p className="badge-small-print">{t.badge.smallPrint(dest)}</p>
           </div>
         </div>
         </div>
@@ -884,10 +883,9 @@ function HopLabel({ text }) {
 
 // The hero's two buttons, tilted like stickers. A project folder with work sticking out of the top, which fans out
 // on hover while a page rises inside the little icon...
-function FolderButton({ copy, label, ...rest }) {
-  const Tag = copy ? 'span' : Link
+function FolderButton({ label }) {
   return (
-    <Tag className="fun-btn folder-btn" aria-label={label} {...(!copy && { to: '/projects', 'data-trip': 'university' })} {...rest}>
+    <Link className="fun-btn folder-btn" aria-label={label} to="/projects" data-trip="university">
       <span className="fun-peek" aria-hidden="true"><i /><i /><i /></span>
       <span className="fun-face">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -896,15 +894,14 @@ function FolderButton({ copy, label, ...rest }) {
         </svg>
         <HopLabel text={label} />
       </span>
-    </Tag>
+    </Link>
   )
 }
 
 // ...and an envelope with a letter sticking out, which pops up on hover with a few hearts floating off it.
-function EnvelopeButton({ copy, label }) {
-  const Tag = copy ? 'span' : Link
+function EnvelopeButton({ label }) {
   return (
-    <Tag className="fun-btn mail-btn" aria-label={label} {...(!copy && { to: '/#contact', 'data-trip': 'contact' })}>
+    <Link className="fun-btn mail-btn" aria-label={label} to="/#contact" data-trip="contact">
       <span className="fun-peek" aria-hidden="true">
         <i>♥</i>
         <b>♥</b>
@@ -918,86 +915,49 @@ function EnvelopeButton({ copy, label }) {
         </svg>
         <HopLabel text={label} />
       </span>
-    </Tag>
+    </Link>
   )
 }
 
-// The text side of the hero. It is drawn twice: once for real, and once as the blueprint under it (`copy`),
-// where elements carry their name and the code behind them for the blueprint's labels (see Blueprint.jsx).
-function HeroText({ copy = false }) {
-  const { t } = useLang()
-  const bp = (name, code) => (copy ? { 'data-bp': name, ...(code && { 'data-code': code }) } : {})
-  const Name = copy ? 'div' : 'h1'
+// The text side of the hero
+function HeroText() {
+  const { t, dest } = useLang()
   return (
-    <div className={`hero-text${copy ? ' bp-copy' : ''}`}>
-      <Name className="hero-name" {...bp('h1.hero-name', '<h1 className="hero-name">Anja</h1>')}>
+    <div className="hero-text">
+      <h1 className="hero-name">
         <Split text="Anja" />
         <Split text="van Staden" className="accent-line" offset={4} />
-      </Name>
-      <p className="hero-role hero-fade" style={{ '--d': '700ms' }} {...bp('p.hero-role')}>
+      </h1>
+      <p className="hero-role hero-fade" style={{ '--d': '700ms' }}>
         {t.hero.role[0]} <span className="pen amp">&amp;</span> {t.hero.role[1]}
       </p>
-      <p className="pen hero-note write" style={{ '--d': '1100ms' }} {...bp('p.hero-note')}>
+      <p className="pen hero-note write" style={{ '--d': '1100ms' }}>
         {t.hero.note}
         <Underline className="draw" />
       </p>
-      <div className={`hero-actions${copy ? '' : ' hero-fade'}`} style={copy ? undefined : { '--d': '950ms' }}>
-        <FolderButton copy={copy} label={t.hero.viewProjects} {...bp('Button/primary', '<FolderButton to="/projects" />')} />
-        <EnvelopeButton copy={copy} label={t.hero.getInTouch} />
+      {/* a rubber stamp: the right to work, and where (see destinations.js) */}
+      <p className="hero-stamp" style={{ '--d': '1500ms' }}>
+        <strong>✓ {t.hero.stamp}</strong>
+        <span>{t.hero.rights(dest)}</span>
+        <small>{t.hero.available}</small>
+      </p>
+      <div className="hero-actions hero-fade" style={{ '--d': '950ms' }}>
+        <FolderButton label={t.hero.viewProjects} />
+        <EnvelopeButton label={t.hero.getInTouch} />
       </div>
-      {copy && (
-        <div className="bp-palette">
-          {[['--ink', '#000A1A'], ['--blue', '#0E4798'], ['--pink', '#DFA4B8'], ['--butter', '#F7DE93'], ['--cream', '#FBF8F1']].map(([name, value]) => (
-            <span key={name}>
-              <i style={{ background: value }} />
-              {name} <b>{value}</b>
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
 
-// The blueprint intro plays once per visit: not when arriving part-way down the page, or for reduced motion.
-const INTRO_KEY = 'hero-intro-seen'
-let introSeen = false
-
-function shouldPlayIntro() {
-  if (introSeen || window.location.hash || window.scrollY > 0) return false
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return false
-  try {
-    return !sessionStorage.getItem(INTRO_KEY)
-  } catch {
-    return true // storage unavailable (private mode); introSeen still stops it replaying
-  }
-}
-
 function Hero() {
-  const [intro, setIntro] = useState(() => (shouldPlayIntro() ? 'playing' : undefined))
-  const endIntro = useCallback(() => {
-    introSeen = true
-    try {
-      sessionStorage.setItem(INTRO_KEY, '1')
-    } catch {
-      // Storage unavailable; it just plays again on the next full page load.
-    }
-    setIntro('done')
-  }, [])
-
   return (
-    <section className="hero" data-intro={intro}>
+    <section className="hero">
       <HeroText />
       <Lanyard />
 
       <div className="hero-visual">
         <IdBadge />
       </div>
-
-      {/* Under it all, its blueprint: the Inspect button lets you look through (see Blueprint.jsx) */}
-      <Blueprint intro={intro} onIntroEnd={endIntro}>
-        <HeroText copy />
-      </Blueprint>
     </section>
   )
 }
@@ -1037,7 +997,7 @@ function useEnvelope(envelope) {
 
 // The About Me sentences, which have highlights and doodles in them.
 function Statements() {
-  const { lang } = useLang()
+  const { lang, t, dest } = useLang()
   const software = <span className="circled">Software<Circle className="draw" /></span>
   if (lang === 'de') {
     return (
@@ -1051,7 +1011,7 @@ function Statements() {
         </p>
         <p className="statement reveal">
           <span className="underlined">Stolze Südafrikanerin &amp; Niederländerin,<Underline className="draw" /></span>{' '}
-          ich lerne Deutsch und suche ab 2027 eine Stelle, <mark className="hl">egal wo in Deutschland</mark>.
+          ich lerne Deutsch und suche ab {t.start} eine Stelle <mark className="hl">{dest.in}</mark>.
         </p>
       </div>
     )
@@ -1068,14 +1028,14 @@ function Statements() {
       </p>
       <p className="statement reveal">
         <span className="underlined">Proudly South African &amp; Dutch,<Underline className="draw" /></span>{' '}
-        learning German, and looking for roles <mark className="hl">anywhere in Germany</mark> from 2027.
+        learning German, and looking for roles <mark className="hl">{dest.in}</mark> from {t.start}.
       </p>
     </div>
   )
 }
 
 export default function Home() {
-  const { t, content } = useLang()
+  const { t, content, dest } = useLang()
   const projects = content.projects
   // The featured projects from both pages, in their `featured` order; personal ones link to the personal page
   const featured = [...projects, ...content.personalProjects]
@@ -1207,7 +1167,7 @@ export default function Home() {
             <div className="env-letter">
               <p className="pen env-hi">{t.contact.writeTo}</p>
               <a href={`mailto:${contact.email}`} className="pen env-email">{contact.email}</a>
-              <p className="pen env-sign">{t.contact.signOff}</p>
+              <p className="pen env-sign">{t.contact.signOff(dest)}</p>
             </div>
             <svg className="env-front" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true">
               <path className="env-side" d="M2 4 300 214 2 376Z" />

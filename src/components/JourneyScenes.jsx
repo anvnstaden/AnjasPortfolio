@@ -269,7 +269,7 @@ export function Stellenbosch() {
 
 /* ---------- Europe: half-timbered houses, the Brandenburg Gate, cathedral spires, the TV tower and a windmill ---------- */
 export function Europe() {
-  const { t } = useLang()
+  const { t, dest } = useLang()
   return (
     <svg className="scene" viewBox="0 0 480 300" stroke={ink} strokeWidth="2.5" strokeLinejoin="round" aria-hidden="true">
       <defs>
@@ -293,7 +293,7 @@ export function Europe() {
       <g className="fly">
         <line x1="150" y1="96" x2="186" y2="92" strokeWidth="1.5" />
         <rect x="36" y="86" width="114" height="20" rx="3" fill={ivory} strokeWidth="2" />
-        <text x="93" y="101" textAnchor="middle" className="scene-pen" stroke="none" fill={blue}>hallo Deutschland!</text>
+        <text x="93" y="101" textAnchor="middle" className="scene-pen" stroke="none" fill={blue}>{t.journey.banner(dest)}</text>
         <path d="M186 84H222Q234 84 236 90Q234 96 222 96H192Z" fill={ivory} strokeWidth="2" />
         <path d="M188 84L184 72H192L198 84Z" fill={pink} strokeWidth="2" />
         <path d="M206 91H218L210 106H202Z" fill={pink} strokeWidth="2" />

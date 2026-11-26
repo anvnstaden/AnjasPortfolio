@@ -387,14 +387,14 @@ export const skillsDe = {
   'Google Business Profile': 'Google Unternehmensprofil',
 }
 
-// In the same order as `journey` in content.js.
+// In the same order as `journey` in content.js. Like there, the last stop is written for any place `d`.
 export const journeyDe = [
   {
     place: 'Mossel Bay, Südafrika',
     text: 'Aufgewachsen bin ich in Mossel Bay, einer kleinen Stadt an der Garden Route direkt am Meer. 2021 habe ich an der Point High School mein Matric (das südafrikanische Abitur) mit einem Schnitt von 88 % abgeschlossen.',
     stats: [
       { value: '88 %', label: 'Matric-Schnitt' },
-      { value: '≈ 1,6', label: 'deutsche Note' },
+      { value: '≈ 1,7', label: 'deutsche Note' },
     ],
     footnote: 'Deutsche Note, berechnet mit der modifizierten bayerischen Formel, die deutsche Hochschulen verwenden.',
   },
@@ -410,8 +410,8 @@ export const journeyDe = [
     linkLabel: 'Sieh dir an, was ich dort gebaut habe',
   },
   {
-    place: 'Deutschland',
-    title: 'Nächster Halt: Deutschland',
-    text: 'Als Nächstes geht es nach Deutschland! Ich habe die niederländische Staatsbürgerschaft, kann also ohne Visum in der EU arbeiten, und ich lerne Deutsch, damit ich 2027 dort loslegen kann.',
+    place: (d) => d.place,
+    title: (d) => `Nächster Halt: ${d.label}`,
+    text: (d) => `Als Nächstes geht es ${d.to}! Ich habe die niederländische Staatsbürgerschaft und kann deshalb ohne Visum oder Sponsoring überall in der EU arbeiten. ${d.plan}`,
   },
 ]

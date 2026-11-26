@@ -1759,6 +1759,90 @@ button.nav-link {
 }
 
 
+/* Stamped on once the page has loaded: the right to work in the EU, in the same ink as the "no visa" stamp on the
+   work permit in the wallet. On phones it sits under the note; on wider screens it's out of the way, beside "Anja". */
+.hero-stamp {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  width: fit-content;
+  margin: 4px 0 0 6px;
+  padding: 0.35em 1em 0.4em;
+  font-size: 0.86rem;
+  border: 2.5px solid currentColor;
+  border-radius: 8px;
+  --stamp-ink: #c2416b;
+  color: var(--stamp-ink);
+  line-height: 1.25;
+  text-align: center;
+  rotate: -4deg;
+  animation: stamp 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+:root[data-theme='dark'] .hero-stamp {
+  --stamp-ink: var(--pink);
+}
+
+.hero-stamp strong {
+  font-family: var(--display);
+  font-size: 0.95em;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.hero-stamp span {
+  font-weight: 700;
+}
+
+/* the date line along the bottom, like a date stamp's */
+.hero-stamp small {
+  font-family: var(--display);
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    scale: 1.7;
+    rotate: -12deg;
+  }
+}
+
+/* in the empty space to the right of "Anja", sized with the name so it always fits before the badge's strap */
+@media (min-width: 901px) {
+  .hero-text {
+    position: relative;
+  }
+
+  .hero-stamp {
+    position: absolute;
+    left: calc(var(--name) * 2.95);
+    top: calc(var(--name) * 0.62);
+    max-width: calc(var(--name) * 2.05);
+    margin: 0;
+    font-size: max(11px, calc(var(--name) * 0.072));
+    text-wrap: balance;
+    rotate: -6deg;
+  }
+}
+
+@keyframes stamp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stamp {
+    animation-name: stamp-fade;
+  }
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -2209,10 +2293,6 @@ button.nav-link {
   pointer-events: none;
 }
 
-.hero[data-intro='playing'] .lanyard {
-  visibility: hidden;
-}
-
 /* The strap's metal crimp (see LanyardClip in Lanyard.jsx), a little wider than the strap going into it. Its tongue
    hangs out of the box down to the middle of the slot, and casts a shadow on the card. */
 .badge-clip {
@@ -2313,12 +2393,7 @@ button.nav-link {
   }
 }
 
-.hero[data-intro='playing'] .badge-hint {
-  visibility: hidden;
-}
-
-/* No room beside the card on a phone, so it sits above it, to the left of the strap (the blueprint's wipe
-   line covers the right) */
+/* No room beside the card on a phone, so it sits above it, to the left of the strap */
 @media (max-width: 900px) {
   .badge-hint {
     font-size: 1.1rem;
@@ -10803,450 +10878,6 @@ a:hover .nav-arrow.inline.out {
   filter: drop-shadow(3px 4px 0 rgb(0 0 0 / 0.18));
 }
 
-/* ---------- The hero's blueprint (Blueprint.jsx) ----------
-   The same layout as a wireframe on graph paper, hidden until the Inspect button adds .bp-on. With a mouse it
-   then shows only inside a circle round the cursor (--mx, --my, --lens); on touch screens everything right of a
-   draggable line (--split) shows it. */
-@property --lens {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-
-.blueprint {
-  /* The paper runs to the edges of the browser and up behind the nav, so no page background shows beside it.
-     .bp-inner brings everything drawn on it back to the hero's own box, which is what the JS measures from. */
-  --bleed-x: 100vw;
-  --bleed-y: 140px;
-  position: absolute;
-  inset: calc(var(--bleed-y) * -1) calc(var(--bleed-x) * -1) 0;
-  z-index: 6;
-  pointer-events: none;
-  --mx: -999px;
-  --my: -999px;
-  --at: calc(var(--mx) + var(--bleed-x)) calc(var(--my) + var(--bleed-y));
-  -webkit-mask-image: radial-gradient(circle var(--lens) at var(--at), #000 calc(var(--lens) - 1px), transparent var(--lens));
-  mask-image: radial-gradient(circle var(--lens) at var(--at), #000 calc(var(--lens) - 1px), transparent var(--lens));
-  transition: --lens 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
-}
-
-.bp-paper {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(rgb(255 255 255 / 0.2) 1px, transparent 1px) 0 0 / 120px 120px,
-    linear-gradient(90deg, rgb(255 255 255 / 0.2) 1px, transparent 1px) 0 0 / 120px 120px,
-    linear-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px) 0 0 / 24px 24px,
-    linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px) 0 0 / 24px 24px,
-    var(--blue);
-}
-
-.bp-inner {
-  position: absolute;
-  top: var(--bleed-y);
-  bottom: 0;
-  left: var(--bleed-x);
-  right: var(--bleed-x);
-}
-
-.bp-copy-wrap {
-  position: absolute;
-}
-
-/* the copy: no animation, every word and shape in chalk white, the name as outlines */
-.bp-copy,
-.bp-copy * {
-  animation: none !important;
-  transition: none !important;
-}
-
-.bp-copy {
-  color: rgb(255 255 255 / 0.75);
-}
-
-.bp-copy .write {
-  clip-path: none;
-}
-
-.bp-copy .draw path {
-  stroke-dashoffset: 0;
-}
-
-.bp-copy .hero-name {
-  font-family: var(--display);
-}
-
-.bp-copy .hero-name,
-.bp-copy .accent-line {
-  color: transparent;
-  -webkit-text-stroke: 1.5px #fff;
-}
-
-/* In the outlined copy the j's tail is traced as well: its outer edge, closing end and inner edge */
-.bp-copy .hero-name .char-j::after {
-  border-width: 0 1.5px 1.5px 0;
-  border-color: #fff;
-  background: linear-gradient(#fff, #fff) left bottom / 1.5px 0.17em no-repeat;
-}
-
-.bp-copy .hero-name .char-j::before {
-  content: '';
-  position: absolute;
-  top: 0.97em;
-  left: -0.25em;
-  width: 0.3em;
-  height: 0.07em;
-  border-right: 1.5px solid #fff;
-  border-bottom: 1.5px solid #fff;
-  border-bottom-right-radius: 0.125em 0.19em;
-}
-
-.bp-copy .hero-role,
-.bp-copy .pen {
-  color: rgb(255 255 255 / 0.75);
-}
-
-.bp-copy .flag {
-  filter: grayscale(1);
-  opacity: 0.5;
-}
-
-.bp-copy .fun-btn {
-  --btn-bg: transparent;
-  color: #fff;
-}
-
-/* (a wireframe of a button isn't lit by anything, even when it's pressed) */
-.bp-copy .fun-face,
-.bp-copy .fun-btn:active .fun-face {
-  border: 1.5px dashed rgb(255 255 255 / 0.75);
-  background: none;
-  box-shadow: none;
-}
-
-.bp-copy :is(.btn-page, .fun-peek) {
-  display: none;
-}
-
-.bp-palette {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin-top: 26px;
-  font-family: ui-monospace, monospace;
-  font-size: 0.72rem;
-  color: #fff;
-}
-
-.bp-palette span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bp-palette i {
-  width: 16px;
-  height: 16px;
-  border: 1px solid #fff;
-  border-radius: 4px;
-}
-
-.bp-marks {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-}
-
-/* the lens itself: a butter ring with crosshairs */
-.bp-ring {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 7;
-  width: 260px;
-  height: 260px;
-  border: 3px solid var(--butter);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--ink), 0 14px 30px rgb(0 10 26 / 0.25);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s;
-}
-
-.bp-ring::before,
-.bp-ring::after {
-  content: '';
-  position: absolute;
-  background: rgb(255 255 255 / 0.6);
-}
-
-.bp-ring::before {
-  left: 50%;
-  top: 42%;
-  width: 1px;
-  height: 16%;
-}
-
-.bp-ring::after {
-  top: 50%;
-  left: 42%;
-  height: 1px;
-  width: 16%;
-}
-
-.bp-ring span {
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  translate: -50% 0;
-  padding: 2px 10px;
-  border-radius: 999px;
-  background: var(--butter);
-  color: var(--ink);
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-/* The button that turns the blueprint on and off: black, centred under the hero's two buttons (Blueprint.jsx sets
-   its left and top from where they are) */
-.bp-toggle {
-  position: absolute;
-  z-index: 8;
-  display: inline-flex;
-  white-space: nowrap;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px 5px 9px;
-  translate: -50% 0;
-  border: 2px solid var(--plum);
-  border-radius: 999px;
-  --lit: #000a1a;
-  color: #fbf8f1;
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: translate 0.15s;
-}
-
-.bp-toggle:hover {
-  translate: -50% -2px;
-}
-
-.bp-toggle svg {
-  width: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.4;
-  stroke-linecap: round;
-}
-
-.bp-toggle[aria-pressed='true'] {
-  --lit: var(--blue);
-  color: #fff;
-}
-
-/* touch screens: wipe between design and blueprint with a draggable line */
-.bp-handle {
-  display: none;
-}
-
-.bp-touch .blueprint {
-  -webkit-mask-image: none;
-  mask-image: none;
-  clip-path: inset(0 0 0 calc(var(--split, 72vw) + var(--bleed-x)));
-}
-
-.bp-touch .bp-ring {
-  display: none;
-}
-
-/* Until the button is pressed there is no wipe (the intro still uses this layer to play) */
-.bp-touch:not(.bp-on, [data-intro='playing']) .blueprint {
-  visibility: hidden;
-}
-
-.bp-touch.bp-on .bp-handle {
-  position: absolute;
-  top: -140px;
-  bottom: 0;
-  z-index: 7;
-  display: block;
-  width: 3px;
-  padding: 0;
-  translate: -50% 0;
-  border: 0;
-  background: var(--butter);
-  touch-action: none;
-}
-
-.bp-touch.bp-on .bp-handle span {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  translate: -50% -50%;
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  --lit: var(--butter);
-  color: var(--ink);
-  font-size: 1.2rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .blueprint {
-    transition: none;
-  }
-}
-
-/* The intro, once per visit (see Hero in Home.jsx): the page opens on nothing but blueprint paper, the wireframe
-   plots itself across it, then a pen sweeps over and leaves the finished design behind it. .bp-go starts it once
-   the fonts are in, so the outlines don't jump. */
-@property --wipe {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-
-/* the name and buttons skip their own entrances: the finished design is already there, under the paper */
-.hero[data-intro] .hero-name .char,
-.hero[data-intro] .hero-fade {
-  animation: none;
-}
-
-/* ...and the badge waits for the pen to go by, then arrives for real */
-.hero[data-intro='playing'] .badge {
-  visibility: hidden;
-  animation: none;
-}
-
-.hero[data-intro='done'] .badge {
-  animation-delay: 0s, 1.3s;
-}
-
-/* ...except the handwritten note, which writes itself once the pen has gone by */
-.hero[data-intro='playing'] > .hero-text .hero-note.write {
-  clip-path: inset(-40% 100% -40% -5%);
-  transition: none;
-}
-
-.hero[data-intro='playing'] > .hero-text .hero-note .draw path {
-  stroke-dashoffset: 1;
-  transition: none;
-}
-
-.hero[data-intro='done'] > .hero-text .hero-note {
-  --d: 50ms !important;
-}
-
-.hero[data-intro='playing'] {
-  animation: bp-wipe 1.05s cubic-bezier(0.55, 0, 0.35, 1) 0.8s both paused;
-}
-
-.hero[data-intro='playing'].bp-touch {
-  animation-name: bp-wipe-touch;
-}
-
-@keyframes bp-wipe {
-  from {
-    --wipe: -50vw;
-  }
-  to {
-    --wipe: 100vw;
-  }
-}
-
-/* on touch screens the sweep stops where the draggable line sits */
-@keyframes bp-wipe-touch {
-  from {
-    --wipe: -50vw;
-  }
-  to {
-    --wipe: var(--split, 72vw);
-  }
-}
-
-.hero[data-intro='playing'] .blueprint {
-  -webkit-mask-image: none;
-  mask-image: none;
-  clip-path: inset(0 0 0 calc(var(--wipe) + var(--bleed-x)));
-}
-
-.hero[data-intro='playing'] :is(.bp-copy-wrap, .bp-marks) {
-  animation: bp-plot 0.7s cubic-bezier(0.4, 0, 0.5, 1) both paused;
-}
-
-@keyframes bp-plot {
-  from {
-    clip-path: inset(-60px 100% -60px -60px);
-  }
-  to {
-    clip-path: inset(-60px -100vw -60px -60px);
-  }
-}
-
-.hero[data-intro='playing'] :is(.bp-ring, .bp-handle, .bp-toggle) {
-  display: none;
-}
-
-.bp-sweep {
-  display: none;
-}
-
-.hero[data-intro='playing'] .bp-sweep {
-  position: absolute;
-  z-index: 8;
-  top: -140px;
-  bottom: 0;
-  left: var(--wipe);
-  display: block;
-  width: 4px;
-  translate: -50% 0;
-  background: var(--butter);
-  box-shadow: 0 0 0 1.5px var(--ink);
-  pointer-events: none;
-}
-
-/* the pen, zigzagging up and down the line as if it's colouring everything in */
-.bp-sweep svg {
-  position: absolute;
-  bottom: 22%;
-  left: 0;
-  width: clamp(72px, 9vw, 130px);
-  filter: drop-shadow(5px 6px 0 rgb(0 10 26 / 0.35));
-}
-
-.hero[data-intro='playing'] .bp-sweep svg {
-  animation: bp-pen 0.26s ease-in-out infinite alternate paused;
-}
-
-@keyframes bp-pen {
-  from {
-    translate: 0 16vh;
-  }
-  to {
-    translate: 0 -16vh;
-  }
-}
-
-/* last, so it overrides the paused state above */
-.hero[data-intro='playing'].bp-go,
-.bp-go[data-intro='playing'] .bp-copy-wrap,
-.bp-go[data-intro='playing'] .bp-marks,
-.bp-go[data-intro='playing'] .bp-sweep svg {
-  animation-play-state: running;
-}
-
 /* ---------- Every button, lit from above ----------
    Each one only sets --lit, its own colour; the light is the same for all of them. A gentle gradient from top to
    bottom, then four shadows: the top light (the highlight on the edge the light hits), the bottom shade (the edge
@@ -11271,9 +10902,7 @@ a:hover .nav-arrow.inline.out {
 .project-link,
 .carousel-nav,
 .lightbox-bar button,
-.lightbox-close,
-.bp-toggle,
-.bp-touch.bp-on .bp-handle span {
+.lightbox-close {
   --lit-top: color-mix(in srgb, var(--lit), #fff 16%);
   --lit-bottom: color-mix(in srgb, var(--lit), #000 9%);
   --lit-light: color-mix(in srgb, var(--lit), #fff 70%);
@@ -11305,9 +10934,7 @@ a:hover .nav-arrow.inline.out {
 .project-link:active,
 .carousel-nav:active,
 .lightbox-bar button:active,
-.lightbox-close:active,
-.bp-toggle:active,
-.bp-touch.bp-on .bp-handle:active span {
+.lightbox-close:active {
   background: linear-gradient(0deg, var(--lit-top), var(--lit-bottom));
   box-shadow:
     inset 0 2px 0 var(--lit-shade),

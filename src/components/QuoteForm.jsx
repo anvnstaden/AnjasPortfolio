@@ -134,7 +134,7 @@ export default function QuoteForm({ number }) {
         </div>
         <p className="quote-fallback">
           {t.noEmail} <button type="button" onClick={copy}>{copied ? t.copied : t.copy}</button> {t.sendTo} {contact.email}{' '}
-          {t.orUse} <Link to="/#contact">{t.contactSection}</Link>.
+          {t.orUse} <Link to="/#contact" data-trip="contact">{t.contactSection}</Link>.
         </p>
       </div>
     </article>

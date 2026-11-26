@@ -290,11 +290,12 @@ function Glance({ project }) {
   )
 }
 
-// The final mark and its German grade, as one small line under the tech stack
+// The final mark and (in German, or when the site is pointed at Germany) its German grade, as one small line under
+// the tech stack
 function Grade({ mark }) {
-  const { t: { projects: t }, content } = useLang()
+  const { t: { projects: t }, content, germanGrades } = useLang()
   if (!mark) return null
-  const grade = germanGrade(mark)
+  const grade = germanGrades && germanGrade(mark)
   return (
     <p className="project-grade">
       {t.mark} <strong>{mark === 'TBA' ? t.tba : content.mark(mark)}</strong>
@@ -483,7 +484,7 @@ function useInOutView(selector, key) {
 }
 
 export default function Projects({ page = 'university' }) {
-  const { lang, t: { projects: t }, content } = useLang()
+  const { lang, t: { projects: t }, content, germanGrades } = useLang()
   const list = page === 'personal' ? content.personalProjects : content.projects
   const { word, intro } = t[page]
   const [zoomed, setZoomed] = useState(null)
@@ -570,7 +571,7 @@ export default function Projects({ page = 'university' }) {
             <Sparkle className="freelance-spark c" />
           </aside>
         )}
-        {page === 'university' && (
+        {page === 'university' && germanGrades && (
           <p className="grade-note reveal">
             {t.gradeNote}
           </p>
@@ -624,7 +625,7 @@ export default function Projects({ page = 'university' }) {
               {t.ctaTitle[0]}<mark className="hl">{t.ctaTitle[1]}</mark>{t.ctaTitle[2]}
             </h2>
             <div className="cta-action">
-              <Link to="/#contact" className="button primary big tap">{t.getInTouch}</Link>
+              <Link to="/#contact" data-trip="contact" className="button primary big tap">{t.getInTouch}</Link>
               <PointingHand className="finger" />
             </div>
           </div>

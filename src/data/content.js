@@ -537,7 +537,10 @@ export const accessLevels = [
 ]
 
 // "My Journey" timeline under About Me, oldest first. `scene` picks the illustrated postcard
-// (see components/JourneyScenes.jsx), `stats` are the chips under the text.
+// (see components/JourneyScenes.jsx), `stats` are the chips under the text. Chips marked `german` are German
+// grades, which only show in German or when the site is pointed at Germany, along with the `footnote` explaining
+// them. The last stop is wherever the site is pointed (see destinations.js), so its wording is written for any
+// place `d`; the German version of it is in content.de.js.
 export const journey = [
   {
     scene: 'mossel-bay',
@@ -547,7 +550,7 @@ export const journey = [
     text: 'I grew up in Mossel Bay, a small town on the Garden Route right by the sea. I finished matric at Point High School in 2021 with an 88% average.',
     stats: [
       { value: '88%', label: 'matric average' },
-      { value: '≈ 1,6', label: 'German grade', lang: 'de' },
+      { value: '≈ 1,7', label: 'German grade', lang: 'de', german: true },
     ],
     footnote: 'German grade worked out with the modified Bavarian formula used by German universities.',
   },
@@ -559,7 +562,7 @@ export const journey = [
     text: "I moved to Stellenbosch to attend university, where I'm studying Computer Science & Operations Research. Along the way I discovered how much I love UI/UX and frontend development.",
     stats: [
       { value: '77.5%', label: 'current average' },
-      { value: '≈ 2,3', label: 'German grade', lang: 'de' },
+      { value: '≈ 2,3', label: 'German grade', lang: 'de', german: true },
     ],
     footnote: 'German grade worked out with the modified Bavarian formula used by German universities.',
     link: { to: '/projects', label: 'See what I built there' },
@@ -567,9 +570,11 @@ export const journey = [
   {
     scene: 'europe',
     when: '2027',
-    place: 'Germany',
-    title: 'Next stop: Germany',
-    note: 'bis bald!',
-    text: "Next up is Germany! I have Dutch citizenship, so I can work in the EU without a visa, and I'm learning German so I'm ready to start working there in 2027.",
+    place: (d) => d.place,
+    title: (d) => `Next stop: ${d.to}`,
+    note: (d) => `${d.hello}!`,
+    text: (d) => `Next up is ${d.to}! I have Dutch citizenship, so I can work anywhere in the EU without a visa or sponsorship. ${d.plan}`,
+    flag: (d) => d.flag,
+    greeting: (d) => d.postcard,
   },
 ]

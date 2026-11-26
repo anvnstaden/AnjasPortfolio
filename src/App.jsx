@@ -14,13 +14,36 @@ function scrollToPlace(hash, behavior) {
   else window.scrollTo({ top: 0, behavior })
 }
 
+// How long, at most, a section just arrived at on a new page is held in place while the page settles
+const SETTLE = 2000
+
 // Scrolls to the top on page change, or to #section when the link has one. Returns a function that makes the next one
 // go straight there instead of scrolling, for under a nav link's trip (see useNavTrip).
+// Arriving at a section of another page (e.g. /#contact from the projects page), the home page's scroll scenes are
+// still sizing themselves, which pushes everything below them down, so the section is held at the top of the screen
+// as the page grows, until it settles, the visitor scrolls themselves, or SETTLE runs out.
 function useScrollOnNavigate(location) {
   const straight = useRef(false)
+  const page = useRef(location.pathname)
   useEffect(() => {
-    scrollToPlace(location.hash, straight.current ? 'instant' : 'auto')
+    const newPage = page.current !== location.pathname
+    page.current = location.pathname
+    scrollToPlace(location.hash, straight.current || newPage ? 'instant' : 'auto')
     straight.current = false
+
+    const target = newPage && location.hash && document.getElementById(location.hash.slice(1))
+    if (!target) return
+    const hold = new ResizeObserver(() => target.scrollIntoView({ behavior: 'instant' }))
+    hold.observe(document.body)
+    const inputs = ['wheel', 'touchstart', 'keydown', 'pointerdown']
+    const stop = () => {
+      hold.disconnect()
+      clearTimeout(timer)
+      inputs.forEach((type) => window.removeEventListener(type, stop))
+    }
+    const timer = setTimeout(stop, SETTLE)
+    inputs.forEach((type) => window.addEventListener(type, stop, { passive: true }))
+    return stop
   }, [location.pathname, location.hash])
   return () => {
     straight.current = true

@@ -2,16 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Title from './Title.jsx'
 import { NavArrow } from './Doodles.jsx'
-import { FlagDE, FlagZA } from './Flags.jsx'
+import { Flag } from './Flags.jsx'
 import { Europe, MosselBay, Stellenbosch } from './JourneyScenes.jsx'
 import { useLang } from '../i18n.js'
 
 // Postcard art and stamp for each `scene` in content.js. Each card is greeted in the language of where it's sent
 // from; the first one has no fixed language, so it follows the site's.
 const scenes = {
-  'mossel-bay': { Art: MosselBay, Flag: FlagZA },
-  stellenbosch: { Art: Stellenbosch, Flag: FlagZA, greeting: 'Groete uit Stellenbosch!' },
-  europe: { Art: Europe, Flag: FlagDE, greeting: 'Grüße aus Deutschland!' },
+  'mossel-bay': { Art: MosselBay, flag: 'za' },
+  stellenbosch: { Art: Stellenbosch, flag: 'za', greeting: 'Groete uit Stellenbosch!' },
+  // its stamp and greeting are the ones for where the site is pointed (see content.js)
+  europe: { Art: Europe },
 }
 
 // The sideways timeline only runs on wide screens; phones get a simple vertical list.
@@ -96,7 +97,7 @@ function Pin() {
 }
 
 export default function Journey() {
-  const { lang, t, content } = useLang()
+  const { lang, t, content, dest } = useLang()
   const wide = useWide()
   const scroller = useRef(null)
   const track = useRef(null)
@@ -115,9 +116,9 @@ export default function Journey() {
               <Title text={t.journey.title} />
               <p className="journey-intro">
                 {lang === 'de' ? (
-                  <>Von einer Küstenstadt an der Garden Route nach Stellenbosch und als Nächstes nach <mark className="hl">Deutschland</mark>.</>
+                  <>Von einer Küstenstadt an der Garden Route nach Stellenbosch und als Nächstes <mark className="hl">{dest.to}</mark>.</>
                 ) : (
-                  <>From a seaside town on the Garden Route to Stellenbosch, and next, <mark className="hl">Germany</mark>.</>
+                  <>From a seaside town on the Garden Route to Stellenbosch, and next, <mark className="hl">{dest.to}</mark>.</>
                 )}
               </p>
               {wide && (
@@ -132,7 +133,7 @@ export default function Journey() {
               <span className="journey-traveller" aria-hidden="true"><Pin /></span>
               <ol className="journey-stops">
                 {content.journey.map((stop, i) => {
-                  const { Art, Flag, greeting } = scenes[stop.scene]
+                  const { Art, flag, greeting } = { ...scenes[stop.scene], ...stop }
                   const town = stop.place.split(',')[0]
                   return (
                     <li key={stop.scene} className={`stop${i % 2 ? ' flip' : ''}`}>
@@ -142,7 +143,7 @@ export default function Journey() {
                         <div className="postcard-art">
                           <Art />
                         </div>
-                        <span className="postcard-stamp" aria-hidden="true"><Flag /></span>
+                        <span className="postcard-stamp" aria-hidden="true"><Flag code={flag} /></span>
                         <span className="postcard-postmark" aria-hidden="true">
                           <span>{town}</span>
                           <span>{stop.when}</span>
